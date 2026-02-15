@@ -14,12 +14,10 @@ build/
 venv/
 .venv/
 
-# Data (may contain PII / lead data)
+# Data (contains PII / lead data)
 data/raw/
 data/enriched/
-data/clay_ready/
-data/competitor_intel/
-data/storm_leads/
+data/final/
 
 # Logs
 logs/

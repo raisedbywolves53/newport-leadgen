@@ -1,84 +1,229 @@
 {
-  "icps": [
-    {
-      "icp_type": "independent_grocery_stores",
-      "display_name": "Independent Grocery Stores",
+  "segments": {
+    "segment_a_buyers": {
+      "display_name": "Segment A — Enterprise Grocery / Retail Chains (Buyers)",
       "pipeline": "direct_to_customer",
-      "why": "Small and mid-size independent grocery stores buy from distributors rather than direct from manufacturers. High volume of potential accounts in every metro market.",
-      "outreach_channels": ["email", "ai_call"],
+      "description": "Enterprise-level grocery retailers and wholesale buyers with centralized procurement",
+      "outreach_channels": ["email"],
       "priority": 1,
-      "email_campaign": "independent_grocery",
-      "value_prop": "Competitive bulk pricing, reliable weekly delivery, national brand selection, flexible order minimums, dedicated account rep"
+
+      "qualification_thresholds": {
+        "note": "Target companies meeting at least ONE of the following",
+        "min_employees": 200,
+        "min_revenue_usd": 50000000,
+        "min_retail_locations": 20,
+        "multi_state_or_multi_country": true,
+        "centralized_procurement": true
+      },
+
+      "company_types_include": [
+        "Regional supermarket chains",
+        "National grocery chains",
+        "Large discount grocery chains",
+        "Cash & carry chains",
+        "Large food & beverage wholesalers supplying retail",
+        "Large importers supplying retail chains"
+      ],
+
+      "company_types_exclude": [
+        "Single-location grocery stores",
+        "Independent markets",
+        "Restaurants",
+        "Foodservice-only operators",
+        "Companies under 200 employees",
+        "Revenue under $20M"
+      ],
+
+      "target_departments": [
+        "Purchasing",
+        "Procurement",
+        "Merchandising",
+        "Supply Chain",
+        "Strategy",
+        "Commercial"
+      ],
+
+      "title_include_keywords": [
+        "procurement",
+        "purchasing",
+        "merchandising",
+        "category",
+        "sourcing",
+        "commercial",
+        "trading",
+        "center store",
+        "private label",
+        "own brand",
+        "supply chain"
+      ],
+
+      "title_exclude_keywords": [
+        "assistant",
+        "junior",
+        "coordinator",
+        "analyst",
+        "intern",
+        "HR",
+        "recruiter",
+        "engineer",
+        "marketing",
+        "finance",
+        "accounting"
+      ],
+
+      "target_seniorities": ["director", "vp", "c_suite", "head", "partner"],
+
+      "apollo_organization_keyword_tags": [
+        "supermarket chain",
+        "grocery chain",
+        "retail group",
+        "regional chain",
+        "multi-location",
+        "distribution network",
+        "cash and carry",
+        "corporate office",
+        "headquarters",
+        "food",
+        "grocery",
+        "supermarket",
+        "food retail"
+      ],
+
+      "apollo_employee_ranges": ["201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
+
+      "apollo_revenue_ranges": ["50000000,100000000", "100000000,500000000", "500000000,1000000000", "1000000000,"]
     },
-    {
-      "icp_type": "convenience_stores",
-      "display_name": "Convenience Stores",
-      "pipeline": "direct_to_customer",
-      "why": "Corner stores, bodegas, and c-stores need reliable wholesale supply for snacks, candy, dry goods, and beverages. Massive addressable market.",
-      "outreach_channels": ["email", "ai_call"],
+
+    "segment_b_suppliers": {
+      "display_name": "Segment B — Enterprise Manufacturers / Distributors (Suppliers)",
+      "pipeline": "partner",
+      "description": "Enterprise-level CPG food manufacturers, snack/confectionery producers, and large distributors",
+      "outreach_channels": ["email"],
       "priority": 1,
-      "email_campaign": "convenience_store",
-      "value_prop": "Top-selling national brands, candy and snack variety packs, fast restock, no minimum headaches, weekly delivery routes"
-    },
-    {
-      "icp_type": "supermarkets",
-      "display_name": "Supermarkets & Grocery Chains",
-      "pipeline": "direct_to_customer",
-      "why": "Regional supermarket chains and larger grocery retailers need volume supply of national brands at competitive wholesale pricing.",
-      "outreach_channels": ["email", "ai_call"],
-      "priority": 1,
-      "email_campaign": "supermarket",
-      "value_prop": "Volume bulk discounts, full catalog of national brands, dedicated account manager, reliable logistics, category management support"
-    },
-    {
-      "icp_type": "dollar_stores",
-      "display_name": "Dollar & Discount Stores",
-      "pipeline": "direct_to_customer",
-      "why": "Dollar stores and discount retailers carry grocery and confectionery items and need the lowest wholesale cost to protect thin margins.",
-      "outreach_channels": ["email"],
-      "priority": 2,
-      "email_campaign": "dollar_discount",
-      "value_prop": "Lowest wholesale cost on confectionery and dry goods, case-break options, consistent supply, margin-friendly pricing"
-    },
-    {
-      "icp_type": "gas_station_marts",
-      "display_name": "Gas Station Convenience Shops",
-      "pipeline": "direct_to_customer",
-      "why": "Gas station mini-marts stock snacks, candy, and dry goods. High turnover on impulse items means frequent reorder cycles.",
-      "outreach_channels": ["email"],
-      "priority": 2,
-      "email_campaign": "gas_station",
-      "value_prop": "Snacks, candy, and impulse buy inventory, fast turnaround on reorders, compact case sizes for limited shelf space"
-    },
-    {
-      "icp_type": "specialty_food_stores",
-      "display_name": "Specialty & Ethnic Food Stores",
-      "pipeline": "direct_to_customer",
-      "why": "International grocery stores and specialty food markets can complement their specialty inventory with recognizable national brands customers expect.",
-      "outreach_channels": ["email"],
-      "priority": 2,
-      "email_campaign": "specialty_food",
-      "value_prop": "Complement specialty items with national brands, broad dry goods and confectionery catalog, reliable supply chain"
-    },
-    {
-      "icp_type": "food_service_distributors",
-      "display_name": "Food Service Distributors",
-      "pipeline": "referral_partner",
-      "why": "Potential B2B partnerships with other distributors for cross-selling. They may not carry the same national brand dry goods and confectionery lines.",
-      "outreach_channels": ["email"],
-      "priority": 3,
-      "email_campaign": "partner_distributor",
-      "value_prop": "Cross-selling partnership, fill gaps in their catalog with national brand dry goods and confectionery, wholesale-to-wholesale pricing"
-    },
-    {
-      "icp_type": "restaurant_supply",
-      "display_name": "Restaurant Supply Companies",
-      "pipeline": "referral_partner",
-      "why": "Restaurant supply companies serve overlapping customer bases and might add grocery wholesale lines or refer retail clients.",
-      "outreach_channels": ["email"],
-      "priority": 3,
-      "email_campaign": "restaurant_supply",
-      "value_prop": "Partnership opportunity, extend your offering with grocery wholesale lines, shared customer referrals"
+
+      "qualification_thresholds": {
+        "note": "Target companies meeting at least ONE of the following",
+        "min_employees": 100,
+        "min_revenue_usd": 25000000,
+        "national_or_multi_country_distribution": true,
+        "recognized_cpg_brand": true,
+        "dedicated_wholesale_channel": true
+      },
+
+      "company_types_include": [
+        "Packaged food manufacturers",
+        "Snack manufacturers",
+        "Confectionery manufacturers",
+        "Grocery CPG brand owners",
+        "Large wholesale food distributors",
+        "Large food import/export trading companies",
+        "Overstock / surplus food distributors with scale"
+      ],
+
+      "company_types_exclude": [
+        "Small private label startups",
+        "Micro food brands",
+        "Local producers",
+        "Farms",
+        "Beverage-only companies",
+        "Restaurants",
+        "Equipment suppliers",
+        "Companies under $10M revenue"
+      ],
+
+      "target_departments": [
+        "Sales",
+        "Commercial",
+        "Wholesale",
+        "Channel Sales",
+        "Export Sales",
+        "Business Development"
+      ],
+
+      "title_include_keywords": [
+        "sales",
+        "commercial",
+        "channel sales",
+        "wholesale",
+        "export",
+        "national account",
+        "key account",
+        "trade sales",
+        "revenue"
+      ],
+
+      "title_exclude_keywords": [
+        "assistant",
+        "junior",
+        "coordinator",
+        "SDR",
+        "BDR",
+        "HR",
+        "recruiter",
+        "engineer",
+        "marketing",
+        "finance",
+        "intern"
+      ],
+
+      "target_seniorities": ["director", "vp", "c_suite", "head"],
+
+      "apollo_organization_keyword_tags": [
+        "manufacturer",
+        "food manufacturer",
+        "snack manufacturer",
+        "confectionery",
+        "CPG brand",
+        "grocery brand",
+        "wholesale distributor",
+        "distribution network",
+        "export",
+        "import",
+        "food",
+        "food production",
+        "consumer packaged goods"
+      ],
+
+      "apollo_employee_ranges": ["101,200", "201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
+
+      "apollo_revenue_ranges": ["25000000,50000000", "50000000,100000000", "100000000,500000000", "500000000,1000000000", "1000000000,"]
     }
-  ]
+  },
+
+  "geography": {
+    "included_regions": {
+      "united_states": {
+        "label": "United States",
+        "apollo_locations": ["United States"]
+      },
+      "united_kingdom": {
+        "label": "United Kingdom",
+        "apollo_locations": ["United Kingdom"]
+      },
+      "eu_eea_switzerland": {
+        "label": "EU / EEA / Switzerland / Norway / Hungary",
+        "apollo_locations": [
+          "Germany", "France", "Netherlands", "Belgium", "Italy",
+          "Spain", "Portugal", "Austria", "Ireland", "Denmark",
+          "Sweden", "Finland", "Poland", "Czech Republic", "Romania",
+          "Hungary", "Greece", "Bulgaria", "Croatia", "Slovakia",
+          "Slovenia", "Lithuania", "Latvia", "Estonia", "Luxembourg",
+          "Malta", "Cyprus",
+          "Norway", "Iceland", "Liechtenstein",
+          "Switzerland"
+        ]
+      }
+    },
+    "excluded_countries": ["Russia", "Belarus"]
+  },
+
+  "scraper_logic": {
+    "dedup_keys": ["company_domain", "linkedin_url", "email"],
+    "discard_if": [
+      "Company does not meet enterprise size threshold",
+      "Title matches exclusion keywords",
+      "Title does not match any inclusion keywords",
+      "Company outside approved geography"
+    ]
+  }
 }

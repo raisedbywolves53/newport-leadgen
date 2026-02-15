@@ -1,0 +1,38 @@
+{
+  "excluded_companies": {
+    "segment_a_buyers": {
+      "companies": [
+        "Sysco",
+        "Amazon",
+        "Walgreens"
+      ],
+      "reasons": {
+        "Sysco": "Foodservice-only operator, excluded per ICP",
+        "Amazon": "Vertically integrated, non-grocery titles",
+        "Walgreens": "Pharmacy chain, not grocery retailer"
+      }
+    },
+    "segment_b_suppliers": {
+      "companies": [
+        "Southern Glazer's Wine & Spirits",
+        "The HEINEKEN Company",
+        "AB InBev",
+        "Nestlé Purina North America"
+      ],
+      "reasons": {
+        "Southern Glazer's Wine & Spirits": "Alcohol distributor, not grocery",
+        "The HEINEKEN Company": "Alcohol manufacturer",
+        "AB InBev": "Alcohol manufacturer",
+        "Nestlé Purina North America": "Pet food, not human food/confectionery"
+      }
+    }
+  },
+  "excluded_title_patterns": [
+    "Directeur de Magasin",
+    "Directeur Magasin",
+    "Manager de Magasin",
+    "Store Manager",
+    "Store Director"
+  ],
+  "exclusion_reason": "Individual store managers, not corporate procurement"
+}

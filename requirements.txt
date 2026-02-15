@@ -1,4 +1,3 @@
-homeharvest
 pandas
 requests
 python-dotenv

@@ -27,16 +27,33 @@ log = logging.getLogger(__name__)
 
 BASE_URL = "https://api.apollo.io/api/v1"
 
-# Decision-maker titles by ICP type
+# Decision-maker titles by segment
 DECISION_MAKER_TITLES = {
-    "real_estate_agents": ["Owner", "Broker", "Managing Broker", "Team Lead", "Realtor"],
-    "property_managers": ["Owner", "Operations Manager", "Maintenance Director", "Property Manager"],
-    "home_inspectors": ["Owner", "Chief Inspector", "Lead Inspector"],
-    "insurance_agents": ["Agent", "Owner", "Agency Owner", "Principal"],
-    "home_builders": ["Owner", "President", "VP Operations", "General Manager"],
-    "adjacent_trades": ["Owner", "General Manager", "Operations Manager"],
-    "commercial_properties": ["Facility Manager", "Property Manager", "Owner", "Operations Manager"],
+    "segment_a_buyers": [
+        "Director of Procurement", "Director of Purchasing", "VP Procurement",
+        "VP Merchandising", "Head of Procurement", "Category Director",
+        "Senior Category Manager", "Chief Procurement Officer",
+        "SVP Procurement", "VP Supply Chain",
+    ],
+    "segment_b_suppliers": [
+        "VP Sales", "Director of Sales", "Sales Director",
+        "Head of Sales", "National Sales Manager",
+        "Channel Sales Director", "Wholesale Sales Director",
+        "Export Sales Director", "Commercial Director",
+    ],
 }
+
+# Seniority levels for Apollo filtering
+TARGET_SENIORITIES = ["director", "vp", "c_suite"]
+
+# Titles to explicitly exclude from results
+EXCLUDE_TITLE_KEYWORDS = [
+    "assistant", "junior", "intern", "sdr", "bdr",
+    "sales development rep", "business development rep",
+    "hr ", "human resource", "marketing", "finance",
+    "accounting", "it ", "information technology",
+    "quality assurance", "r&d", "research and development",
+]
 
 
 def domain_from_url(url) -> str:
@@ -122,6 +139,54 @@ class ApolloClient:
             return []
 
         return data.get("people", [])
+
+    # --- Enterprise People Search (FREE — 0 credits) ---
+
+    def search_people_enterprise(
+        self,
+        person_titles: list[str] | None = None,
+        person_seniorities: list[str] | None = None,
+        organization_locations: list[str] | None = None,
+        organization_num_employees_ranges: list[str] | None = None,
+        organization_revenue_ranges: list[str] | None = None,
+        q_keywords: str = "",
+        q_organization_keyword_tags: list[str] | None = None,
+        per_page: int = 25,
+        page: int = 1,
+    ) -> tuple[list[dict], int]:
+        """Search for people matching enterprise criteria. FREE — no credits consumed.
+
+        Uses Apollo's full filtering: industry, company size, revenue, seniority, location.
+        Returns (list_of_people, total_count).
+        """
+        body: dict = {"per_page": per_page, "page": page}
+
+        if person_titles:
+            body["person_titles"] = person_titles
+        if person_seniorities:
+            body["person_seniorities"] = person_seniorities
+        if organization_locations:
+            body["organization_locations"] = organization_locations
+        if organization_num_employees_ranges:
+            body["organization_num_employees_ranges"] = organization_num_employees_ranges
+        if organization_revenue_ranges:
+            body["organization_revenue_ranges"] = organization_revenue_ranges
+        if q_keywords:
+            body["q_keywords"] = q_keywords
+        if q_organization_keyword_tags:
+            body["q_organization_keyword_tags"] = q_organization_keyword_tags
+
+        try:
+            data = self._request("POST", "mixed_people/api_search", json=body)
+        except requests.HTTPError as e:
+            log.warning(f"Enterprise people search failed: {e}")
+            return [], 0
+
+        people = data.get("people", [])
+        pagination = data.get("pagination", {})
+        total = pagination.get("total_entries", len(people))
+
+        return people, total
 
     # --- People Enrichment (1 email credit per reveal) ---
 
