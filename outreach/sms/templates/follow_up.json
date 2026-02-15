@@ -1,0 +1,5 @@
+{
+  "template_name": "follow_up",
+  "icp_type": "all",
+  "message": "Hi {first_name}, Tal from Goldman's Garage Door. Sent you an email about {topic} - wanted to make sure it didn't get lost. Would love to chat. Reply or call {phone}. Reply STOP to opt out"
+}

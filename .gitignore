@@ -1,0 +1,39 @@
+# Environment & credentials
+.env
+credentials.json
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# Data (may contain PII / lead data)
+data/raw/
+data/enriched/
+data/clay_ready/
+data/competitor_intel/
+data/storm_leads/
+
+# Logs
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code
+.claude/

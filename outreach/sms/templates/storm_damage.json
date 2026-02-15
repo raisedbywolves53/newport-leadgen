@@ -1,0 +1,5 @@
+{
+  "template_name": "storm_damage",
+  "icp_type": "storm_damage",
+  "message": "Hi {first_name}, after the recent storm in {city}, we're offering free garage door damage assessments. Most repairs covered by insurance. We work with adjusters. Reply HELP or call {phone} - Tal, Goldman's Garage Door. Reply STOP to opt out"
+}

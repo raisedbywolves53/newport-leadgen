@@ -1,0 +1,11 @@
+homeharvest
+pandas
+requests
+python-dotenv
+twilio
+retell-sdk
+gspread>=5.12.0
+google-auth>=2.23.0
+oauth2client
+flask
+schedule

@@ -1,0 +1,84 @@
+{
+  "icps": [
+    {
+      "icp_type": "independent_grocery_stores",
+      "display_name": "Independent Grocery Stores",
+      "pipeline": "direct_to_customer",
+      "why": "Small and mid-size independent grocery stores buy from distributors rather than direct from manufacturers. High volume of potential accounts in every metro market.",
+      "outreach_channels": ["email", "ai_call"],
+      "priority": 1,
+      "email_campaign": "independent_grocery",
+      "value_prop": "Competitive bulk pricing, reliable weekly delivery, national brand selection, flexible order minimums, dedicated account rep"
+    },
+    {
+      "icp_type": "convenience_stores",
+      "display_name": "Convenience Stores",
+      "pipeline": "direct_to_customer",
+      "why": "Corner stores, bodegas, and c-stores need reliable wholesale supply for snacks, candy, dry goods, and beverages. Massive addressable market.",
+      "outreach_channels": ["email", "ai_call"],
+      "priority": 1,
+      "email_campaign": "convenience_store",
+      "value_prop": "Top-selling national brands, candy and snack variety packs, fast restock, no minimum headaches, weekly delivery routes"
+    },
+    {
+      "icp_type": "supermarkets",
+      "display_name": "Supermarkets & Grocery Chains",
+      "pipeline": "direct_to_customer",
+      "why": "Regional supermarket chains and larger grocery retailers need volume supply of national brands at competitive wholesale pricing.",
+      "outreach_channels": ["email", "ai_call"],
+      "priority": 1,
+      "email_campaign": "supermarket",
+      "value_prop": "Volume bulk discounts, full catalog of national brands, dedicated account manager, reliable logistics, category management support"
+    },
+    {
+      "icp_type": "dollar_stores",
+      "display_name": "Dollar & Discount Stores",
+      "pipeline": "direct_to_customer",
+      "why": "Dollar stores and discount retailers carry grocery and confectionery items and need the lowest wholesale cost to protect thin margins.",
+      "outreach_channels": ["email"],
+      "priority": 2,
+      "email_campaign": "dollar_discount",
+      "value_prop": "Lowest wholesale cost on confectionery and dry goods, case-break options, consistent supply, margin-friendly pricing"
+    },
+    {
+      "icp_type": "gas_station_marts",
+      "display_name": "Gas Station Convenience Shops",
+      "pipeline": "direct_to_customer",
+      "why": "Gas station mini-marts stock snacks, candy, and dry goods. High turnover on impulse items means frequent reorder cycles.",
+      "outreach_channels": ["email"],
+      "priority": 2,
+      "email_campaign": "gas_station",
+      "value_prop": "Snacks, candy, and impulse buy inventory, fast turnaround on reorders, compact case sizes for limited shelf space"
+    },
+    {
+      "icp_type": "specialty_food_stores",
+      "display_name": "Specialty & Ethnic Food Stores",
+      "pipeline": "direct_to_customer",
+      "why": "International grocery stores and specialty food markets can complement their specialty inventory with recognizable national brands customers expect.",
+      "outreach_channels": ["email"],
+      "priority": 2,
+      "email_campaign": "specialty_food",
+      "value_prop": "Complement specialty items with national brands, broad dry goods and confectionery catalog, reliable supply chain"
+    },
+    {
+      "icp_type": "food_service_distributors",
+      "display_name": "Food Service Distributors",
+      "pipeline": "referral_partner",
+      "why": "Potential B2B partnerships with other distributors for cross-selling. They may not carry the same national brand dry goods and confectionery lines.",
+      "outreach_channels": ["email"],
+      "priority": 3,
+      "email_campaign": "partner_distributor",
+      "value_prop": "Cross-selling partnership, fill gaps in their catalog with national brand dry goods and confectionery, wholesale-to-wholesale pricing"
+    },
+    {
+      "icp_type": "restaurant_supply",
+      "display_name": "Restaurant Supply Companies",
+      "pipeline": "referral_partner",
+      "why": "Restaurant supply companies serve overlapping customer bases and might add grocery wholesale lines or refer retail clients.",
+      "outreach_channels": ["email"],
+      "priority": 3,
+      "email_campaign": "restaurant_supply",
+      "value_prop": "Partnership opportunity, extend your offering with grocery wholesale lines, shared customer referrals"
+    }
+  ]
+}

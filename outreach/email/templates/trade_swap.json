@@ -1,0 +1,26 @@
+{
+  "campaign_name": "Goldman's - Trade Swap",
+  "icp_type": "adjacent_trades",
+  "steps": [
+    {
+      "step_number": 1,
+      "send_day": 0,
+      "subject": "Trade referrals? We send you work, you send us work.",
+      "body": "Hi {first_name},\n\nI'm Tal with Goldman's Garage Door Repair in {city}. I came across {company_name} and thought this might be a good fit.\n\nWe get calls all the time from homeowners who also need {trade_type} work. Right now we don't have a go-to person to send them to, so those referrals go nowhere.\n\nHere's what I'm thinking — simple two-way referral setup:\n\n- When our customers need a {trade_type}, we send them your way\n- When your customers mention a garage door issue, you send them ours\n- No contracts, no fees, just real job volume for both of us\n\nInterested? Happy to grab a quick call or just keep it to text/email.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    },
+    {
+      "step_number": 2,
+      "send_day": 5,
+      "subject": "Re: Trade referrals between {company_name} and Goldman's",
+      "body": "Hey {first_name},\n\nJust circling back on the referral idea. We're doing 15-20 jobs a week in {city} and {nearby_city}, and homeowners regularly ask if we know a good {trade_type}.\n\nRight now we just say \"check Google\" — which isn't great for anyone. I'd rather send them to someone I trust, and it sounds like {company_name} does solid work based on your reviews.\n\nNo commitment needed. If you get a customer who mentions their garage door, just text me their info. I'll do the same when {trade_type} comes up.\n\nWorth a shot?\n\nTal\n{phone}"
+    },
+    {
+      "step_number": 3,
+      "send_day": 12,
+      "subject": "Open invite, {first_name}",
+      "body": "Hey {first_name},\n\nLast note from me on this — I won't keep bugging you. The referral offer stands whenever it makes sense.\n\nIf you ever want to swap referrals, just shoot me a text. No forms, no contracts. Just two local businesses helping each other out in {city}.\n\nHope business is good.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    }
+  ],
+  "merge_tags": ["first_name", "city", "nearby_city", "company_name", "phone", "trade_type"],
+  "notes": "Send from MI number for MI leads, NC number for NC leads. {trade_type} should be populated with their actual trade (HVAC, electrician, plumber, painter, handyman, locksmith, landscaper)."
+}

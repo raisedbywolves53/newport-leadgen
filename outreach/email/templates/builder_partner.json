@@ -1,0 +1,32 @@
+{
+  "campaign_name": "Goldman's - Builder Partner",
+  "icp_type": "builders_contractors",
+  "steps": [
+    {
+      "step_number": 1,
+      "send_day": 0,
+      "subject": "Garage door installs for your {city} builds",
+      "body": "Hi {first_name},\n\nI'm Tal with Goldman's Garage Door Repair. We do garage door installations for builders in {city} and the surrounding area — Clopay, Amarr, and Wayne Dalton.\n\nI know the last thing you need is a sub holding up your CO. Here's how we keep your projects on schedule:\n\n- We show up on the day we say we will — no excuses\n- Warranty is handled directly through us, not your office\n- Volume pricing when you're running multiple builds\n\nIf you're looking for a reliable garage door installer who won't slow down your timeline, I'd love to chat for a few minutes.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    },
+    {
+      "step_number": 2,
+      "send_day": 4,
+      "subject": "Re: Garage door installs for your {city} builds",
+      "body": "Hey {first_name},\n\nFollowing up on my note about garage door installs. Figured I'd share a bit more about how we work with builders.\n\nWe carry all the major lines — Clopay, Amarr, Wayne Dalton — so your buyers have options at every price point. We handle the warranty calls directly, so your team never gets pulled into a callback six months after closing.\n\nMost of the builders we work with in {county} send us the plans and we spec the doors out, quote it, and schedule install around your timeline. Pretty turnkey.\n\nWorth a five-minute call to see if we're a fit?\n\nTal\n{phone}"
+    },
+    {
+      "step_number": 3,
+      "send_day": 9,
+      "subject": "Volume pricing for your garage door installs",
+      "body": "Hi {first_name},\n\nQuick note — if {company_name} is doing multiple homes this year, we offer volume pricing that drops significantly once you're past three or four installs.\n\nA few builders we work with just keep us as their go-to for every project. Saves them from getting quotes every time, and the pricing is locked in for the year.\n\nHappy to put a number on it if you can give me a rough idea of your build volume. No pressure either way.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    },
+    {
+      "step_number": 4,
+      "send_day": 14,
+      "subject": "Standing offer from Goldman's, {first_name}",
+      "body": "Hey {first_name},\n\nI won't keep filling your inbox — I know you've got builds to run. Just wanted to leave this as an open offer.\n\nWhenever you need a garage door installer who shows up on time and doesn't hold up your CO, give me a call. We stock the major brands, handle warranty direct, and our volume pricing is hard to beat.\n\nSave my number for next time.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    }
+  ],
+  "merge_tags": ["first_name", "city", "company_name", "phone", "county"],
+  "notes": "Send from MI number for MI leads, NC number for NC leads. Especially strong for Triangle NC where new construction is booming."
+}

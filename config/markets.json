@@ -1,0 +1,310 @@
+{
+  "markets": {
+    "new_york_metro": {
+      "name": "New York Metro",
+      "state": "NY",
+      "region": "northeast",
+      "phone_area_code": "212",
+      "major_cities": [
+        "New York",
+        "Brooklyn",
+        "Queens",
+        "Bronx",
+        "Manhattan",
+        "Staten Island",
+        "Jersey City",
+        "Newark",
+        "Yonkers",
+        "White Plains",
+        "New Rochelle",
+        "Hoboken",
+        "Paterson",
+        "Elizabeth",
+        "Stamford"
+      ],
+      "zip_codes": [
+        "10001", "10002", "10003", "10016", "10019",
+        "10023", "10025", "10029", "10031", "10033",
+        "10034", "10040", "10128", "10301", "10304",
+        "10451", "10452", "10456", "10458", "10461",
+        "10467", "10468", "10472", "11201", "11206",
+        "11207", "11208", "11211", "11213", "11216",
+        "11220", "11221", "11226", "11229", "11230",
+        "11233", "11236", "11354", "11355", "11368",
+        "11372", "11373", "11385", "11432", "11434"
+      ]
+    },
+    "los_angeles_metro": {
+      "name": "Los Angeles Metro",
+      "state": "CA",
+      "region": "west",
+      "phone_area_code": "213",
+      "major_cities": [
+        "Los Angeles",
+        "Long Beach",
+        "Glendale",
+        "Santa Ana",
+        "Anaheim",
+        "Pasadena",
+        "Pomona",
+        "Inglewood",
+        "Compton",
+        "Downey",
+        "El Monte",
+        "Torrance",
+        "Burbank",
+        "Alhambra",
+        "Koreatown"
+      ],
+      "zip_codes": [
+        "90001", "90003", "90006", "90011", "90012",
+        "90015", "90019", "90026", "90027", "90028",
+        "90033", "90037", "90042", "90044", "90057",
+        "90063", "90065", "90201", "90220", "90241",
+        "90255", "90280", "90301", "90501", "90601",
+        "90703", "90706", "91101", "91201", "91301",
+        "91331", "91335", "91601", "91706", "92701"
+      ]
+    },
+    "chicago_metro": {
+      "name": "Chicago Metro",
+      "state": "IL",
+      "region": "midwest",
+      "phone_area_code": "312",
+      "major_cities": [
+        "Chicago",
+        "Aurora",
+        "Naperville",
+        "Joliet",
+        "Elgin",
+        "Evanston",
+        "Schaumburg",
+        "Cicero",
+        "Berwyn",
+        "Oak Park",
+        "Skokie",
+        "Des Plaines",
+        "Arlington Heights",
+        "Waukegan",
+        "Hammond"
+      ],
+      "zip_codes": [
+        "60601", "60605", "60608", "60609", "60612",
+        "60614", "60616", "60617", "60618", "60619",
+        "60620", "60621", "60622", "60623", "60625",
+        "60626", "60628", "60629", "60630", "60632",
+        "60634", "60636", "60637", "60638", "60639",
+        "60640", "60641", "60643", "60644", "60647",
+        "60649", "60651", "60652", "60653", "60657"
+      ]
+    },
+    "miami_metro": {
+      "name": "Miami Metro",
+      "state": "FL",
+      "region": "southeast",
+      "phone_area_code": "305",
+      "major_cities": [
+        "Miami",
+        "Fort Lauderdale",
+        "Hialeah",
+        "Hollywood",
+        "Pembroke Pines",
+        "Miramar",
+        "Coral Springs",
+        "Miami Beach",
+        "Homestead",
+        "Doral",
+        "Miami Gardens",
+        "North Miami",
+        "Aventura",
+        "Kendall",
+        "Little Havana"
+      ],
+      "zip_codes": [
+        "33010", "33012", "33013", "33014", "33015",
+        "33016", "33018", "33054", "33055", "33056",
+        "33125", "33126", "33127", "33128", "33129",
+        "33130", "33131", "33132", "33133", "33134",
+        "33135", "33136", "33137", "33138", "33139",
+        "33140", "33141", "33142", "33143", "33144",
+        "33145", "33146", "33147", "33150", "33155"
+      ]
+    },
+    "houston_metro": {
+      "name": "Houston Metro",
+      "state": "TX",
+      "region": "south",
+      "phone_area_code": "713",
+      "major_cities": [
+        "Houston",
+        "Sugar Land",
+        "Pasadena",
+        "Pearland",
+        "League City",
+        "Missouri City",
+        "Baytown",
+        "Spring",
+        "Katy",
+        "Humble",
+        "Conroe",
+        "Texas City",
+        "Galveston",
+        "Rosenberg",
+        "Richmond"
+      ],
+      "zip_codes": [
+        "77001", "77002", "77003", "77004", "77005",
+        "77006", "77007", "77008", "77009", "77010",
+        "77011", "77012", "77015", "77016", "77017",
+        "77018", "77019", "77020", "77021", "77022",
+        "77023", "77024", "77025", "77026", "77027",
+        "77028", "77029", "77030", "77031", "77033",
+        "77034", "77035", "77036", "77038", "77040"
+      ]
+    },
+    "philadelphia_metro": {
+      "name": "Philadelphia Metro",
+      "state": "PA",
+      "region": "northeast",
+      "phone_area_code": "215",
+      "major_cities": [
+        "Philadelphia",
+        "Camden",
+        "Chester",
+        "Norristown",
+        "Wilmington",
+        "Trenton",
+        "Upper Darby",
+        "Cheltenham",
+        "Bensalem",
+        "Levittown",
+        "King of Prussia",
+        "Lansdale",
+        "West Chester",
+        "Media",
+        "Cherry Hill"
+      ],
+      "zip_codes": [
+        "19101", "19102", "19103", "19104", "19106",
+        "19107", "19111", "19114", "19115", "19116",
+        "19118", "19119", "19120", "19121", "19122",
+        "19123", "19124", "19125", "19126", "19127",
+        "19128", "19129", "19130", "19131", "19132",
+        "19133", "19134", "19135", "19136", "19137",
+        "19138", "19139", "19140", "19141", "19142"
+      ]
+    },
+    "atlanta_metro": {
+      "name": "Atlanta Metro",
+      "state": "GA",
+      "region": "southeast",
+      "phone_area_code": "404",
+      "major_cities": [
+        "Atlanta",
+        "Marietta",
+        "Roswell",
+        "Sandy Springs",
+        "Alpharetta",
+        "Decatur",
+        "Lawrenceville",
+        "Duluth",
+        "Kennesaw",
+        "Smyrna",
+        "Dunwoody",
+        "Peachtree City",
+        "Norcross",
+        "Stone Mountain",
+        "Tucker"
+      ],
+      "zip_codes": [
+        "30301", "30303", "30305", "30306", "30307",
+        "30308", "30309", "30310", "30311", "30312",
+        "30313", "30314", "30315", "30316", "30317",
+        "30318", "30319", "30324", "30326", "30327",
+        "30328", "30329", "30331", "30332", "30334",
+        "30336", "30337", "30338", "30339", "30340",
+        "30341", "30342", "30344", "30345", "30346"
+      ]
+    },
+    "dallas_ft_worth": {
+      "name": "Dallas-Fort Worth",
+      "state": "TX",
+      "region": "south",
+      "phone_area_code": "214",
+      "major_cities": [
+        "Dallas",
+        "Fort Worth",
+        "Arlington",
+        "Plano",
+        "Irving",
+        "Garland",
+        "Grand Prairie",
+        "McKinney",
+        "Frisco",
+        "Mesquite",
+        "Carrollton",
+        "Denton",
+        "Richardson",
+        "Lewisville",
+        "Allen"
+      ],
+      "zip_codes": [
+        "75001", "75006", "75007", "75019", "75023",
+        "75024", "75034", "75035", "75038", "75039",
+        "75040", "75041", "75042", "75043", "75044",
+        "75050", "75051", "75052", "75060", "75061",
+        "75062", "75063", "75067", "75068", "75070",
+        "75074", "75075", "75080", "75081", "75082",
+        "75087", "75089", "75093", "75094", "75150"
+      ]
+    },
+    "toronto_ca": {
+      "name": "Greater Toronto Area",
+      "state": "ON",
+      "region": "canada",
+      "phone_area_code": "416",
+      "major_cities": [
+        "Toronto",
+        "Mississauga",
+        "Brampton",
+        "Markham",
+        "Vaughan",
+        "Richmond Hill",
+        "Scarborough",
+        "North York",
+        "Etobicoke",
+        "Oakville",
+        "Burlington",
+        "Ajax",
+        "Pickering",
+        "Whitby",
+        "Oshawa"
+      ],
+      "zip_codes": []
+    },
+    "london_uk": {
+      "name": "Greater London",
+      "state": "UK",
+      "region": "united_kingdom",
+      "phone_area_code": "020",
+      "major_cities": [
+        "London",
+        "Westminster",
+        "Camden",
+        "Islington",
+        "Hackney",
+        "Tower Hamlets",
+        "Southwark",
+        "Lambeth",
+        "Lewisham",
+        "Greenwich",
+        "Croydon",
+        "Bromley",
+        "Barnet",
+        "Ealing",
+        "Hounslow"
+      ],
+      "zip_codes": []
+    }
+  }
+}

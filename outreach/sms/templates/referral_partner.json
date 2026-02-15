@@ -1,0 +1,5 @@
+{
+  "template_name": "referral_partner",
+  "icp_type": "referral_partners",
+  "message": "Hi {first_name}, Tal from Goldman's Garage Door. I work with {role_type} in {city} on garage door issues for their {client_type}. Would love to set up a referral partnership. Quick call? {phone}. Reply STOP to opt out"
+}

@@ -1,0 +1,32 @@
+{
+  "campaign_name": "Goldman's - Agent Partner",
+  "icp_type": "real_estate_agents",
+  "steps": [
+    {
+      "step_number": 1,
+      "send_day": 0,
+      "subject": "Quick garage door help for your listings in {city}",
+      "body": "Hi {first_name},\n\nI'm Tal with Goldman's Garage Door Repair — we handle a lot of same-day garage door fixes in {city} and the surrounding areas.\n\nI know how it goes when you're prepping a listing and the garage door decides not to cooperate. Broken spring the morning of a showing, opener that won't close for the lockbox — we've seen it all.\n\nHere's what we offer agents:\n\n- Same-day repairs so nothing holds up your showings\n- 10% discount for your clients on any service\n- Free garage door health flyer you can toss in your listing packets\n\nWould it be useful to have a reliable garage door guy on speed dial? Happy to send over the flyer if you want to take a look.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    },
+    {
+      "step_number": 2,
+      "send_day": 3,
+      "subject": "Re: Quick garage door help for your listings in {city}",
+      "body": "Hey {first_name},\n\nJust following up on my last note. I know your inbox is probably packed between closings and showings.\n\nThe main thing I wanted to get across — if a garage door issue ever comes up on one of your properties, we can usually be there the same day. No need for your sellers to scramble finding someone on their own.\n\nHappy to chat for two minutes if you want to hear how we work with other agents in {city}. Or I can just send over that free flyer and you can file it away for when you need it.\n\nTal\n{phone}"
+    },
+    {
+      "step_number": 3,
+      "send_day": 7,
+      "subject": "The garage door flyer for your listing packets",
+      "body": "Hi {first_name},\n\nOne more quick thought — a few agents we work with in {nearby_city} and {city} have been including our garage door health checklist in their listing packets. Sellers love it because it shows you're thorough, and buyers appreciate the heads-up on maintenance.\n\nIt's a simple one-pager: what to look for, when springs typically need replacing, safety tips. Totally free, no branding push.\n\nWant me to send one over? Takes 10 seconds to add to your packet.\n\nTal\nGoldman's Garage Door Repair\n{phone}"
+    },
+    {
+      "step_number": 4,
+      "send_day": 14,
+      "subject": "Last note from me, {first_name}",
+      "body": "Hey {first_name},\n\nI won't keep bugging you — I know you're busy closing deals. Just wanted to leave the door open (pun intended).\n\nIf a garage door issue ever comes up on a listing or a buyer's new home needs work, save my number. Same-day service, fair pricing, and your clients get 10% off.\n\nWishing you a strong quarter in {city}.\n\nTal Goldman\nGoldman's Garage Door Repair\n{phone}"
+    }
+  ],
+  "merge_tags": ["first_name", "city", "nearby_city", "company_name", "phone"],
+  "notes": "Send from MI number for MI leads, NC number for NC leads. Target agents with 4.0+ rating and active listings."
+}
