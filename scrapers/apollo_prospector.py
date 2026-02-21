@@ -14,6 +14,7 @@ Usage:
 import argparse
 import json
 import logging
+import re
 import sys
 import time
 from datetime import datetime
@@ -257,22 +258,40 @@ def reveal_emails(client: ApolloClient, df: pd.DataFrame, max_reveals: int = 100
     return df
 
 
-def apply_exclusions(df: pd.DataFrame, config: dict) -> pd.DataFrame:
-    """Apply geographic exclusion rules."""
-    excluded = set(config.get("geography", {}).get("excluded_countries", []))
-    if not excluded:
-        return df
+def apply_exclusions(df: pd.DataFrame, config: dict, segment_key: str = "") -> pd.DataFrame:
+    """Apply geographic and company-level exclusion rules."""
+    # Geographic exclusions
+    excluded_countries = set(config.get("geography", {}).get("excluded_countries", []))
+    if excluded_countries:
+        before = len(df)
+        mask = pd.Series(True, index=df.index)
+        for col in ["country", "company_country"]:
+            if col in df.columns:
+                mask &= ~df[col].isin(excluded_countries)
+        df = df[mask]
+        removed = before - len(df)
+        if removed:
+            print(f"  Excluded {removed} prospects from {', '.join(excluded_countries)}")
 
-    # Check both person country and company country
-    before = len(df)
-    mask = pd.Series(True, index=df.index)
-    for col in ["country", "company_country"]:
-        if col in df.columns:
-            mask &= ~df[col].isin(excluded)
-    df = df[mask]
-    removed = before - len(df)
-    if removed:
-        print(f"  Excluded {removed} prospects from {', '.join(excluded)}")
+    # Company-level exclusions from exclusions.json
+    if segment_key and "company_name" in df.columns:
+        exclusions_path = Path(__file__).resolve().parent.parent / "config" / "exclusions.json"
+        try:
+            with open(exclusions_path) as f:
+                exclusions = json.load(f)
+            excluded_companies = exclusions.get("excluded_companies", {}).get(segment_key, {}).get("companies", [])
+            if excluded_companies:
+                before = len(df)
+                # Case-insensitive substring match to catch variants
+                pattern = "|".join(re.escape(c) for c in excluded_companies)
+                mask = ~df["company_name"].str.contains(pattern, case=False, na=False)
+                df = df[mask]
+                removed = before - len(df)
+                if removed:
+                    print(f"  Excluded {removed} prospects from {len(excluded_companies)} blocked companies")
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+
     return df
 
 
@@ -465,7 +484,7 @@ def main():
             print(f"\n  No prospects found for {seg_key}")
             continue
 
-        df = apply_exclusions(df, config)
+        df = apply_exclusions(df, config, segment_key=seg_key)
 
         raw_path = save_results(df, seg_key, RAW_DIR, enriched=False)
         print(f"\n  Saved {len(df)} raw prospects to {raw_path}")

@@ -363,7 +363,15 @@
         "food service",
         "correctional food",
         "institutional food",
-        "jail"
+        "jail",
+        "facility services",
+        "facilities services",
+        "government administration",
+        "government services",
+        "outsourced services",
+        "managed services",
+        "security services",
+        "public safety"
       ],
 
       "apollo_employee_ranges": ["51,100", "101,200", "201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
@@ -456,14 +464,21 @@
       "target_seniorities": ["director", "vp", "c_suite", "head", "manager", "owner"],
 
       "apollo_organization_keyword_tags": [
-        "candy",
-        "confectionery",
-        "chocolate",
-        "sweets",
         "wholesale candy",
         "candy distributor",
+        "candy distribution",
         "confectionery wholesale",
+        "confectionery distributor",
         "snack distributor",
+        "snack distribution",
+        "snack wholesale",
+        "wholesale food",
+        "food distributor",
+        "food wholesale",
+        "grocery wholesale",
+        "convenience distributor",
+        "distribuidora",
+        "mayorista",
         "dulces",
         "golosinas"
       ],
