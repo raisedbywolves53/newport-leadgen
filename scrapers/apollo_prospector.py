@@ -20,6 +20,11 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+# Ensure project root is on sys.path when running as script
+_project_root = Path(__file__).resolve().parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
 import pandas as pd
 from dotenv import load_dotenv
 
