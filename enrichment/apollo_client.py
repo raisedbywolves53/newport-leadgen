@@ -41,6 +41,27 @@ DECISION_MAKER_TITLES = {
         "Channel Sales Director", "Wholesale Sales Director",
         "Export Sales Director", "Commercial Director",
     ],
+    "segment_c_government": [
+        "Director of Procurement", "Director of Purchasing",
+        "Director of Food Service", "Director of Nutrition Services",
+        "Director of Child Nutrition", "Contracting Officer",
+        "Chief Procurement Officer", "VP Supply Chain",
+        "Director of Materials Management", "Commissary Officer",
+    ],
+    "segment_d_corrections": [
+        "Director of Food Service", "Director of Procurement",
+        "VP Food Service", "Commissary Director",
+        "Director of Dietary Services", "Director of Operations",
+        "VP Procurement", "Director of Supply Chain",
+        "Chief Procurement Officer", "Category Director",
+    ],
+    "segment_e_candy": [
+        "VP Sales", "Director of Sales", "Director of Purchasing",
+        "Head of Procurement", "Commercial Director",
+        "Wholesale Director", "Export Sales Director",
+        "National Accounts Director", "VP Business Development",
+        "Owner", "General Manager",
+    ],
 }
 
 # Seniority levels for Apollo filtering

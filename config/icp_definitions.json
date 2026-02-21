@@ -6,6 +6,7 @@
       "description": "Enterprise-level grocery retailers and wholesale buyers with centralized procurement",
       "outreach_channels": ["email"],
       "priority": 1,
+      "allowed_regions": ["united_states", "united_kingdom", "eu_eea_switzerland"],
 
       "qualification_thresholds": {
         "note": "Target companies meeting at least ONE of the following",
@@ -100,6 +101,7 @@
       "description": "Enterprise-level CPG food manufacturers, snack/confectionery producers, and large distributors",
       "outreach_channels": ["email"],
       "priority": 1,
+      "allowed_regions": ["united_states", "united_kingdom", "eu_eea_switzerland"],
 
       "qualification_thresholds": {
         "note": "Target companies meeting at least ONE of the following",
@@ -187,6 +189,288 @@
       "apollo_employee_ranges": ["101,200", "201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
 
       "apollo_revenue_ranges": ["25000000,50000000", "50000000,100000000", "100000000,500000000", "500000000,1000000000", "1000000000,"]
+    },
+
+    "segment_c_government": {
+      "display_name": "Segment C — Government Food Buyers & Procurement",
+      "pipeline": "direct_to_customer",
+      "description": "Government food procurement at local, state, and federal levels",
+      "outreach_channels": ["email"],
+      "priority": 2,
+      "allowed_regions": ["united_states"],
+
+      "qualification_thresholds": {
+        "note": "Government entities — revenue not applicable, target by employee count and org type"
+      },
+
+      "company_types_include": [
+        "Federal agencies (USDA, DoD, VA, BOP)",
+        "State government departments",
+        "County and municipal agencies",
+        "School districts",
+        "Public hospitals and healthcare systems",
+        "Military commissaries and exchanges"
+      ],
+
+      "company_types_exclude": [
+        "Non-food government agencies",
+        "Law enforcement (patrol/field level)",
+        "IT-only government contractors",
+        "Construction contractors"
+      ],
+
+      "target_departments": [
+        "Procurement",
+        "Purchasing",
+        "Food Service",
+        "Nutrition Services",
+        "Contracting",
+        "Supply Chain",
+        "Materials Management"
+      ],
+
+      "title_include_keywords": [
+        "procurement",
+        "purchasing",
+        "contracting",
+        "food service",
+        "nutrition services",
+        "food & nutrition",
+        "child nutrition",
+        "school nutrition",
+        "dietary",
+        "sourcing",
+        "supply chain",
+        "materials management",
+        "commissary",
+        "subsistence"
+      ],
+
+      "title_exclude_keywords": [
+        "assistant",
+        "junior",
+        "intern",
+        "analyst",
+        "HR",
+        "recruiter",
+        "engineer",
+        "IT",
+        "accounting",
+        "marketing",
+        "custodian",
+        "janitor"
+      ],
+
+      "target_seniorities": ["director", "vp", "c_suite", "head", "manager"],
+
+      "apollo_organization_keyword_tags": [
+        "government",
+        "federal",
+        "state government",
+        "county",
+        "municipal",
+        "school district",
+        "department of corrections",
+        "department of defense",
+        "veterans affairs",
+        "commissary",
+        "public hospital",
+        "military",
+        "bureau of prisons"
+      ],
+
+      "apollo_employee_ranges": ["101,200", "201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
+
+      "apollo_revenue_ranges": []
+    },
+
+    "segment_d_corrections": {
+      "display_name": "Segment D — Corrections & Prison Food Procurement",
+      "pipeline": "direct_to_customer",
+      "description": "Prison and corrections food procurement — public agencies and private operators",
+      "outreach_channels": ["email"],
+      "priority": 2,
+      "allowed_regions": ["united_states"],
+
+      "qualification_thresholds": {
+        "note": "Target companies meeting at least ONE of the following",
+        "min_employees": 51,
+        "min_revenue_usd": 10000000
+      },
+
+      "company_types_include": [
+        "Private prison and corrections companies",
+        "Correctional food service management companies",
+        "Commissary service providers",
+        "Institutional food service operators",
+        "State and federal corrections departments"
+      ],
+
+      "company_types_exclude": [
+        "Security guard staffing agencies",
+        "Prison construction firms",
+        "Legal services",
+        "Bail bond companies"
+      ],
+
+      "target_departments": [
+        "Procurement",
+        "Purchasing",
+        "Food Service",
+        "Commissary",
+        "Supply Chain",
+        "Operations"
+      ],
+
+      "title_include_keywords": [
+        "procurement",
+        "purchasing",
+        "food service",
+        "commissary",
+        "dietary",
+        "supply chain",
+        "contracting",
+        "nutrition",
+        "sourcing",
+        "category",
+        "operations"
+      ],
+
+      "title_exclude_keywords": [
+        "assistant",
+        "junior",
+        "intern",
+        "HR",
+        "recruiter",
+        "engineer",
+        "IT",
+        "accounting",
+        "marketing",
+        "correctional officer",
+        "guard",
+        "warden"
+      ],
+
+      "target_seniorities": ["director", "vp", "c_suite", "head", "manager"],
+
+      "apollo_organization_keyword_tags": [
+        "corrections",
+        "correctional",
+        "prison",
+        "detention",
+        "criminal justice",
+        "commissary",
+        "food service",
+        "correctional food",
+        "institutional food",
+        "jail"
+      ],
+
+      "apollo_employee_ranges": ["51,100", "101,200", "201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
+
+      "apollo_revenue_ranges": ["10000000,50000000", "50000000,100000000", "100000000,500000000", "500000000,1000000000", "1000000000,"],
+
+      "priority_companies": [
+        "CoreCivic",
+        "GEO Group",
+        "Aramark",
+        "Trinity Services Group",
+        "Keefe Group",
+        "Summit Food Service",
+        "MTC",
+        "LaSalle Corrections"
+      ]
+    },
+
+    "segment_e_candy": {
+      "display_name": "Segment E — Candy Wholesalers & Distributors",
+      "pipeline": "partner",
+      "description": "Candy and confectionery wholesalers and distributors across the US, Mexico, Central and South America",
+      "outreach_channels": ["email"],
+      "priority": 2,
+      "allowed_regions": ["united_states", "mexico", "central_america", "south_america", "caribbean"],
+
+      "qualification_thresholds": {
+        "note": "Target companies meeting at least ONE of the following",
+        "min_employees": 11,
+        "min_revenue_usd": 5000000
+      },
+
+      "company_types_include": [
+        "Candy and confectionery wholesalers",
+        "Candy distributors",
+        "Confectionery importers/exporters",
+        "Snack and candy distribution companies",
+        "Wholesale confectionery brokers"
+      ],
+
+      "company_types_exclude": [
+        "Single retail candy stores",
+        "Candy manufacturers (covered by Segment B)",
+        "Alcohol distributors",
+        "Tobacco-only distributors",
+        "Pharmaceutical companies"
+      ],
+
+      "target_departments": [
+        "Purchasing",
+        "Procurement",
+        "Sales",
+        "Commercial",
+        "Wholesale",
+        "Business Development",
+        "Trading"
+      ],
+
+      "title_include_keywords": [
+        "purchasing",
+        "procurement",
+        "buyer",
+        "category",
+        "merchandising",
+        "sourcing",
+        "sales",
+        "commercial",
+        "wholesale",
+        "export",
+        "national account",
+        "key account",
+        "business development",
+        "trading"
+      ],
+
+      "title_exclude_keywords": [
+        "assistant",
+        "junior",
+        "intern",
+        "HR",
+        "recruiter",
+        "engineer",
+        "marketing",
+        "finance",
+        "accounting",
+        "retail store",
+        "cashier"
+      ],
+
+      "target_seniorities": ["director", "vp", "c_suite", "head", "manager", "owner"],
+
+      "apollo_organization_keyword_tags": [
+        "candy",
+        "confectionery",
+        "chocolate",
+        "sweets",
+        "wholesale candy",
+        "candy distributor",
+        "confectionery wholesale",
+        "snack distributor",
+        "dulces",
+        "golosinas"
+      ],
+
+      "apollo_employee_ranges": ["11,50", "51,100", "101,200", "201,500", "501,1000", "1001,5000", "5001,10000", "10001,"],
+
+      "apollo_revenue_ranges": ["5000000,10000000", "10000000,50000000", "50000000,100000000", "100000000,500000000", "500000000,1000000000", "1000000000,"]
     }
   },
 
@@ -211,6 +495,31 @@
           "Malta", "Cyprus",
           "Norway", "Iceland", "Liechtenstein",
           "Switzerland"
+        ]
+      },
+      "mexico": {
+        "label": "Mexico",
+        "apollo_locations": ["Mexico"]
+      },
+      "central_america": {
+        "label": "Central America",
+        "apollo_locations": [
+          "Guatemala", "Honduras", "El Salvador", "Nicaragua",
+          "Costa Rica", "Panama", "Belize"
+        ]
+      },
+      "south_america": {
+        "label": "South America",
+        "apollo_locations": [
+          "Brazil", "Argentina", "Colombia", "Chile", "Peru",
+          "Ecuador", "Uruguay", "Paraguay", "Bolivia", "Venezuela"
+        ]
+      },
+      "caribbean": {
+        "label": "Caribbean",
+        "apollo_locations": [
+          "Dominican Republic", "Puerto Rico", "Jamaica",
+          "Trinidad and Tobago", "Cuba"
         ]
       }
     },

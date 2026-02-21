@@ -25,6 +25,57 @@
         "AB InBev": "Alcohol manufacturer",
         "Nestlé Purina North America": "Pet food, not human food/confectionery"
       }
+    },
+    "segment_c_government": {
+      "companies": [],
+      "reasons": {},
+      "excluded_role_patterns": [
+        "IT Director",
+        "Chief Information Officer",
+        "Director of Public Works",
+        "Parks and Recreation",
+        "Transportation Director",
+        "City Engineer",
+        "Building Inspector"
+      ],
+      "exclusion_note": "Exclude non-food government roles — only target food/nutrition procurement"
+    },
+    "segment_d_corrections": {
+      "companies": [],
+      "reasons": {},
+      "excluded_role_patterns": [
+        "Correctional Officer",
+        "Guard",
+        "Warden",
+        "Lieutenant",
+        "Sergeant",
+        "Captain",
+        "Deputy Warden",
+        "Parole Officer",
+        "Probation Officer"
+      ],
+      "exclusion_note": "Exclude security, custody, and facility-level staff — only target procurement and food service"
+    },
+    "segment_e_candy": {
+      "companies": [
+        "Southern Glazer's Wine & Spirits",
+        "Republic National Distributing Company",
+        "Altria Group",
+        "Philip Morris International",
+        "British American Tobacco",
+        "McKesson Corporation",
+        "Cardinal Health"
+      ],
+      "reasons": {
+        "Southern Glazer's Wine & Spirits": "Alcohol distributor, not candy/confectionery",
+        "Republic National Distributing Company": "Alcohol distributor",
+        "Altria Group": "Tobacco company, not confectionery",
+        "Philip Morris International": "Tobacco company",
+        "British American Tobacco": "Tobacco company",
+        "McKesson Corporation": "Pharmaceutical distributor, not candy",
+        "Cardinal Health": "Pharmaceutical distributor, not candy"
+      },
+      "exclusion_note": "Exclude alcohol, tobacco-only, and pharmaceutical distributors"
     }
   },
   "excluded_title_patterns": [

@@ -39,8 +39,20 @@ def load_config() -> dict:
         return json.load(f)
 
 
-def flatten_locations(config: dict, region_filter: str | None = None) -> list[str]:
-    """Get all Apollo location strings from geography config, optionally filtered."""
+def flatten_locations(
+    config: dict,
+    region_filter: str | None = None,
+    region_list: list[str] | None = None,
+) -> list[str]:
+    """Get all Apollo location strings from geography config, optionally filtered.
+
+    Args:
+        config: Full ICP config dict.
+        region_filter: Single region key to filter to (CLI --region flag).
+        region_list: List of region keys to include (per-segment allowed_regions).
+                     If both region_filter and region_list are set, region_filter
+                     takes precedence (CLI override).
+    """
     geo = config.get("geography", {})
     included = geo.get("included_regions", {})
     excluded_countries = set(geo.get("excluded_countries", []))
@@ -48,6 +60,8 @@ def flatten_locations(config: dict, region_filter: str | None = None) -> list[st
     locations = []
     for region_key, region_data in included.items():
         if region_filter and region_key != region_filter:
+            continue
+        if not region_filter and region_list and region_key not in region_list:
             continue
         for loc in region_data.get("apollo_locations", []):
             if loc not in excluded_countries:
@@ -323,8 +337,6 @@ def print_summary(df: pd.DataFrame, segment: str) -> None:
 
 
 def dry_run(config: dict, segments: list[str], region_filter: str | None) -> None:
-    locations = flatten_locations(config, region_filter)
-
     for seg_key in segments:
         seg = config["segments"][seg_key]
         title_include = seg.get("title_include_keywords", [])
@@ -334,9 +346,19 @@ def dry_run(config: dict, segments: list[str], region_filter: str | None) -> Non
         rev_ranges = seg.get("apollo_revenue_ranges", [])
         org_tags = seg.get("apollo_organization_keyword_tags", [])
 
+        # Per-segment geography
+        seg_regions = seg.get("allowed_regions", None)
+        if seg_regions:
+            seg_locations = flatten_locations(config, region_filter=region_filter, region_list=seg_regions)
+        else:
+            seg_locations = flatten_locations(config, region_filter=region_filter)
+
         print(f"\n{'='*70}")
         print(f"SEGMENT: {seg['display_name']}")
         print(f"{'='*70}")
+        print(f"  Pipeline: {seg.get('pipeline', 'unknown')}")
+        if seg_regions:
+            print(f"  Allowed regions: {seg_regions}")
         print(f"  Title CONTAINS (any of) — used as person_titles with fuzzy match:")
         for t in title_include:
             print(f"    - \"{t}\"")
@@ -349,18 +371,21 @@ def dry_run(config: dict, segments: list[str], region_filter: str | None) -> Non
         print(f"  Org keyword tags ({len(org_tags)}):")
         for tag in org_tags:
             print(f"    - \"{tag}\"")
-        print(f"  Locations ({len(locations)}):")
-        for loc in locations[:10]:
+        if seg.get("priority_companies"):
+            print(f"  Priority companies:")
+            for co in seg["priority_companies"]:
+                print(f"    - {co}")
+        print(f"  Locations ({len(seg_locations)}):")
+        for loc in seg_locations[:10]:
             print(f"    - {loc}")
-        if len(locations) > 10:
-            print(f"    ... and {len(locations) - 10} more")
+        if len(seg_locations) > 10:
+            print(f"    ... and {len(seg_locations) - 10} more")
 
         print(f"\n  Strategy: Single paginated search (up to 100/page, 500 pages max)")
         print(f"  Cost: FREE (People Search = 0 credits)")
         print(f"  Email reveals: 1 credit each (optional)")
 
-    print(f"\n  Total locations: {len(locations)}")
-    print(f"  Excluded countries: {config['geography']['excluded_countries']}")
+    print(f"\n  Excluded countries: {config['geography']['excluded_countries']}")
 
 
 def main():
@@ -411,22 +436,30 @@ def main():
         return
 
     client = ApolloClient()
-    locations = flatten_locations(config, args.region)
+    default_locations = flatten_locations(config, args.region)
 
-    if not locations:
-        print("ERROR: No locations found. Check region filter and config.")
-        sys.exit(1)
-
-    print(f"Searching {len(locations)} location(s) across {len(target_segments)} segment(s)")
+    print(f"Segments to search: {len(target_segments)}")
     print(f"Pagination: up to {args.max_pages} pages x 100 results/page")
 
     for seg_key in target_segments:
         seg_cfg = segments[seg_key]
+
+        # Per-segment geography: use allowed_regions if defined
+        seg_regions = seg_cfg.get("allowed_regions", None)
+        if seg_regions:
+            seg_locations = flatten_locations(config, region_filter=args.region, region_list=seg_regions)
+        else:
+            seg_locations = default_locations
+
+        if not seg_locations:
+            print(f"\nERROR: No locations for {seg_key}. Check region filter and config.")
+            continue
+
         print(f"\n{'='*70}")
-        print(f"SEGMENT: {seg_cfg['display_name']}")
+        print(f"SEGMENT: {seg_cfg['display_name']} ({len(seg_locations)} locations)")
         print(f"{'='*70}")
 
-        df = search_segment(client, seg_key, seg_cfg, locations, max_pages=args.max_pages)
+        df = search_segment(client, seg_key, seg_cfg, seg_locations, max_pages=args.max_pages)
 
         if df.empty:
             print(f"\n  No prospects found for {seg_key}")
