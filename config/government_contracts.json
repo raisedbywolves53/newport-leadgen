@@ -1,0 +1,123 @@
+{
+  "naics_codes": {
+    "primary": {
+      "424410": "General Line Grocery Merchant Wholesalers",
+      "424420": "Packaged Frozen Food Merchant Wholesalers",
+      "424430": "Dairy Product Merchant Wholesalers",
+      "424440": "Poultry and Poultry Product Merchant Wholesalers",
+      "424450": "Confectionery Merchant Wholesalers",
+      "424460": "Fish and Seafood Merchant Wholesalers",
+      "424470": "Meat and Meat Product Merchant Wholesalers",
+      "424480": "Fresh Fruit and Vegetable Merchant Wholesalers",
+      "424490": "Other Grocery and Related Products Merchant Wholesalers",
+      "722310": "Food Service Contractors"
+    },
+    "secondary": {
+      "311119": "Other Animal Food Manufacturing",
+      "311211": "Flour Milling",
+      "311212": "Rice Milling",
+      "311213": "Malt Manufacturing",
+      "311221": "Wet Corn Milling and Starch Manufacturing",
+      "311224": "Soybean and Other Oilseed Processing",
+      "311225": "Fats and Oils Refining and Blending",
+      "311230": "Breakfast Cereal Manufacturing",
+      "311313": "Beet Sugar Manufacturing",
+      "311314": "Cane Sugar Manufacturing",
+      "311340": "Nonchocolate Confectionery Manufacturing",
+      "311351": "Chocolate and Confectionery Manufacturing from Cacao Beans",
+      "311352": "Confectionery Manufacturing from Purchased Chocolate",
+      "311411": "Frozen Fruit, Juice, and Vegetable Manufacturing",
+      "311412": "Frozen Specialty Food Manufacturing",
+      "311421": "Fruit and Vegetable Canning",
+      "311422": "Specialty Canning",
+      "311423": "Dried and Dehydrated Food Manufacturing",
+      "311511": "Fluid Milk Manufacturing",
+      "311512": "Creamery Butter Manufacturing",
+      "311513": "Cheese Manufacturing",
+      "311514": "Dry, Condensed, and Evaporated Dairy Product Manufacturing",
+      "311520": "Ice Cream and Frozen Dessert Manufacturing",
+      "311611": "Animal (except Poultry) Slaughtering",
+      "311612": "Meat Processed from Carcasses",
+      "311613": "Rendering and Meat Byproduct Processing",
+      "311615": "Poultry Processing",
+      "311710": "Seafood Product Preparation and Packaging",
+      "311811": "Retail Bakeries",
+      "311812": "Commercial Bakeries",
+      "311813": "Frozen Cakes, Pies, and Other Pastries Manufacturing",
+      "311821": "Cookie and Cracker Manufacturing",
+      "311824": "Dry Pasta, Dough, and Flour Mixes Manufacturing from Purchased Flour",
+      "311830": "Tortilla Manufacturing",
+      "311911": "Roasted Nuts and Peanut Butter Manufacturing",
+      "311919": "Other Snack Food Manufacturing",
+      "311920": "Coffee and Tea Manufacturing",
+      "311930": "Flavoring Syrup and Concentrate Manufacturing",
+      "311941": "Mayonnaise, Dressing, and Other Prepared Sauce Manufacturing",
+      "311942": "Spice and Extract Manufacturing",
+      "311991": "Perishable Prepared Food Manufacturing",
+      "311999": "All Other Miscellaneous Food Manufacturing"
+    }
+  },
+  "psc_codes": {
+    "8905": "Meat, Poultry, and Fish",
+    "8910": "Dairy Foods and Eggs",
+    "8915": "Fruits and Vegetables",
+    "8920": "Bakery and Cereal Products",
+    "8925": "Sugar, Confectionery, and Nuts",
+    "8930": "Jams, Jellies, and Preserves",
+    "8935": "Soups and Bouillons",
+    "8940": "Special Dietary Foods and Food Specialty Preparations",
+    "8945": "Food Oils and Fats",
+    "8950": "Condiments and Related Products",
+    "8955": "Coffee, Tea, and Cocoa",
+    "8960": "Beverages, Nonalcoholic",
+    "8970": "Composite Food Packages",
+    "8975": "Tobacco Products"
+  },
+  "api": {
+    "sam": {
+      "base_url": "https://api.sam.gov",
+      "contract_awards_path": "/opportunities/v2/search",
+      "opportunities_path": "/opportunities/v2/search",
+      "entity_path": "/entity-information/v3/entities",
+      "rate_limit_daily": 1000,
+      "rate_limit_warn_at": 900,
+      "retry_attempts": 4,
+      "retry_backoff_base": 5,
+      "retry_backoff_max": 60,
+      "results_per_page": 100,
+      "date_format": "MM/dd/yyyy"
+    },
+    "usaspending": {
+      "base_url": "https://api.usaspending.gov/api/v2",
+      "spending_by_award_path": "/search/spending_by_award",
+      "spending_by_category_path": "/search/spending_by_category",
+      "spending_over_time_path": "/search/spending_over_time",
+      "retry_attempts": 3,
+      "retry_backoff_base": 2,
+      "retry_backoff_max": 30,
+      "results_per_page": 100
+    }
+  },
+  "analysis": {
+    "expiring_lookahead_months": 12,
+    "fiscal_years": [2023, 2024, 2025],
+    "min_contract_value": 25000,
+    "incumbent_lookback_years": 5,
+    "competition_level_map": {
+      "A": "full_and_open",
+      "B": "not_available_for_competition",
+      "C": "not_competed",
+      "D": "full_and_open_after_exclusion",
+      "E": "follow_on",
+      "F": "competed_under_sap",
+      "G": "not_competed_under_sap",
+      "CDO": "competitive_delivery_order",
+      "NDO": "non_competitive_delivery_order"
+    }
+  },
+  "cache": {
+    "enabled": true,
+    "ttl_hours": 24,
+    "directory": "data/cache"
+  }
+}

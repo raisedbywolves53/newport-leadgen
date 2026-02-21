@@ -18,6 +18,7 @@ venv/
 data/raw/
 data/enriched/
 data/final/
+data/cache/
 
 # Logs
 logs/

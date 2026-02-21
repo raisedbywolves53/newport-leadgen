@@ -1,6 +1,7 @@
 pandas
 requests
 python-dotenv
+python-dateutil
 twilio
 retell-sdk
 gspread>=5.12.0
