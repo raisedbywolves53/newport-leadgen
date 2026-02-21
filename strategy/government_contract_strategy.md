@@ -13,11 +13,12 @@
 3. [The Contract Award Process — Step by Step](#3-the-contract-award-process--step-by-step)
 4. [Contract Schedules & Timing](#4-contract-schedules--timing)
 5. [Competitive Landscape — Who Has the Stranglehold](#5-competitive-landscape--who-has-the-stranglehold)
-6. [How to Get an Edge — Newport's Competitive Advantages](#6-how-to-get-an-edge--newports-competitive-advantages)
-7. [Decision Makers & Internal Champions](#7-decision-makers--internal-champions)
-8. [How Governments Make Selection — Positioning Playbook](#8-how-governments-make-selection--positioning-playbook)
-9. [Newport's Entry Strategy — Start Small, Build Up](#9-newports-entry-strategy--start-small-build-up)
-10. [12-Month Roadmap](#10-12-month-roadmap)
+6. [The Fraud Crisis — Why the Timing Is Perfect](#6-the-fraud-crisis--why-the-timing-is-perfect)
+7. [How to Get an Edge — Newport's Competitive Advantages](#7-how-to-get-an-edge--newports-competitive-advantages)
+8. [Decision Makers & Internal Champions](#8-decision-makers--internal-champions)
+9. [How Governments Make Selection — Positioning Playbook](#9-how-governments-make-selection--positioning-playbook)
+10. [Newport's Entry Strategy — Start Small, Build Up](#10-newports-entry-strategy--start-small-build-up)
+11. [12-Month Roadmap](#11-12-month-roadmap)
 
 ---
 
@@ -493,7 +494,101 @@ Despite the dominance of big players, there are clear openings:
 
 ---
 
-## 6. How to Get an Edge — Newport's Competitive Advantages
+## 6. The Fraud Crisis — Why the Timing Is Perfect
+
+### The Scale of the Problem
+
+Government food procurement is in the middle of the largest fraud crackdown in U.S. history. The numbers are staggering:
+
+| What Happened | Scale | Status |
+|---|---|---|
+| **Feeding Our Future** (Minnesota) — fake meal sites submitted fabricated counts to steal USDA child nutrition funds | $250–350M+ stolen | 78+ charged, 50+ guilty pleas, founder convicted |
+| **SNAP fraud ring** — a USDA employee *assigned to catch fraud* sold EBT license numbers to smoke shops and unauthorized stores | $66M in fraudulent transactions | 6 charged, employee sentenced to 24 months + $36M restitution |
+| **USAID bribery scheme** — contracting officer steered 14+ prime contracts to 8(a) firms in exchange for cash, NBA tickets, mortgage payments | $550M in contracts | All defendants pleaded guilty |
+| **8(a) program mass suspension** — SBA ordered all 4,300 certified firms to produce 3 years of financial records; 25% couldn't or didn't | 1,091 firms suspended (Jan 2026) | Appeals pending, parallel DoD/Treasury audits launched |
+| **COVID food program fraud** — fake sponsors, shell companies, fabricated invoices across CACFP, Pandemic EBT, Farmers to Families | Hundreds of millions | 3,500+ defendants charged across all COVID fraud |
+| **DOGE contract terminations** — mass review and cancellation of government contracts and grants | 10,000+ contracts ($71B) terminated | Ongoing |
+| **False Claims Act recoveries FY2025** — record year for fraud enforcement | **$6.8 billion** (all-time record) | 1,297 whistleblower suits filed (also record) |
+
+**GAO estimates the federal government loses $233–521 billion annually to fraud, waste, and abuse** — that's 3–7% of the entire federal budget.
+
+### How the Fraud Worked — The Patterns
+
+The fraud cases share common patterns that expose what agencies now look for:
+
+**Shell companies and pass-throughs:**
+- Companies created on paper with no real operations, no real employees, no real warehouses
+- Win contracts based on false certifications (small business, minority-owned, veteran-owned)
+- Subcontract all actual work to large ineligible companies or simply pocket the money
+- Example: Feeding Our Future opened 250+ fake meal sites with fabricated attendance records. A site in Pelican Rapids (population 2,500) claimed $293,300 in food purchases for 140,000 meals in a single month
+
+**Fraudulent small business certifications:**
+- Companies misrepresent ownership, size, revenue, or disadvantaged status to qualify for set-asides
+- "Rent-a-vet" arrangements where a veteran is listed as owner in name only for SDVOSB contracts
+- Affiliation concealment — large companies create subsidiaries that hide their actual size
+- The SBA's January 2026 mass suspension of 1,091 firms (25% of the entire 8(a) program) shows how widespread this is
+
+**Insider corruption:**
+- Government employees steering contracts to specific vendors for kickbacks
+- The $550M USAID case: a contracting officer ran a decade-long bribery scheme
+- The $66M SNAP case: the USDA employee responsible for *detecting* fraud was the one enabling it
+
+### The Current Enforcement Environment
+
+The Trump administration and DOGE have created the most aggressive fraud enforcement environment in decades:
+
+**Executive Orders (2025):**
+- All agencies ordered to review existing contracts and grants within 30 days
+- Pre-certification payment verification for all federal payments (Treasury)
+- Agencies directed to grant full access to records for inter-agency fraud detection
+- FinCEN Geographic Targeting Orders requiring banks to report international transfers from fraud-connected regions
+
+**SBA 8(a) Crackdown:**
+- Full financial audit of every 8(a) contractor in the program
+- 25% suspended in the first round for non-compliance
+- Department of Defense and Treasury launched parallel independent audits
+- Signal: the government is actively cleaning house on fraudulent small business certifications
+
+**Record Enforcement:**
+- $6.8 billion in False Claims Act recoveries in FY2025 (largest year ever)
+- 1,297 whistleblower suits filed (largest year ever)
+- DOJ COVID-19 Fraud Enforcement Task Force: 3,500+ defendants charged, 2,500+ found guilty
+
+### Why This Is Newport's Moment
+
+**Agencies are scared.** Contracting officers who award to fraudulent vendors face personal liability, career consequences, and IG investigations. The incentive structure has shifted dramatically — agencies now prioritize *verifiable legitimacy* over marginal cost savings.
+
+This creates a **flight to quality** where established, legitimate businesses have an unprecedented advantage:
+
+**What agencies now look for (that Newport has):**
+
+| What They Want | Why | Newport's Position |
+|---|---|---|
+| **Verifiable operating history** | Shell companies have no history | 25+ years of continuous Florida operations |
+| **Real physical infrastructure** | Fake companies have no warehouses, no trucks | Real warehouses, real fleet, real cold chain |
+| **American ownership and employees** | Fraud rings often involve shell ownership, offshore entities | American-owned, American-operated, pays American taxes |
+| **Clean financial records** | 25% of 8(a) firms couldn't produce 3 years of financials | 25+ years of tax records, auditable books |
+| **Established banking relationships** | Fraudulent entities have no credit history | Decades-long banking and trade credit relationships |
+| **Industry reputation** | No references = red flag | 25 years of supplier and customer references |
+| **No pass-through risk** | Government is cracking down on companies that win contracts and sub everything out | Newport performs the actual distribution — own people, own trucks, own warehouse |
+
+**The positioning statement for every proposal:**
+
+> *"Newport Wholesalers has operated continuously in Florida for over 25 years, employing American workers, paying American taxes, and serving institutional food buyers with real infrastructure — real warehouses, real trucks, and real supply chains. In an era of heightened scrutiny on government contract integrity, Newport offers agencies what they need most: a verifiable, legitimate, American-owned food distribution partner with decades of auditable performance."*
+
+### The Corrections Angle — Fraud Meets Quality Failures
+
+The corrections food space is getting hit from both sides — fraud AND performance failures:
+
+- **Aramark:** Michigan terminated a $145M prison food contract after maggots in food, rodent contamination, and worker misconduct. A December 2025 lawsuit alleges Aramark systematically cuts free prison meals to boost profits
+- **Trinity Services Group:** Oklahoma voided a $74M prison food contract after just 4 weeks due to nutritional deficiencies (2025)
+- **TKC Holdings (Trinity + Keefe):** Vertical monopoly controlling both cafeteria and commissary draws ongoing scrutiny
+
+When the dominant players are getting sued for serving maggot-infested food and cutting portions to boost margins, agencies are increasingly looking for alternatives. Newport's value proposition — fresh food, reliable delivery, no incentive to cut corners (because Newport is a supplier, not a food service manager compensated per-meal) — is exactly what dissatisfied agencies want.
+
+---
+
+## 7. How to Get an Edge — Newport's Competitive Advantages
 
 ### Small Business Set-Asides — The Single Biggest Structural Advantage
 
@@ -579,7 +674,7 @@ Newport's Florida/Miami position provides unique access to:
 
 ---
 
-## 7. Decision Makers & Internal Champions
+## 8. Decision Makers & Internal Champions
 
 ### Who Actually Decides
 
@@ -656,7 +751,7 @@ These are the people who don't sign the contract but have enormous influence ove
 
 ---
 
-## 8. How Governments Make Selection — Positioning Playbook
+## 9. How Governments Make Selection — Positioning Playbook
 
 ### Before the Solicitation (12–18 Months Out)
 
@@ -748,7 +843,7 @@ Newport needs a **1–2 page capability statement** tailored for government proc
 
 ---
 
-## 9. Newport's Entry Strategy — Start Small, Build Up
+## 10. Newport's Entry Strategy — Start Small, Build Up
 
 ### Tier 1: Now — Florida Local (Lowest Barriers, Local Advantage)
 
@@ -819,7 +914,7 @@ Newport needs a **1–2 page capability statement** tailored for government proc
 
 ---
 
-## 10. 12-Month Roadmap
+## 11. 12-Month Roadmap
 
 ### Month 1–2: Foundation
 
