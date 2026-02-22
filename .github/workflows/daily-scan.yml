@@ -1,0 +1,40 @@
+name: Daily SAM.gov Scan
+
+on:
+  schedule:
+    - cron: '0 11 * * *'    # 6 AM ET (11:00 UTC)
+  workflow_dispatch:          # manual trigger for testing
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - uses: actions/cache@v4
+        with:
+          path: data/cache/last_opportunities.json
+          key: sam-state-${{ github.run_number }}
+          restore-keys: sam-state-
+
+      - run: python scrapers/daily_monitor.py --max-pages 3
+        env:
+          SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_TO_EMAIL: ${{ secrets.RESEND_TO_EMAIL }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scan-${{ github.run_number }}
+          path: data/final/govt_opportunity_pipeline_*.csv
+          retention-days: 30

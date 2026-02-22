@@ -1421,6 +1421,10 @@ def main():
         "--dry-run", action="store_true",
         help="Show query parameters and rate limit estimate without calling APIs",
     )
+    parser.add_argument(
+        "--score", action="store_true",
+        help="Score opportunities through bid/no-bid framework (use with --report opportunities)",
+    )
 
     # Keep --agency as a hidden alias for backward compatibility
     parser.add_argument("--agency", default="", help=argparse.SUPPRESS)
@@ -1524,6 +1528,19 @@ def main():
                     use_cache=use_cache,
                 )
                 if not df.empty:
+                    if args.score:
+                        from scoring.bid_scorer import score_opportunities_batch, format_scorecard
+                        print(f"\n  Scoring {len(df)} opportunities...")
+                        opps = df.to_dict("records")
+                        scored = score_opportunities_batch(opps, config=config)
+                        scored.sort(key=lambda x: x.get("bid_score", 0), reverse=True)
+                        for item in scored[:5]:
+                            result = item.pop("_score_result", None)
+                            if result:
+                                print(format_scorecard(result, item))
+                        for item in scored[5:]:
+                            item.pop("_score_result", None)
+                        df = pd.DataFrame(scored)
                     path = save_results(df, "opportunity_pipeline")
                     print(f"\n  Saved {len(df)} records to {path}")
                     print_summary(df, "Opportunity Pipeline")
