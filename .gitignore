@@ -37,6 +37,11 @@ desktop.ini
 # Generated outputs
 pitchbook/*.pptx
 dashboard/*.xlsx
+deliverables/**/*.pptx
+deliverables/**/*.xlsx
+
+# Node
+node_modules/
 
 # Claude Code
 .claude/

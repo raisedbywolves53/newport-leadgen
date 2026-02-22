@@ -1,9 +1,7 @@
-"""Notification dispatchers for SAM.gov monitoring alerts.
+"""Notification dispatchers for GovCon daily monitor alerts.
 
 Supports Slack (incoming webhook) and email (Resend API). Both fail
 gracefully — a missing credential logs a warning and returns False.
-
-No new packages required; uses ``requests`` which is already a dependency.
 
 Usage:
     from notifications.notify import send_slack_notification, send_email_notification
@@ -11,6 +9,7 @@ Usage:
 
 import logging
 import os
+from datetime import datetime
 
 import requests
 from dotenv import load_dotenv
@@ -20,13 +19,10 @@ load_dotenv()
 log = logging.getLogger(__name__)
 
 
-# ── Slack ─────────────────────────────────────────────────────────────────
+# -- Slack -------------------------------------------------------------------
 
 def send_slack_notification(webhook_url: str, text: str, blocks: list | None = None) -> bool:
-    """POST a message to a Slack incoming webhook.
-
-    Returns True on success, False on failure (logged, not raised).
-    """
+    """POST a message to a Slack incoming webhook."""
     if not webhook_url:
         log.warning("Slack webhook URL not configured — skipping notification")
         return False
@@ -50,27 +46,22 @@ def send_slack_notification(webhook_url: str, text: str, blocks: list | None = N
 def format_slack_opportunity_summary(
     new_opps: list[dict],
     total_count: int,
-    sheet_url: str = "",
+    deadlines: list[dict] | None = None,
+    pipeline_stats: dict | None = None,
 ) -> tuple[str, list]:
-    """Build Slack Block Kit formatted message for new opportunities.
-
-    Returns (fallback_text, blocks_list).
-    """
-    fallback = f"SAM.gov Monitor: {len(new_opps)} new opportunities found ({total_count} total)"
+    """Build Slack Block Kit formatted message for the daily digest."""
+    fallback = f"Newport GovCon Daily Brief: {len(new_opps)} new opportunities ({total_count} total)"
 
     blocks = [
         {
             "type": "header",
-            "text": {"type": "plain_text", "text": "SAM.gov Daily Scan Results"},
+            "text": {"type": "plain_text", "text": f"Newport GovCon Daily Brief — {datetime.now():%b %d, %Y}"},
         },
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": (
-                    f"*{len(new_opps)} new* opportunities detected "
-                    f"({total_count} total in pipeline)"
-                ),
+                "text": f"*{len(new_opps)} new* opportunities detected ({total_count} total in pipeline)",
             },
         },
         {"type": "divider"},
@@ -107,22 +98,40 @@ def format_slack_opportunity_summary(
             ],
         })
 
-    if sheet_url:
+    # Deadline summary
+    if deadlines:
+        blocks.append({"type": "divider"})
+        deadline_lines = []
+        for d in deadlines[:5]:
+            title = (d.get("title") or "?")[:50]
+            days = d.get("_days_until", "?")
+            deadline_lines.append(f"• *{title}* — {days} days")
         blocks.append({
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"<{sheet_url}|View Pipeline Sheet>"},
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Upcoming Deadlines (7 days)*\n" + "\n".join(deadline_lines),
+            },
+        })
+
+    # Pipeline snapshot
+    if pipeline_stats:
+        active = pipeline_stats.get("active_count", 0)
+        value = pipeline_stats.get("pipeline_value", 0)
+        blocks.append({
+            "type": "context",
+            "elements": [
+                {"type": "mrkdwn", "text": f"Pipeline: {active} active | ${value:,.0f} total value"},
+            ],
         })
 
     return fallback, blocks
 
 
-# ── Email (Resend API) ────────────────────────────────────────────────────
+# -- Email (Resend API) ------------------------------------------------------
 
 def send_email_notification(api_key: str, to: str, subject: str, html_body: str) -> bool:
-    """Send an email via the Resend API.
-
-    Returns True on success, False on failure (logged, not raised).
-    """
+    """Send an email via the Resend API."""
     if not api_key:
         log.warning("Resend API key not configured — skipping email notification")
         return False
@@ -155,57 +164,101 @@ def send_email_notification(api_key: str, to: str, subject: str, html_body: str)
         return False
 
 
-def format_email_opportunity_summary(
+def format_email_digest(
     new_opps: list[dict],
     total_count: int,
+    deadlines: list[dict] | None = None,
+    pipeline_stats: dict | None = None,
 ) -> tuple[str, str]:
-    """Build email subject and HTML body for new opportunities.
+    """Build the daily digest email (subject + HTML body).
 
-    Returns (subject, html_body).
+    Format per Phase 2 spec:
+      - NEW OPPORTUNITIES section with score/recommendation
+      - UPCOMING DEADLINES section
+      - PIPELINE SNAPSHOT section
     """
-    subject = f"SAM.gov Monitor: {len(new_opps)} new opportunities found"
+    today = datetime.now().strftime("%b %d, %Y")
+    subject = f"Newport GovCon Daily Brief — {today}"
 
-    rows = ""
+    # --- New Opportunities ---
+    opp_rows = ""
     for opp in new_opps[:20]:
         title = (opp.get("title") or "Untitled")[:80]
         agency = opp.get("agency", "")[:50]
-        deadline = opp.get("response_deadline", "N/A")
+        value = opp.get("contract_value", opp.get("contract_size_est", ""))
         naics = opp.get("naics_code", "")
-        sol = opp.get("solicitation_number", "")
+        deadline = opp.get("response_deadline", "N/A")
         score = opp.get("bid_score", "")
         decision = opp.get("bid_decision", "")
-        score_cell = f"{score} ({decision})" if score else "N/A"
+        score_cell = f"{score}/100 — {decision}" if score else "Not scored"
         ui_link = opp.get("ui_link", "")
+        sol = opp.get("solicitation_number", "")
 
-        title_html = f'<a href="{ui_link}">{title}</a>' if ui_link else title
+        title_html = f'<a href="{ui_link}" style="color:#1C7293">{title}</a>' if ui_link else title
 
-        rows += f"""<tr>
-            <td style="padding:6px;border:1px solid #ddd">{title_html}</td>
-            <td style="padding:6px;border:1px solid #ddd">{agency}</td>
-            <td style="padding:6px;border:1px solid #ddd">{naics}</td>
-            <td style="padding:6px;border:1px solid #ddd">{sol}</td>
-            <td style="padding:6px;border:1px solid #ddd">{deadline}</td>
-            <td style="padding:6px;border:1px solid #ddd">{score_cell}</td>
+        opp_rows += f"""<tr>
+            <td style="padding:8px;border-bottom:1px solid #eee">
+                <strong>{title_html}</strong><br>
+                <span style="color:#666;font-size:13px">
+                    Agency: {agency} | Value: {value} | NAICS: {naics}<br>
+                    Deadline: {deadline} | {sol}<br>
+                    <strong>Score: {score_cell}</strong>
+                </span>
+            </td>
         </tr>"""
 
-    html_body = f"""<html><body style="font-family:Arial,sans-serif">
-    <h2>SAM.gov Daily Scan Results</h2>
-    <p><strong>{len(new_opps)} new</strong> opportunities detected
-       ({total_count} total in pipeline).</p>
-    <table style="border-collapse:collapse;width:100%">
-        <tr style="background:#f5f5f5">
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">Title</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">Agency</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">NAICS</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">Solicitation</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">Deadline</th>
-            <th style="padding:8px;border:1px solid #ddd;text-align:left">Score</th>
-        </tr>
-        {rows}
-    </table>
-    {"<p><em>Showing first 20 of " + str(len(new_opps)) + " new opportunities.</em></p>" if len(new_opps) > 20 else ""}
-    <hr>
-    <p style="color:#888;font-size:12px">Newport GovCon Command Center — automated daily scan</p>
+    more_text = ""
+    if len(new_opps) > 20:
+        more_text = f'<p style="color:#888;font-size:13px">Showing first 20 of {len(new_opps)} new opportunities.</p>'
+
+    # --- Upcoming Deadlines ---
+    deadline_rows = ""
+    if deadlines:
+        for d in deadlines[:10]:
+            title = (d.get("title") or "?")[:60]
+            dl_date = d.get("response_deadline", "N/A")
+            days = d.get("_days_until", "?")
+            stage = d.get("stage", "")
+            color = "#dc3545" if isinstance(days, int) and days <= 3 else "#ffc107" if isinstance(days, int) and days <= 7 else "#666"
+            deadline_rows += f"""<tr>
+                <td style="padding:6px;border-bottom:1px solid #eee">
+                    <strong style="color:{color}">{title}</strong> — Due {dl_date} ({days} days)<br>
+                    <span style="color:#888;font-size:13px">Stage: {stage}</span>
+                </td>
+            </tr>"""
+
+    # --- Pipeline Snapshot ---
+    snapshot_html = ""
+    if pipeline_stats:
+        active = pipeline_stats.get("active_count", 0)
+        proposals = pipeline_stats.get("proposals_in_progress", 0)
+        submitted = pipeline_stats.get("submitted_awaiting", 0)
+        value = pipeline_stats.get("pipeline_value", 0)
+        snapshot_html = f"""
+        <h3 style="color:#065A82;margin-top:24px">PIPELINE SNAPSHOT</h3>
+        <table style="width:100%">
+            <tr><td style="padding:4px">Active Opportunities:</td><td style="padding:4px"><strong>{active}</strong></td></tr>
+            <tr><td style="padding:4px">Proposals in Progress:</td><td style="padding:4px"><strong>{proposals}</strong></td></tr>
+            <tr><td style="padding:4px">Submitted &amp; Awaiting:</td><td style="padding:4px"><strong>{submitted}</strong></td></tr>
+            <tr><td style="padding:4px">Pipeline Value:</td><td style="padding:4px"><strong>${value:,.0f}</strong></td></tr>
+        </table>"""
+
+    html_body = f"""<html><body style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto">
+    <div style="background:#065A82;padding:20px;color:#fff">
+        <h1 style="margin:0">Newport GovCon Daily Brief</h1>
+        <p style="margin:4px 0 0">{today}</p>
+    </div>
+    <div style="padding:16px">
+        <h3 style="color:#065A82">NEW OPPORTUNITIES ({len(new_opps)})</h3>
+        <table style="width:100%">{opp_rows}</table>
+        {more_text}
+
+        {"<h3 style='color:#065A82;margin-top:24px'>UPCOMING DEADLINES (Next 7 Days)</h3><table style='width:100%'>" + deadline_rows + "</table>" if deadline_rows else ""}
+
+        {snapshot_html}
+    </div>
+    <hr style="border:none;border-top:1px solid #ddd;margin-top:24px">
+    <p style="color:#888;font-size:12px;padding:0 16px">Newport GovCon Command Center — automated daily scan</p>
     </body></html>"""
 
     return subject, html_body

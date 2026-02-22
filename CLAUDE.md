@@ -2,22 +2,25 @@
 
 ## Project Overview
 
-Automated lead generation and competitive intelligence pipeline for Newport Wholesalers — a food wholesale distributor. Targets enterprise grocery buyers, food suppliers/manufacturers, and candy wholesalers.
+Master project for Newport Wholesalers — a food wholesale distributor. Two channels:
 
-> **Note**: Government contracting assets (scoring, pipeline tracker, daily monitor, enrichment clients) have been migrated to the dedicated **`newport-govcon`** repo (`C:\Users\USER\newport-govcon`). This repo retains the original copies for reference but active government contracting development happens in `newport-govcon`.
+1. **Government Contracting** — Federal/state food procurement intelligence, bid scoring, pipeline tracking, daily monitoring
+2. **SDR AI Agent** — Commercial lead generation targeting enterprise grocery buyers, food suppliers/manufacturers, and candy wholesalers
 
 ## Architecture
 
 ```
 config/              # JSON configs: ICP definitions, exclusions, government contracts
 enrichment/          # API clients: Apollo.io, SAM.gov (Opps + Entity), USASpending.gov, Grants.gov, FPDS
-scoring/             # Bid/no-bid scoring framework (9-factor weighted model)
+scoring/             # Bid/no-bid scoring: bid_scorer.py (procedural), bid_no_bid.py (OOP)
 scrapers/            # CLI tools: apollo_prospector.py, contract_scanner.py, daily_monitor.py
-notifications/       # Slack + email notification dispatchers
+notifications/       # Slack + email notification dispatchers (rich digest)
 crm/                 # Google Sheets CRM integration (Goldman's)
-tracking/            # GovCon Pipeline Tracker (Google Sheets)
+tracking/            # GovCon Pipeline Tracker: sheets_crm.py (v1), sheets_pipeline.py (v2)
+deliverables/        # Proposal outputs: PowerPoint deck (Node.js), Excel pro forma (Python)
 orchestrator/        # Campaign runner
 outreach/            # Email (Instantly), SMS (Twilio), Voice (Retell AI)
+docs/govcon/         # Government contracting phase docs and strategy references
 data/                # Gitignored: raw/, enriched/, final/, cache/
 .github/workflows/   # GitHub Actions: daily-scan.yml
 ```
@@ -47,12 +50,19 @@ python scrapers/contract_scanner.py --report grants
 python scrapers/contract_scanner.py --report competition-density --fiscal-years 2024,2025
 ```
 
-### Bid/No-Bid Scorer (`scoring/bid_scorer.py`)
-9-factor weighted scoring (0-100) → Strong Bid / Bid / Review / No-Bid decisions.
+### Bid/No-Bid Scorer — Procedural (`scoring/bid_scorer.py`)
+9-factor weighted scoring (0-100) → Strong Bid / Bid / Review / No-Bid decisions. Used by `contract_scanner.py`.
 ```
 python scoring/bid_scorer.py --csv data/final/govt_opportunity_pipeline_*.csv
 python scoring/bid_scorer.py --csv FILE --overrides '{"past_performance": 1}'
 python scoring/bid_scorer.py --csv FILE --top 10
+```
+
+### Bid/No-Bid Scorer — OOP (`scoring/bid_no_bid.py`)
+Complete OOP rewrite (BidNoBidScorer class). Used by `daily_monitor.py` and `sheets_pipeline.py`.
+```
+python scoring/bid_no_bid.py --help
+python scoring/bid_no_bid.py --csv data/final/govt_opportunity_pipeline_*.csv --top 10
 ```
 
 ### Daily SAM.gov Monitor (`scrapers/daily_monitor.py`)
@@ -64,15 +74,37 @@ python scrapers/daily_monitor.py --score --push-to-sheet --dry-run
 python scrapers/daily_monitor.py --max-pages 3
 ```
 
-### GovCon Pipeline Tracker (`tracking/sheets_crm.py`)
-Google Sheets pipeline tracker: 12 stages, 11 buyer categories, 4 tabs (Opportunities/Agencies/Contacts/Dashboard).
+### GovCon Pipeline Tracker v1 (`tracking/sheets_crm.py`)
+Google Sheets pipeline tracker (legacy): 12 stages, 11 buyer categories, 4 tabs. Used by `contract_scanner.py`.
 ```
 python tracking/sheets_crm.py --dry-run --init
 python tracking/sheets_crm.py --dry-run --add-opp --solicitation W51YHZ-24-R-0001 --title "Fresh Produce" --agency "DEPT OF DEFENSE" --state FL --naics 424480 --category military_dla --tier federal
-python tracking/sheets_crm.py --dry-run --update-stage OPP_ID qualifying
 python tracking/sheets_crm.py --dry-run --import-csv data/final/govt_opportunity_pipeline_*.csv
 python tracking/sheets_crm.py --dry-run --dashboard
-python tracking/sheets_crm.py --dry-run --deadlines --days-ahead 14
+```
+
+### GovCon Pipeline Tracker v2 (`tracking/sheets_pipeline.py`)
+Phase 2 pipeline tracker: 3 tabs (Pipeline 23 cols, Agencies 13 cols, Dashboard), bid scoring integration, agency sync. Used by `daily_monitor.py`.
+```
+python tracking/sheets_pipeline.py --dry-run --init
+python tracking/sheets_pipeline.py --dry-run --add-opp --title "Fresh Produce" --agency "DEPT OF DEFENSE" --state FL --naics 424480 --category "Military/DoD" --tier Federal
+python tracking/sheets_pipeline.py --dry-run --update-stage OPP_ID "Qualifying"
+python tracking/sheets_pipeline.py --dry-run --import-csv data/final/govt_opportunity_pipeline_*.csv
+python tracking/sheets_pipeline.py --dry-run --dashboard
+python tracking/sheets_pipeline.py --dry-run --deadlines --days-ahead 14
+python tracking/sheets_pipeline.py --dry-run --score OPP_ID
+```
+
+### Proposal PowerPoint Builder (`deliverables/presentation/build_presentation.js`)
+14-slide capability deck using pptxgenjs (Node.js). Ocean Gradient palette.
+```
+cd deliverables/presentation && npm install && node build_presentation.js
+```
+
+### Pro Forma Financial Model (`deliverables/financials/build_proforma.py`)
+4-sheet Excel workbook (Assumptions, Revenue Model, Summary, Platform Comparison) with 24-month × 3 scenarios.
+```
+python deliverables/financials/build_proforma.py
 ```
 
 ## Segments
@@ -90,7 +122,8 @@ python tracking/sheets_crm.py --dry-run --deadlines --days-ahead 14
 - `APOLLO_API_KEY` — Apollo.io for people search and enrichment
 - `SAM_API_KEY` — SAM.gov for opportunities + entity data (free, 1,000 req/day)
 - `SLACK_WEBHOOK_URL` — Slack incoming webhook for daily monitor alerts
-- `RESEND_API_KEY` + `RESEND_TO_EMAIL` — Resend for email notifications (optional)
+- `RESEND_API_KEY` + `NOTIFICATION_EMAIL` — Resend for email notifications (optional)
+- `GOOGLE_SHEETS_CREDENTIALS_PATH` + `GOOGLE_SHEETS_ID` — Google Sheets pipeline tracker (optional)
 - USASpending.gov — no key needed
 - Grants.gov — no key needed
 - FPDS — no key needed
@@ -128,24 +161,26 @@ python tracking/sheets_crm.py --dry-run --deadlines --days-ahead 14
 - Cache layer for SAM.gov rate limit management (24hr TTL, `data/cache/`)
 - 10 primary NAICS codes (food wholesale 4244xx + food service 722310), 42 secondary (food manufacturing 311xxx)
 - 10 target states: FL, GA, AL, SC, NC, TN, MS, LA, VA, TX
-- **Bid/No-Bid Scoring Framework** (`scoring/bid_scorer.py`):
+- **Bid/No-Bid Scoring Framework**:
+  - `scoring/bid_scorer.py` (procedural) — used by contract_scanner.py
+  - `scoring/bid_no_bid.py` (OOP, BidNoBidScorer class) — used by daily_monitor.py and sheets_pipeline.py
   - 9-factor weighted model (NAICS 15%, Geography 15%, Size 10%, Competition 10%, Past Performance 15%, Eval Criteria 10%, Relationship 10%, Timeline 10%, Strategic 5%)
-  - 5 auto-scored factors from opportunity data, 4 manual override factors (default 3)
   - Decision thresholds: 80=Strong Bid, 65=Bid, 50=Review, <50=No-Bid
-  - Standalone CLI + integrated `--score` flag in contract_scanner.py
 - **Daily SAM.gov Monitor** (`scrapers/daily_monitor.py`):
   - State persistence via `data/cache/last_opportunities.json`
   - Change detection (new/removed notice_ids across runs)
   - Optional bid scoring of new opportunities
   - Slack (Block Kit) + email (Resend API) notifications
   - GitHub Actions workflow (daily at 6 AM ET) with artifact upload
-- **GovCon Pipeline Tracker** (`tracking/sheets_crm.py`):
-  - 12 pipeline stages: identified → qualifying → bid_decision → capture → drafting_proposal → review → submitted → under_evaluation → awarded/lost/no_bid/cancelled
-  - 11 buyer categories (K-12, corrections, military/DLA, VA, FEMA, county, city, university, food bank, state agency, other)
-  - 4 tabs: Opportunities (29 cols), Agencies (11 cols), Contacts (11 cols), Dashboard (formulas)
-  - Import from contract_scanner CSV or direct API dicts (daily_monitor integration)
-  - Deadline reports, pipeline analytics, CSV export
-- **Integration chain**: daily_monitor → bid_scorer → pipeline_tracker (optional `--push-to-sheet` flag)
+- **GovCon Pipeline Tracker**:
+  - `tracking/sheets_crm.py` (v1) — 4 tabs, 29 cols, used by contract_scanner
+  - `tracking/sheets_pipeline.py` (v2) — 3 tabs (Pipeline 23 cols, Agencies 13 cols, Dashboard), bid scoring integration, agency sync, used by daily_monitor
+  - 12 pipeline stages: Identified → Qualifying → Bid Decision → Capture → Drafting Proposal → Internal Review → Submitted → Under Evaluation → Awarded/Lost/No-Bid/Cancelled
+  - 10 buyer categories, deadline reports, pipeline analytics, CSV export
+- **Deliverables**:
+  - `deliverables/presentation/build_presentation.js` — 14-slide PowerPoint proposal deck (Node.js, pptxgenjs)
+  - `deliverables/financials/build_proforma.py` — 4-sheet Excel pro forma model (openpyxl)
+- **Integration chain**: daily_monitor → bid_no_bid scorer → sheets_pipeline tracker → Slack/email notifications
 
 ### Verified Against Live APIs
 - USASpending endpoints: market-size, small-contracts, fema, spending_by_recipient, spending_by_geography, new_awards_over_time — all confirmed working
@@ -153,11 +188,6 @@ python tracking/sheets_crm.py --dry-run --deadlines --days-ahead 14
 - FPDS: fpds library confirmed working (111 records for NAICS 424410, 2-month window)
 - SAM.gov Opportunities: requires SAM_API_KEY (key is set in .env)
 - SAM.gov Entity API: requires SAM_API_KEY (same key, shares 1,000/day limit)
-
-### Repo Split (Feb 2026)
-- Government contracting assets migrated to `newport-govcon` repo
-- This repo (`newport-leadgen`) retains: Apollo prospector, commercial CRM, outreach, orchestrator, pitchbook, candy/LATAM strategy
-- Enrichment clients (SAM, USASpending, FPDS, Grants, SAM Entity) exist in both repos — `newport-govcon` is the active copy for gov work
 
 ### Remaining Backlog
 - Outreach automation (Instantly email, Twilio SMS, Retell voice)
