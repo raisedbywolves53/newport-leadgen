@@ -39,6 +39,7 @@ pitchbook/*.pptx
 dashboard/*.xlsx
 deliverables/**/*.pptx
 deliverables/**/*.xlsx
+deliverables/market_data.json
 
 # Node
 node_modules/

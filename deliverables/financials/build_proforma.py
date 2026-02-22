@@ -4,13 +4,14 @@ Build Newport GovCon Pro Forma Financial Model.
 
 Generates a professional Excel workbook with 4 sheets:
   1. Assumptions  - All editable inputs (blue text, yellow highlights)
-  2. Revenue Model - 24-month projection x 3 scenarios (all Excel formulas)
-  3. Summary       - Executive view pulling from Revenue Model
+  2. Revenue Model - 60-month projection x 3 scenarios (all Excel formulas)
+  3. Summary       - Executive view: Year 1-5 results + 5-year totals
   4. Platform Comparison - Free vs Optimal side-by-side
 
 ALL calculations use Excel formulas, NOT Python math.
 """
 
+import json
 import os
 from datetime import datetime
 from openpyxl import Workbook
@@ -29,12 +30,16 @@ GREEN_FONT_BOLD = Font(name="Calibri", size=11, color="008000", bold=True)
 HEADER_FONT = Font(name="Calibri", size=12, color="000000", bold=True)
 TITLE_FONT = Font(name="Calibri", size=14, color="000000", bold=True)
 SECTION_FONT = Font(name="Calibri", size=11, color="000000", bold=True, italic=True)
+NOTE_FONT = Font(name="Calibri", size=10, color="808080", italic=True)
+COST_NOTE_FONT = Font(name="Calibri", size=10, color="8B4513", italic=True)
 
 YELLOW_FILL = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
 LIGHT_GRAY_FILL = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
 LIGHT_BLUE_FILL = PatternFill(start_color="DCE6F1", end_color="DCE6F1", fill_type="solid")
 WHITE_FILL = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
 ALT_ROW_FILL = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
+LIGHT_ORANGE_FILL = PatternFill(start_color="FFF3E0", end_color="FFF3E0", fill_type="solid")
+LIGHT_GREEN_FILL = PatternFill(start_color="E8F5E9", end_color="E8F5E9", fill_type="solid")
 
 THIN_BORDER = Border(
     left=Side(style="thin"),
@@ -44,9 +49,13 @@ THIN_BORDER = Border(
 )
 
 FMT_CURRENCY = '$#,##0'
+FMT_CURRENCY_LARGE = '$#,##0,,"M"'
 FMT_PERCENT = '0.0%'
 FMT_COUNT = '#,##0'
 FMT_COUNT_1 = '0.0'
+
+# Number of projection months
+NUM_MONTHS = 60
 
 
 def set_cell(ws, row, col, value, font=None, fill=None, fmt=None, alignment=None, border=None):
@@ -73,12 +82,76 @@ def auto_fit_columns(ws, min_width=10, max_width=40):
         for cell in col_cells:
             if cell.value is not None:
                 val_str = str(cell.value)
-                # Truncate formula display for width calc
                 if val_str.startswith("="):
                     val_str = val_str[:20]
                 max_len = max(max_len, len(val_str))
         width = min(max(max_len + 3, min_width), max_width)
         ws.column_dimensions[col_letter].width = width
+
+
+def generate_month_labels(num_months=60, start_year=2026, start_month=3):
+    """Generate calendar month labels: Mar 2026, Apr 2026, ..., Feb 2031."""
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    labels = []
+    for i in range(num_months):
+        m = (start_month - 1 + i) % 12
+        y = start_year + (start_month - 1 + i) // 12
+        labels.append(f"{month_names[m]} {y}")
+    return labels
+
+
+def load_market_data():
+    """Try to load market_data.json for TAM context. Returns None values if unavailable."""
+    market_data_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "market_data.json"
+    )
+    try:
+        with open(market_data_path) as f:
+            md = json.load(f)
+        return {
+            "tam_total": md.get("tam", {}).get("total_spending"),
+            "tam_target": md.get("tam", {}).get("target_states_spending"),
+            "fiscal_year": md.get("fiscal_year"),
+        }
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"tam_total": None, "tam_target": None, "fiscal_year": None}
+
+
+# ---------------------------------------------------------------------------
+# Assumptions sheet row map (used by Revenue Model and Summary formulas)
+# ---------------------------------------------------------------------------
+# Business Assumptions
+ROW_MARGIN = 3       # B3: Wholesale Gross Margin
+ROW_CV_CON = 4       # B4: Avg Contract Value - Conservative
+ROW_CV_MOD = 5       # B5: Avg Contract Value - Moderate
+ROW_CV_AGG = 6       # B6: Avg Contract Value - Aggressive
+ROW_DURATION = 7     # B7: Average Contract Duration (months)
+
+# Win Rate Assumptions
+ROW_WR_Y1_H1 = 11   # B11: Year 1 Win Rate (Months 1-6)
+ROW_WR_Y1_H2 = 12   # B12: Year 1 Win Rate (Months 7-12)
+ROW_WR_Y2 = 13       # B13: Year 2 Win Rate
+ROW_WR_Y3 = 14       # B14: Year 3 Win Rate
+ROW_WR_Y4 = 15       # B15: Year 4 Win Rate
+ROW_WR_Y5 = 16       # B16: Year 5 Win Rate
+
+# Bid Volume Assumptions
+ROW_BID_CON = 19     # B19: Bids/Month - Conservative
+ROW_BID_MOD = 20     # B20: Bids/Month - Moderate
+ROW_BID_AGG = 21     # B21: Bids/Month - Aggressive
+ROW_BID_MULT_Y3 = 22  # B22: Year 3 Bid Multiplier
+ROW_BID_MULT_Y4 = 23  # B23: Year 4 Bid Multiplier
+ROW_BID_MULT_Y5 = 24  # B24: Year 5 Bid Multiplier
+
+# Platform Cost Assumptions
+ROW_PLAT_FREE = 27   # B27: Free System Cost (annual)
+ROW_PLAT_OPT = 31    # B31: Optimal System Total (annual)
+ROW_CONSULTING = 32  # B32: Consulting Fee
+
+# Ramp Assumptions
+ROW_RAMP_BID = 35    # B35: Months to First Bid
+ROW_RAMP_WIN = 36    # B36: Months to First Win
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +162,7 @@ def build_assumptions(wb):
     ws.title = "Assumptions"
 
     # Title
-    set_cell(ws, 1, 1, "Newport GovCon Pro Forma Assumptions", font=TITLE_FONT)
+    set_cell(ws, 1, 1, "Newport GovCon Pro Forma Assumptions (5-Year)", font=TITLE_FONT)
     ws.merge_cells("A1:C1")
 
     # ---- Section: Newport Business Assumptions ----
@@ -111,58 +184,67 @@ def build_assumptions(wb):
         set_cell(ws, row, 2, value, font=BLUE_FONT, fmt=fmt,
                  fill=YELLOW_FILL if highlight else None)
         if note:
-            set_cell(ws, row, 3, note, font=Font(name="Calibri", size=10, color="808080", italic=True))
+            set_cell(ws, row, 3, note, font=NOTE_FONT)
 
-    # ---- Section: Win Rate Assumptions ----
-    set_cell(ws, 10, 1, "Win Rate Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
+    # ---- Section: Win Rate Assumptions (5-Year) ----
+    set_cell(ws, 10, 1, "Win Rate Assumptions (5-Year)", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
     set_cell(ws, 10, 2, None, fill=LIGHT_GRAY_FILL)
     set_cell(ws, 10, 3, None, fill=LIGHT_GRAY_FILL)
 
     labels_winrate = [
-        (11, "Year 1 Win Rate (Months 1-6)", 0.15, FMT_PERCENT, True,
+        (ROW_WR_Y1_H1, "Year 1 Win Rate (Months 1-6)", 0.15, True,
          "New entrant, no past performance"),
-        (12, "Year 1 Win Rate (Months 7-12)", 0.25, FMT_PERCENT, True,
+        (ROW_WR_Y1_H2, "Year 1 Win Rate (Months 7-12)", 0.25, True,
          "Some past performance building"),
-        (13, "Year 2 Win Rate", 0.35, FMT_PERCENT, True,
+        (ROW_WR_Y2, "Year 2 Win Rate", 0.35, True,
          "Established past performance"),
+        (ROW_WR_Y3, "Year 3 Win Rate", 0.40, True,
+         "Strong past performance portfolio"),
+        (ROW_WR_Y4, "Year 4 Win Rate", 0.45, True,
+         "Preferred vendor status on key accounts"),
+        (ROW_WR_Y5, "Year 5 Win Rate", 0.50, True,
+         "Incumbent advantage on renewals"),
     ]
-    for row, label, value, fmt, highlight, note in labels_winrate:
+    for row, label, value, highlight, note in labels_winrate:
         set_cell(ws, row, 1, label, font=BLACK_FONT)
-        set_cell(ws, row, 2, value, font=BLUE_FONT, fmt=fmt,
+        set_cell(ws, row, 2, value, font=BLUE_FONT, fmt=FMT_PERCENT,
                  fill=YELLOW_FILL if highlight else None)
         if note:
-            set_cell(ws, row, 3, note, font=Font(name="Calibri", size=10, color="808080", italic=True))
+            set_cell(ws, row, 3, note, font=NOTE_FONT)
 
     # ---- Section: Bid Volume Assumptions ----
-    set_cell(ws, 15, 1, "Bid Volume Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
-    set_cell(ws, 15, 2, None, fill=LIGHT_GRAY_FILL)
-    set_cell(ws, 15, 3, None, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 18, 1, "Bid Volume Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 18, 2, None, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 18, 3, None, fill=LIGHT_GRAY_FILL)
 
     labels_bid = [
-        (16, "Bids/Month - Conservative (Free system)", 1.5, FMT_COUNT_1, True, "~18/year"),
-        (17, "Bids/Month - Moderate (Optimal system)", 3, FMT_COUNT_1, True, "~36/year"),
-        (18, "Bids/Month - Aggressive (Optimal + dedicated effort)", 5, FMT_COUNT_1, True, "~60/year"),
+        (ROW_BID_CON, "Bids/Month - Conservative (Free system)", 1.5, FMT_COUNT_1, True, "~18/year"),
+        (ROW_BID_MOD, "Bids/Month - Moderate (Optimal system)", 3, FMT_COUNT_1, True, "~36/year"),
+        (ROW_BID_AGG, "Bids/Month - Aggressive (Optimal + dedicated effort)", 5, FMT_COUNT_1, True, "~60/year"),
+        (ROW_BID_MULT_Y3, "Year 3 Bid Volume Multiplier", 1.25, FMT_COUNT_1, True, "25% increase — expanded capacity"),
+        (ROW_BID_MULT_Y4, "Year 4 Bid Volume Multiplier", 1.50, FMT_COUNT_1, True, "50% increase — dedicated BD staff"),
+        (ROW_BID_MULT_Y5, "Year 5 Bid Volume Multiplier", 1.75, FMT_COUNT_1, True, "75% increase — mature operation"),
     ]
     for row, label, value, fmt, highlight, note in labels_bid:
         set_cell(ws, row, 1, label, font=BLACK_FONT)
         set_cell(ws, row, 2, value, font=BLUE_FONT, fmt=fmt,
                  fill=YELLOW_FILL if highlight else None)
         if note:
-            set_cell(ws, row, 3, note, font=Font(name="Calibri", size=10, color="808080", italic=True))
+            set_cell(ws, row, 3, note, font=NOTE_FONT)
 
     # ---- Section: Platform Cost Assumptions ----
-    set_cell(ws, 20, 1, "Platform Cost Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
-    set_cell(ws, 20, 2, None, fill=LIGHT_GRAY_FILL)
-    set_cell(ws, 20, 3, None, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 26, 1, "Platform Cost Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 26, 2, None, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 26, 3, None, fill=LIGHT_GRAY_FILL)
 
     labels_platform = [
-        (21, "Free System Cost (annual)", 0, FMT_CURRENCY, False, "Built-in tools only"),
-        (22, "CLEATUS (annual)", 3000, FMT_CURRENCY, True, "Mid-range estimate"),
-        (23, "HigherGov (annual)", 3500, FMT_CURRENCY, True, "Mid-range estimate"),
-        (24, "GovSpend (annual)", 6500, FMT_CURRENCY, True, "Mid-range estimate"),
-        (25, "Optimal System Total (annual)", "=SUM(B22:B24)", FMT_CURRENCY, False,
+        (ROW_PLAT_FREE, "Free System Cost (annual)", 0, FMT_CURRENCY, False, "Built-in tools only"),
+        (28, "CLEATUS (annual)", 3000, FMT_CURRENCY, True, "Mid-range estimate"),
+        (29, "HigherGov (annual)", 3500, FMT_CURRENCY, True, "Mid-range estimate"),
+        (30, "GovSpend (annual)", 6500, FMT_CURRENCY, True, "Mid-range estimate"),
+        (ROW_PLAT_OPT, "Optimal System Total (annual)", "=SUM(B28:B30)", FMT_CURRENCY, False,
          "Formula: sum of platform costs"),
-        (26, "Consulting Fee - Monthly Retainer", None, FMT_CURRENCY, True,
+        (ROW_CONSULTING, "Consulting Fee - Monthly Retainer", None, FMT_CURRENCY, True,
          "Leave blank for Newport to discuss"),
     ]
     for row, label, value, fmt, highlight, note in labels_platform:
@@ -171,17 +253,17 @@ def build_assumptions(wb):
         set_cell(ws, row, 2, value, font=font_to_use, fmt=fmt,
                  fill=YELLOW_FILL if highlight else None)
         if note:
-            set_cell(ws, row, 3, note, font=Font(name="Calibri", size=10, color="808080", italic=True))
+            set_cell(ws, row, 3, note, font=NOTE_FONT)
 
     # ---- Section: Ramp Assumptions ----
-    set_cell(ws, 28, 1, "Ramp Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
-    set_cell(ws, 28, 2, None, fill=LIGHT_GRAY_FILL)
-    set_cell(ws, 28, 3, None, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 34, 1, "Ramp Assumptions", font=SECTION_FONT, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 34, 2, None, fill=LIGHT_GRAY_FILL)
+    set_cell(ws, 34, 3, None, fill=LIGHT_GRAY_FILL)
 
     labels_ramp = [
-        (29, "Months to First Bid", 2, FMT_COUNT, True,
+        (ROW_RAMP_BID, "Months to First Bid", 2, FMT_COUNT, True,
          "SAM.gov registration + first opportunity cycle"),
-        (30, "Months to First Win", 4, FMT_COUNT, True,
+        (ROW_RAMP_WIN, "Months to First Win", 4, FMT_COUNT, True,
          "Average award timeline after first submission"),
     ]
     for row, label, value, fmt, highlight, note in labels_ramp:
@@ -189,67 +271,104 @@ def build_assumptions(wb):
         set_cell(ws, row, 2, value, font=BLUE_FONT, fmt=fmt,
                  fill=YELLOW_FILL if highlight else None)
         if note:
-            set_cell(ws, row, 3, note, font=Font(name="Calibri", size=10, color="808080", italic=True))
+            set_cell(ws, row, 3, note, font=NOTE_FONT)
+
+    # ---- Section: Cost Notations (informational, not computed) ----
+    set_cell(ws, 38, 1, "Cost Notations (Not Modeled — For Planning Reference)", font=SECTION_FONT, fill=LIGHT_ORANGE_FILL)
+    set_cell(ws, 38, 2, None, fill=LIGHT_ORANGE_FILL)
+    set_cell(ws, 38, 3, None, fill=LIGHT_ORANGE_FILL)
+
+    cost_notes = [
+        (39, "Bid Preparation Costs", "$2K-5K per bid",
+         "Technical writing, compliance review, pricing analysis"),
+        (40, "Surety Bonding", "1-3% of contract value",
+         "If required — most food supply contracts do not require bonds"),
+        (41, "HACCP/Food Safety Compliance", "One-time + annual renewal",
+         "Required for USDA commodity distribution programs"),
+        (42, "Working Capital / Cash Flow Gap", "30-90 day payment terms",
+         "Federal payment terms average NET 30; state/local can be longer"),
+        (43, "Insurance (GL + Product Liability)", "Annual increase",
+         "Government contracts may require higher coverage limits"),
+        (44, "Dedicated BD Staff", "Year 3+ consideration",
+         "Full-time business development hire when pipeline justifies"),
+    ]
+    for row, label, estimate, note in cost_notes:
+        set_cell(ws, row, 1, label, font=BLACK_FONT)
+        set_cell(ws, row, 2, estimate, font=COST_NOTE_FONT)
+        set_cell(ws, row, 3, note, font=NOTE_FONT)
+
+    # ---- Section: TAM Context (from market_data.json) ----
+    set_cell(ws, 46, 1, "TAM Context (Federal Food Procurement)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 46, 2, None, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 46, 3, None, fill=LIGHT_GREEN_FILL)
+
+    md = load_market_data()
+    tam_total = md["tam_total"]
+    tam_target = md["tam_target"]
+    fy_label = f"FY{md['fiscal_year']}" if md["fiscal_year"] else "FY2025"
+
+    set_cell(ws, 47, 1, f"Total Addressable Market ({fy_label})", font=BLACK_FONT)
+    set_cell(ws, 47, 2, tam_total if tam_total else "Run collect_market_data.py",
+             font=GREEN_FONT if tam_total else NOTE_FONT,
+             fmt=FMT_CURRENCY if tam_total else None)
+    set_cell(ws, 47, 3, "Federal food spending in target NAICS codes (4244xx + 722310)", font=NOTE_FONT)
+
+    set_cell(ws, 48, 1, f"Target States Market ({fy_label})", font=BLACK_FONT)
+    set_cell(ws, 48, 2, tam_target if tam_target else "Run collect_market_data.py",
+             font=GREEN_FONT if tam_target else NOTE_FONT,
+             fmt=FMT_CURRENCY if tam_target else None)
+    set_cell(ws, 48, 3, "FL, GA, AL, SC, NC, TN, MS, LA, VA, TX", font=NOTE_FONT)
+
+    set_cell(ws, 49, 1, "Serviceable Obtainable Market (Year 5 target)", font=BLACK_FONT)
+    set_cell(ws, 49, 2, "0.1%-0.5% of TAM", font=COST_NOTE_FONT)
+    set_cell(ws, 49, 3, "Realistic capture rate for regional wholesaler in 5-year ramp", font=NOTE_FONT)
 
     # Column widths
-    ws.column_dimensions["A"].width = 48
-    ws.column_dimensions["B"].width = 18
-    ws.column_dimensions["C"].width = 52
+    ws.column_dimensions["A"].width = 52
+    ws.column_dimensions["B"].width = 22
+    ws.column_dimensions["C"].width = 58
 
     return ws
 
 
 # ---------------------------------------------------------------------------
-# Sheet 2: Revenue Model
+# Sheet 2: Revenue Model (60 months x 3 scenarios)
 # ---------------------------------------------------------------------------
 def build_revenue_model(wb):
     ws = wb.create_sheet("Revenue Model")
 
-    months_label = [
-        "Mar 2026", "Apr 2026", "May 2026", "Jun 2026", "Jul 2026", "Aug 2026",
-        "Sep 2026", "Oct 2026", "Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027",
-        "Mar 2027", "Apr 2027", "May 2027", "Jun 2027", "Jul 2027", "Aug 2027",
-        "Sep 2027", "Oct 2027", "Nov 2027", "Dec 2027", "Jan 2028", "Feb 2028",
-    ]
+    months_label = generate_month_labels(NUM_MONTHS)
 
     # -- Row 1: Title + month headers --
-    set_cell(ws, 1, 1, "Revenue Model - 24 Month Projection", font=TITLE_FONT)
-    for m in range(24):
-        col = m + 2  # columns B..Y
+    set_cell(ws, 1, 1, "Revenue Model - 60 Month Projection (5-Year GovCon Plan)", font=TITLE_FONT)
+    for m in range(NUM_MONTHS):
+        col = m + 2
         set_cell(ws, 1, col, None, fill=LIGHT_GRAY_FILL)
 
-    # -- Row 2: Month numbers 1-24 --
+    # -- Row 2: Month numbers 1-60 --
     set_cell(ws, 2, 1, "Month #", font=HEADER_FONT, fill=LIGHT_GRAY_FILL)
-    for m in range(24):
+    for m in range(NUM_MONTHS):
         col = m + 2
         set_cell(ws, 2, col, m + 1, font=BLACK_FONT_BOLD, fill=LIGHT_GRAY_FILL,
                  alignment=Alignment(horizontal="center"))
 
     # -- Row 3: Calendar month labels --
     set_cell(ws, 3, 1, "Calendar Month", font=HEADER_FONT, fill=LIGHT_GRAY_FILL)
-    for m in range(24):
+    for m in range(NUM_MONTHS):
         col = m + 2
         set_cell(ws, 3, col, months_label[m], font=BLACK_FONT, fill=LIGHT_GRAY_FILL,
                  alignment=Alignment(horizontal="center"))
 
     # -------------------------------------------------------------------
     # Scenario definitions
-    # Each scenario: (title, header_row, first_metric_row, bid_vol_ref, avg_cv_ref, platform_cost_formula)
-    #   header_row   = row for scenario title label
-    #   first_metric_row = first row of 12 metric rows
-    #   bid_vol_ref  = Assumptions cell for bids/month
-    #   avg_cv_ref   = Assumptions cell for avg contract value
-    #   platform_cost_formula = monthly platform cost formula
-    #
-    # Layout per spec: Conservative rows 5-16, Moderate rows 18-29, Aggressive rows 31-42
+    # Layout: Conservative rows 5-16, Moderate rows 18-29, Aggressive rows 31-42
     # -------------------------------------------------------------------
     scenarios = [
-        ("CONSERVATIVE SCENARIO",  4,  5, "B16", "B4", "=Assumptions!$B$21/12"),
-        ("MODERATE SCENARIO",     17, 18, "B17", "B5", "=Assumptions!$B$25/12"),
-        ("AGGRESSIVE SCENARIO",   30, 31, "B18", "B6", "=Assumptions!$B$25/12"),
+        ("CONSERVATIVE SCENARIO",  4,  5, f"B{ROW_BID_CON}", f"B{ROW_CV_CON}", f"=Assumptions!$B${ROW_PLAT_FREE}/12"),
+        ("MODERATE SCENARIO",     17, 18, f"B{ROW_BID_MOD}", f"B{ROW_CV_MOD}", f"=Assumptions!$B${ROW_PLAT_OPT}/12"),
+        ("AGGRESSIVE SCENARIO",   30, 31, f"B{ROW_BID_AGG}", f"B{ROW_CV_AGG}", f"=Assumptions!$B${ROW_PLAT_OPT}/12"),
     ]
 
-    # Row labels for each scenario block (12 metric rows)
     metric_labels = [
         "Bids Submitted",
         "Win Rate",
@@ -265,7 +384,6 @@ def build_revenue_model(wb):
         "Cumulative Net Contribution",
     ]
 
-    # Number formats per metric
     metric_fmts = [
         FMT_COUNT_1,   # Bids Submitted
         FMT_PERCENT,   # Win Rate
@@ -282,53 +400,60 @@ def build_revenue_model(wb):
     ]
 
     for scenario_title, hdr_row, sr, bid_ref, cv_ref, plat_formula in scenarios:
-        # Scenario header row (above the metric rows)
+        # Scenario header row
         set_cell(ws, hdr_row, 1, scenario_title, font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
-        for m in range(24):
+        for m in range(NUM_MONTHS):
             set_cell(ws, hdr_row, m + 2, None, fill=LIGHT_BLUE_FILL)
 
-        # Metric labels (12 rows starting at sr)
+        # Metric labels
         for i, label in enumerate(metric_labels):
             row = sr + i
             set_cell(ws, row, 1, label, font=BLACK_FONT_BOLD)
 
-        # Metric row absolute positions (sr + offset)
-        r_bids    = sr + 0   # Bids Submitted
-        r_wr      = sr + 1   # Win Rate
-        r_new     = sr + 2   # New Contracts Won
-        r_cum     = sr + 3   # Cumulative Contracts Won
-        r_active  = sr + 4   # Active Contracts
-        r_rev     = sr + 5   # Monthly Revenue
-        r_cumrev  = sr + 6   # Cumulative Revenue
-        r_gp      = sr + 7   # Monthly Gross Profit
-        r_cumgp   = sr + 8   # Cumulative Gross Profit
-        r_plat    = sr + 9   # Monthly Platform Cost
-        r_net     = sr + 10  # Monthly Net Contribution
-        r_cumnet  = sr + 11  # Cumulative Net Contribution
+        # Metric row positions
+        r_bids    = sr + 0
+        r_wr      = sr + 1
+        r_new     = sr + 2
+        r_cum     = sr + 3
+        r_active  = sr + 4
+        r_rev     = sr + 5
+        r_cumrev  = sr + 6
+        r_gp      = sr + 7
+        r_cumgp   = sr + 8
+        r_plat    = sr + 9
+        r_net     = sr + 10
+        r_cumnet  = sr + 11
 
-        for m in range(24):
+        for m in range(NUM_MONTHS):
             col = m + 2
-            month_num = m + 1
             col_letter = get_column_letter(col)
 
             # ----- Bids Submitted -----
-            # =IF(month_num < Assumptions!$B$29, 0, Assumptions!$B$16)
-            # month_num is in row 2 of that column
-            f_bids = f'=IF({col_letter}$2<Assumptions!$B$29,0,Assumptions!${bid_ref[0]}${bid_ref[1:]})'
+            # Base bid volume * multiplier for Years 3-5
+            # =IF(month<first_bid, 0, base_bids * IF(month>48,Y5_mult, IF(month>36,Y4_mult, IF(month>24,Y3_mult, 1))))
+            f_bids = (
+                f'=IF({col_letter}$2<Assumptions!$B${ROW_RAMP_BID},0,'
+                f'Assumptions!${bid_ref[0]}${bid_ref[1:]}'
+                f'*IF({col_letter}$2>48,Assumptions!$B${ROW_BID_MULT_Y5},'
+                f'IF({col_letter}$2>36,Assumptions!$B${ROW_BID_MULT_Y4},'
+                f'IF({col_letter}$2>24,Assumptions!$B${ROW_BID_MULT_Y3},1))))'
+            )
             set_cell(ws, r_bids, col, f_bids, font=BLACK_FONT, fmt=metric_fmts[0])
 
             # ----- Win Rate -----
-            # =IF(month_num<=6, Assumptions!$B$11, IF(month_num<=12, Assumptions!$B$12, Assumptions!$B$13))
-            # Also 0 if month < months_to_first_win
+            # 6-tier: Y1H1, Y1H2, Y2, Y3, Y4, Y5
             f_wr = (
-                f'=IF({col_letter}$2<Assumptions!$B$30,0,'
-                f'IF({col_letter}$2<=6,Assumptions!$B$11,'
-                f'IF({col_letter}$2<=12,Assumptions!$B$12,Assumptions!$B$13)))'
+                f'=IF({col_letter}$2<Assumptions!$B${ROW_RAMP_WIN},0,'
+                f'IF({col_letter}$2<=6,Assumptions!$B${ROW_WR_Y1_H1},'
+                f'IF({col_letter}$2<=12,Assumptions!$B${ROW_WR_Y1_H2},'
+                f'IF({col_letter}$2<=24,Assumptions!$B${ROW_WR_Y2},'
+                f'IF({col_letter}$2<=36,Assumptions!$B${ROW_WR_Y3},'
+                f'IF({col_letter}$2<=48,Assumptions!$B${ROW_WR_Y4},'
+                f'Assumptions!$B${ROW_WR_Y5}))))))'
             )
             set_cell(ws, r_wr, col, f_wr, font=GREEN_FONT, fmt=metric_fmts[1])
 
             # ----- New Contracts Won -----
-            # =ROUND(Bids * WinRate, 0)
             f_new = f'=ROUND({col_letter}{r_bids}*{col_letter}{r_wr},0)'
             set_cell(ws, r_new, col, f_new, font=BLACK_FONT, fmt=metric_fmts[2])
 
@@ -341,19 +466,17 @@ def build_revenue_model(wb):
             set_cell(ws, r_cum, col, f_cum, font=BLACK_FONT, fmt=metric_fmts[3])
 
             # ----- Active Contracts -----
-            # Active = cumulative won now - cumulative won N months ago,
-            # where N = contract duration (Assumptions!$B$7).
             f_active = (
                 f'={col_letter}{r_cum}'
-                f'-IF({col_letter}$2>Assumptions!$B$7,'
-                f'OFFSET({col_letter}{r_cum},0,-Assumptions!$B$7),0)'
+                f'-IF({col_letter}$2>Assumptions!$B${ROW_DURATION},'
+                f'OFFSET({col_letter}{r_cum},0,-Assumptions!$B${ROW_DURATION}),0)'
             )
             set_cell(ws, r_active, col, f_active, font=BLACK_FONT, fmt=metric_fmts[4])
 
             # ----- Monthly Revenue -----
-            # =Active Contracts * (Avg Contract Value / Contract Duration)
             f_rev = (
-                f'={col_letter}{r_active}*(Assumptions!${cv_ref[0]}${cv_ref[1:]}/Assumptions!$B$7)'
+                f'={col_letter}{r_active}'
+                f'*(Assumptions!${cv_ref[0]}${cv_ref[1:]}/Assumptions!$B${ROW_DURATION})'
             )
             set_cell(ws, r_rev, col, f_rev, font=GREEN_FONT, fmt=metric_fmts[5])
 
@@ -366,7 +489,7 @@ def build_revenue_model(wb):
             set_cell(ws, r_cumrev, col, f_cumrev, font=BLACK_FONT, fmt=metric_fmts[6])
 
             # ----- Monthly Gross Profit -----
-            f_gp = f'={col_letter}{r_rev}*Assumptions!$B$3'
+            f_gp = f'={col_letter}{r_rev}*Assumptions!$B${ROW_MARGIN}'
             set_cell(ws, r_gp, col, f_gp, font=GREEN_FONT, fmt=metric_fmts[7])
 
             # ----- Cumulative Gross Profit -----
@@ -392,25 +515,25 @@ def build_revenue_model(wb):
                 f_cumnet = f'={prev_col}{r_cumnet}+{col_letter}{r_net}'
             set_cell(ws, r_cumnet, col, f_cumnet, font=BLACK_FONT, fmt=metric_fmts[11])
 
-    # Freeze panes: freeze row 3 and column A (cell B4)
+    # Freeze panes
     ws.freeze_panes = "B4"
 
     # Column widths
     ws.column_dimensions["A"].width = 30
-    for m in range(24):
+    for m in range(NUM_MONTHS):
         ws.column_dimensions[get_column_letter(m + 2)].width = 14
 
     return ws
 
 
 # ---------------------------------------------------------------------------
-# Sheet 3: Summary
+# Sheet 3: Summary (5-Year)
 # ---------------------------------------------------------------------------
 def build_summary(wb):
     ws = wb.create_sheet("Summary")
 
     # Title
-    set_cell(ws, 1, 1, "Newport GovCon Financial Summary", font=TITLE_FONT)
+    set_cell(ws, 1, 1, "Newport GovCon 5-Year Financial Summary", font=TITLE_FONT)
     ws.merge_cells("A1:D1")
 
     # Headers
@@ -419,116 +542,104 @@ def build_summary(wb):
         set_cell(ws, 3, i + 1, h, font=HEADER_FONT, fill=LIGHT_GRAY_FILL,
                  alignment=Alignment(horizontal="center"))
 
-    # Scenario first-metric rows on Revenue Model
-    # Conservative sr=5 (rows 5-16), Moderate sr=18 (rows 18-29), Aggressive sr=31 (rows 31-42)
-    srs = [5, 18, 31]  # first metric rows for conservative, moderate, aggressive
+    # Scenario first-metric rows on Revenue Model (unchanged layout)
+    srs = [5, 18, 31]
 
-    # -------------------------------------------------------------------
-    # Section: Year 1 Results
-    # -------------------------------------------------------------------
-    set_cell(ws, 5, 1, "YEAR 1 RESULTS (Months 1-12)", font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
-    for c in range(2, 5):
-        set_cell(ws, 5, c, None, fill=LIGHT_BLUE_FILL)
-
-    year1_metrics = [
-        ("Total Bids Submitted", 0, FMT_COUNT_1, "sum"),     # offset +0 = Bids (sum)
-        ("Contracts Won (Year 1)", 3, FMT_COUNT, "point"),    # offset +3 = CumWon at M12
-        ("Total Revenue", 6, FMT_CURRENCY, "point"),          # offset +6 = CumRev at M12
-        ("Gross Profit", 8, FMT_CURRENCY, "point"),           # offset +8 = CumGP at M12
-        ("Platform Investment", 9, FMT_CURRENCY, "sum"),      # offset +9 = sum of monthly platform
-        ("Net Contribution", 11, FMT_CURRENCY, "point"),      # offset +11 = CumNetContrib at M12
+    # Year definitions: (label, start_month, end_month, start_col_letter, end_col_letter, end_col_letter_for_point)
+    # Columns: month N is in column N+1 (B=month1, C=month2, ...)
+    # Year 1: months 1-12  → cols B(2) to M(13)
+    # Year 2: months 13-24 → cols N(14) to Y(25)
+    # Year 3: months 25-36 → cols Z(26) to AK(37)
+    # Year 4: months 37-48 → cols AL(38) to AW(49)
+    # Year 5: months 49-60 → cols AX(50) to BI(61)
+    years = [
+        ("YEAR 1 RESULTS (Months 1-12)",  2,  13),   # col B to M
+        ("YEAR 2 RESULTS (Months 13-24)", 14, 25),    # col N to Y
+        ("YEAR 3 RESULTS (Months 25-36)", 26, 37),    # col Z to AK
+        ("YEAR 4 RESULTS (Months 37-48)", 38, 49),    # col AL to AW
+        ("YEAR 5 RESULTS (Months 49-60)", 50, 61),    # col AX to BI
     ]
 
-    row_cursor = 6
-    for label, offset, fmt, agg in year1_metrics:
-        fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
-        set_cell(ws, row_cursor, 1, label, font=BLACK_FONT, fill=fill)
-        for s_idx, sr in enumerate(srs):
-            metric_row = sr + offset
-            if agg == "sum":
-                # Sum across year 1 months
-                formula = f"=SUM('Revenue Model'!B{metric_row}:M{metric_row})"
-            else:
-                # Cumulative value at month 12 (column M)
-                formula = f"='Revenue Model'!M{metric_row}"
-            set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
+    row_cursor = 5
+
+    for year_idx, (year_label, start_col, end_col) in enumerate(years):
+        start_letter = get_column_letter(start_col)
+        end_letter = get_column_letter(end_col)
+
+        # Section header
+        set_cell(ws, row_cursor, 1, year_label, font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
+        for c in range(2, 5):
+            set_cell(ws, row_cursor, c, None, fill=LIGHT_BLUE_FILL)
         row_cursor += 1
 
-    # ROI row
-    fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
-    set_cell(ws, row_cursor, 1, "ROI", font=BLACK_FONT_BOLD, fill=fill)
-    for s_idx, sr in enumerate(srs):
-        col_letter = get_column_letter(s_idx + 2)
-        net_row = row_cursor - 1
-        plat_row = row_cursor - 2
-        formula = f'=IF({col_letter}{plat_row}=0,"N/A (Free)",{col_letter}{net_row}/{col_letter}{plat_row})'
-        set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_PERCENT, fill=fill)
-    row_cursor += 1
+        if year_idx == 0:
+            # Year 1: special metrics (cumulative at month 12 for some)
+            year_metrics = [
+                ("Total Bids Submitted", 0, FMT_COUNT_1, "sum"),
+                ("Contracts Won", 3, FMT_COUNT, "point"),
+                ("Total Revenue", 6, FMT_CURRENCY, "point"),
+                ("Gross Profit", 8, FMT_CURRENCY, "point"),
+                ("Platform Investment", 9, FMT_CURRENCY, "sum"),
+                ("Net Contribution", 11, FMT_CURRENCY, "point"),
+            ]
+            for label, offset, fmt, agg in year_metrics:
+                fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
+                set_cell(ws, row_cursor, 1, label, font=BLACK_FONT, fill=fill)
+                for s_idx, sr in enumerate(srs):
+                    metric_row = sr + offset
+                    if agg == "sum":
+                        formula = f"=SUM('Revenue Model'!{start_letter}{metric_row}:{end_letter}{metric_row})"
+                    else:
+                        formula = f"='Revenue Model'!{end_letter}{metric_row}"
+                    set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
+                row_cursor += 1
+        else:
+            # Years 2-5: sum-based metrics (incremental for that year)
+            year_metrics = [
+                ("Total Bids Submitted", 0, FMT_COUNT_1),
+                ("Contracts Won", 2, FMT_COUNT),
+                ("Total Revenue", 5, FMT_CURRENCY),
+                ("Gross Profit", 7, FMT_CURRENCY),
+                ("Platform Investment", 9, FMT_CURRENCY),
+                ("Net Contribution", 10, FMT_CURRENCY),
+            ]
+            for label, offset, fmt in year_metrics:
+                fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
+                set_cell(ws, row_cursor, 1, label, font=BLACK_FONT, fill=fill)
+                for s_idx, sr in enumerate(srs):
+                    metric_row = sr + offset
+                    formula = f"=SUM('Revenue Model'!{start_letter}{metric_row}:{end_letter}{metric_row})"
+                    set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
+                row_cursor += 1
 
-    # Breakeven Month Year 1
-    fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
-    set_cell(ws, row_cursor, 1, "Breakeven Month", font=BLACK_FONT_BOLD, fill=fill)
-    for s_idx, sr in enumerate(srs):
-        cum_net_row = sr + 11  # Cumulative Net Contribution row (offset +11)
-        formula = (
-            f'=IFERROR(MATCH(TRUE,INDEX(\'Revenue Model\'!B{cum_net_row}:Y{cum_net_row}>0,),0),"Not in 24mo")'
-        )
-        set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_COUNT, fill=fill)
-    row_cursor += 2
-
-    # -------------------------------------------------------------------
-    # Section: Year 2 Results
-    # -------------------------------------------------------------------
-    set_cell(ws, row_cursor, 1, "YEAR 2 RESULTS (Months 13-24)", font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
-    for c in range(2, 5):
-        set_cell(ws, row_cursor, c, None, fill=LIGHT_BLUE_FILL)
-    row_cursor += 1
-
-    year2_metrics = [
-        ("Total Bids Submitted", 0, FMT_COUNT_1),     # offset +0 = Bids
-        ("Contracts Won (Year 2)", 2, FMT_COUNT),     # offset +2 = NewWon (sum in Y2)
-        ("Total Revenue", 5, FMT_CURRENCY),           # offset +5 = MonthlyRev (sum in Y2)
-        ("Gross Profit", 7, FMT_CURRENCY),            # offset +7 = MonthlyGP (sum in Y2)
-        ("Platform Investment", 9, FMT_CURRENCY),     # offset +9 = PlatCost (sum in Y2)
-        ("Net Contribution", 10, FMT_CURRENCY),       # offset +10 = NetContrib (sum in Y2)
-    ]
-
-    for label, offset, fmt in year2_metrics:
+        # ROI row
         fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
-        set_cell(ws, row_cursor, 1, label, font=BLACK_FONT, fill=fill)
-        for s_idx, sr in enumerate(srs):
-            metric_row = sr + offset
-            # Year 2 sums: columns N (14) to Y (25)
-            formula = f"=SUM('Revenue Model'!N{metric_row}:Y{metric_row})"
-            set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
-        row_cursor += 1
-
-    # Year 2 ROI
-    fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
-    set_cell(ws, row_cursor, 1, "ROI", font=BLACK_FONT_BOLD, fill=fill)
-    for s_idx, sr in enumerate(srs):
-        col_letter = get_column_letter(s_idx + 2)
-        net_row = row_cursor - 1
-        plat_row = row_cursor - 2
-        formula = f'=IF({col_letter}{plat_row}=0,"N/A (Free)",{col_letter}{net_row}/{col_letter}{plat_row})'
-        set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_PERCENT, fill=fill)
-    row_cursor += 2
+        set_cell(ws, row_cursor, 1, "ROI", font=BLACK_FONT_BOLD, fill=fill)
+        for s_idx in range(3):
+            col_letter = get_column_letter(s_idx + 2)
+            net_row = row_cursor - 1
+            plat_row = row_cursor - 2
+            formula = f'=IF({col_letter}{plat_row}=0,"N/A (Free)",{col_letter}{net_row}/{col_letter}{plat_row})'
+            set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_PERCENT, fill=fill)
+        row_cursor += 2
 
     # -------------------------------------------------------------------
-    # Section: 24-Month Totals
+    # Section: 5-YEAR TOTALS
     # -------------------------------------------------------------------
-    set_cell(ws, row_cursor, 1, "24-MONTH TOTALS", font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
+    last_col_letter = get_column_letter(NUM_MONTHS + 1)  # BI for month 60
+
+    set_cell(ws, row_cursor, 1, "5-YEAR TOTALS", font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
     for c in range(2, 5):
         set_cell(ws, row_cursor, c, None, fill=LIGHT_BLUE_FILL)
     row_cursor += 1
 
     total_metrics = [
-        ("Total Bids Submitted", 0, FMT_COUNT_1, "sum"),      # offset +0 = Bids (sum)
-        ("Total Contracts Won", 3, FMT_COUNT, "point"),        # offset +3 = CumWon at M24
-        ("Total Revenue", 6, FMT_CURRENCY, "point"),           # offset +6 = CumRev at M24
-        ("Total Gross Profit", 8, FMT_CURRENCY, "point"),      # offset +8 = CumGP at M24
-        ("Total Platform Investment", 9, FMT_CURRENCY, "sum"), # offset +9 = PlatCost (sum)
-        ("Total Net Contribution", 11, FMT_CURRENCY, "point"), # offset +11 = CumNetContrib at M24
+        ("Total Bids Submitted", 0, FMT_COUNT_1, "sum"),
+        ("Total Contracts Won", 3, FMT_COUNT, "point"),
+        ("Total Revenue", 6, FMT_CURRENCY, "point"),
+        ("Total Gross Profit", 8, FMT_CURRENCY, "point"),
+        ("Total Platform Investment", 9, FMT_CURRENCY, "sum"),
+        ("Total Net Contribution", 11, FMT_CURRENCY, "point"),
     ]
 
     for label, offset, fmt, agg in total_metrics:
@@ -537,23 +648,32 @@ def build_summary(wb):
         for s_idx, sr in enumerate(srs):
             metric_row = sr + offset
             if agg == "sum":
-                # Sum of all 24 months
-                formula = f"=SUM('Revenue Model'!B{metric_row}:Y{metric_row})"
+                formula = f"=SUM('Revenue Model'!B{metric_row}:{last_col_letter}{metric_row})"
             else:
-                # Cumulative value at month 24 (column Y)
-                formula = f"='Revenue Model'!Y{metric_row}"
+                formula = f"='Revenue Model'!{last_col_letter}{metric_row}"
             set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
         row_cursor += 1
 
-    # 24-month ROI
+    # 5-Year ROI
     fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
-    set_cell(ws, row_cursor, 1, "24-Month ROI", font=BLACK_FONT_BOLD, fill=fill)
-    for s_idx, sr in enumerate(srs):
+    set_cell(ws, row_cursor, 1, "5-Year ROI", font=BLACK_FONT_BOLD, fill=fill)
+    for s_idx in range(3):
         col_letter = get_column_letter(s_idx + 2)
         net_row = row_cursor - 1
         plat_row = row_cursor - 2
         formula = f'=IF({col_letter}{plat_row}=0,"N/A (Free)",{col_letter}{net_row}/{col_letter}{plat_row})'
         set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_PERCENT, fill=fill)
+    row_cursor += 1
+
+    # Breakeven Month (across all 60 months)
+    fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
+    set_cell(ws, row_cursor, 1, "Breakeven Month", font=BLACK_FONT_BOLD, fill=fill)
+    for s_idx, sr in enumerate(srs):
+        cum_net_row = sr + 11
+        formula = (
+            f'=IFERROR(MATCH(TRUE,INDEX(\'Revenue Model\'!B{cum_net_row}:{last_col_letter}{cum_net_row}>0,),0),"Not in 60mo")'
+        )
+        set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_COUNT, fill=fill)
 
     # Column widths
     ws.column_dimensions["A"].width = 32
@@ -603,11 +723,11 @@ def build_platform_comparison(wb):
     # Separator
     row_cursor += 1
 
-    # Totals row - reference Assumptions sheet
+    # Totals row
     set_cell(ws, row_cursor, 1, "Total Annual Cost", font=BLACK_FONT_BOLD, fill=LIGHT_BLUE_FILL)
-    set_cell(ws, row_cursor, 2, "=Assumptions!B21", font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
+    set_cell(ws, row_cursor, 2, f"=Assumptions!B{ROW_PLAT_FREE}", font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
              fill=LIGHT_BLUE_FILL, alignment=Alignment(horizontal="center"))
-    set_cell(ws, row_cursor, 3, "=Assumptions!B25", font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
+    set_cell(ws, row_cursor, 3, f"=Assumptions!B{ROW_PLAT_OPT}", font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
              fill=LIGHT_BLUE_FILL, alignment=Alignment(horizontal="center"))
     row_cursor += 1
 
@@ -640,17 +760,17 @@ def build_platform_comparison(wb):
     row_cursor += 1
 
     set_cell(ws, row_cursor, 1, "Monthly Platform Cost", font=BLACK_FONT)
-    set_cell(ws, row_cursor, 2, "=Assumptions!B21/12", font=GREEN_FONT, fmt=FMT_CURRENCY,
+    set_cell(ws, row_cursor, 2, f"=Assumptions!B{ROW_PLAT_FREE}/12", font=GREEN_FONT, fmt=FMT_CURRENCY,
              alignment=Alignment(horizontal="center"))
-    set_cell(ws, row_cursor, 3, "=Assumptions!B25/12", font=GREEN_FONT, fmt=FMT_CURRENCY,
+    set_cell(ws, row_cursor, 3, f"=Assumptions!B{ROW_PLAT_OPT}/12", font=GREEN_FONT, fmt=FMT_CURRENCY,
              alignment=Alignment(horizontal="center"))
     row_cursor += 1
 
     set_cell(ws, row_cursor, 1, "Consulting Retainer", font=BLACK_FONT)
     set_cell(ws, row_cursor, 2, "N/A", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
-    set_cell(ws, row_cursor, 3, '=IF(Assumptions!B26="","TBD",Assumptions!B26)', font=GREEN_FONT,
-             fmt=FMT_CURRENCY, alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3, f'=IF(Assumptions!B{ROW_CONSULTING}="","TBD",Assumptions!B{ROW_CONSULTING})',
+             font=GREEN_FONT, fmt=FMT_CURRENCY, alignment=Alignment(horizontal="center"))
 
     # Column widths
     ws.column_dimensions["A"].width = 30
@@ -668,18 +788,18 @@ def main():
     output_path = os.path.join(output_dir, "newport-govcon-proforma.xlsx")
 
     print("=" * 60)
-    print("Newport GovCon Pro Forma Financial Model Builder")
+    print("Newport GovCon Pro Forma Financial Model Builder (5-Year)")
     print("=" * 60)
 
     wb = Workbook()
 
-    print("[1/4] Building Assumptions sheet...")
+    print("[1/4] Building Assumptions sheet (5-year win rates, cost notations, TAM)...")
     build_assumptions(wb)
 
-    print("[2/4] Building Revenue Model sheet (24 months x 3 scenarios)...")
+    print("[2/4] Building Revenue Model sheet (60 months x 3 scenarios)...")
     build_revenue_model(wb)
 
-    print("[3/4] Building Summary sheet...")
+    print("[3/4] Building Summary sheet (Year 1-5 + 5-year totals)...")
     build_summary(wb)
 
     print("[4/4] Building Platform Comparison sheet...")
@@ -703,6 +823,8 @@ def main():
     print("All calculations use Excel formulas (=SUM, =IF, =ROUND, =OFFSET, etc.)")
     print("Blue text = editable inputs | Black text = formulas | Green text = cross-sheet refs")
     print("Yellow background = key assumptions to review")
+    print("Orange background = cost notations (informational)")
+    print("Green background = TAM context (from market_data.json)")
     print()
     print("Done.")
 

@@ -95,17 +95,26 @@ python tracking/sheets_pipeline.py --dry-run --deadlines --days-ahead 14
 python tracking/sheets_pipeline.py --dry-run --score OPP_ID
 ```
 
+### Market Data Collector (`deliverables/collect_market_data.py`)
+Pulls live FPDS + USASpending data into `deliverables/market_data.json` (gitignored). Consumed by both `build_proforma.py` and `build_presentation.js`.
+```
+python deliverables/collect_market_data.py
+python deliverables/collect_market_data.py --fiscal-year 2025
+```
+
 ### Proposal PowerPoint Builder (`deliverables/presentation/build_presentation.js`)
-14-slide capability deck using pptxgenjs (Node.js). Ocean Gradient palette.
+17-slide capability deck using pptxgenjs (Node.js). Ocean Gradient palette. Reads `market_data.json` for live FPDS/USASpending data (falls back to hardcoded values if absent).
 ```
 cd deliverables/presentation && npm install && node build_presentation.js
 ```
 
 ### Pro Forma Financial Model (`deliverables/financials/build_proforma.py`)
-4-sheet Excel workbook (Assumptions, Revenue Model, Summary, Platform Comparison) with 24-month × 3 scenarios.
+4-sheet Excel workbook (Assumptions, Revenue Model, Summary, Platform Comparison) with 60-month × 3 scenarios (5-year GovCon plan). Reads `market_data.json` for TAM context.
 ```
 python deliverables/financials/build_proforma.py
 ```
+
+**Data pipeline:** `collect_market_data.py` → `market_data.json` → consumed by `build_proforma.py` + `build_presentation.js`
 
 ## Segments
 
@@ -178,8 +187,9 @@ python deliverables/financials/build_proforma.py
   - 12 pipeline stages: Identified → Qualifying → Bid Decision → Capture → Drafting Proposal → Internal Review → Submitted → Under Evaluation → Awarded/Lost/No-Bid/Cancelled
   - 10 buyer categories, deadline reports, pipeline analytics, CSV export
 - **Deliverables**:
-  - `deliverables/presentation/build_presentation.js` — 14-slide PowerPoint proposal deck (Node.js, pptxgenjs)
-  - `deliverables/financials/build_proforma.py` — 4-sheet Excel pro forma model (openpyxl)
+  - `deliverables/collect_market_data.py` — FPDS + USASpending data collector → `market_data.json`
+  - `deliverables/presentation/build_presentation.js` — 17-slide PowerPoint proposal deck with dynamic FPDS data + product opportunity slides (Node.js, pptxgenjs)
+  - `deliverables/financials/build_proforma.py` — 4-sheet Excel pro forma model, 60-month/5-year projection with TAM context (openpyxl)
 - **Integration chain**: daily_monitor → bid_no_bid scorer → sheets_pipeline tracker → Slack/email notifications
 
 ### Verified Against Live APIs

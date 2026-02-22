@@ -1,8 +1,11 @@
 /**
- * Newport GovCon Proposal Deck — Phase 3
+ * Newport GovCon Proposal Deck — Phase 4 (5-Year Plan)
  *
- * Generates a 14-slide 16:9 PowerPoint proposal for Newport Wholesalers.
+ * Generates a 17-slide 16:9 PowerPoint proposal for Newport Wholesalers.
  * Ocean Gradient palette: #065A82, #1C7293, #21295C
+ *
+ * Reads deliverables/market_data.json for live FPDS/USASpending data.
+ * Falls back to hardcoded values if market_data.json doesn't exist.
  *
  * Run: node deliverables/presentation/build_presentation.js
  * Output: deliverables/presentation/newport-govcon-proposal.pptx
@@ -10,7 +13,82 @@
 
 const pptxgen = require("pptxgenjs");
 const path = require("path");
+const fs = require("fs");
 
+// ---------------------------------------------------------------------------
+// Load market data (with graceful fallback)
+// ---------------------------------------------------------------------------
+let marketData = null;
+const marketDataPath = path.join(__dirname, "..", "market_data.json");
+try {
+  const raw = fs.readFileSync(marketDataPath, "utf-8");
+  marketData = JSON.parse(raw);
+  console.log(`Loaded market data from ${marketDataPath}`);
+} catch (_) {
+  console.log("market_data.json not found — using hardcoded fallback values");
+}
+
+// Fallback data (current hardcoded values preserved for when market_data.json absent)
+const FALLBACK_NAICS = [
+  { naics: "722310", description: "Food Service Contractors", awards: 98, avg_offers: 1.0, sole_source_pct: 100, avg_value: 43000000 },
+  { naics: "424410", description: "Grocery Wholesalers", awards: 87, avg_offers: 1.4, sole_source_pct: 72, avg_value: 285000 },
+  { naics: "424490", description: "Other Grocery Products", awards: 142, avg_offers: 1.3, sole_source_pct: 68, avg_value: 195000 },
+  { naics: "424480", description: "Fresh Fruit & Vegetable", awards: 203, avg_offers: 1.2, sole_source_pct: 78, avg_value: 340000 },
+  { naics: "424470", description: "Meat & Meat Product", awards: 156, avg_offers: 1.5, sole_source_pct: 63, avg_value: 410000 },
+  { naics: "424420", description: "Packaged Frozen Food", awards: 189, avg_offers: 1.3, sole_source_pct: 71, avg_value: 210000 },
+  { naics: "424460", description: "Fish & Seafood", awards: 112, avg_offers: 1.3, sole_source_pct: 70, avg_value: 180000 },
+  { naics: "424450", description: "Confectionery", awards: 45, avg_offers: 1.6, sole_source_pct: 58, avg_value: 95000 },
+  { naics: "424440", description: "Poultry & Poultry Product", awards: 178, avg_offers: 1.4, sole_source_pct: 65, avg_value: 520000 },
+  { naics: "424430", description: "Dairy Product", awards: 198, avg_offers: 1.2, sole_source_pct: 74, avg_value: 290000 },
+];
+
+const FALLBACK_TOTALS = { transactions: 1664, avg_offers: 1.3, sole_source_pct: 64.8 };
+
+const FALLBACK_PSC = [
+  { psc: "8905", description: "Meat, Poultry, Fish", total_spending: 2400000000, avg_offers: 1.5, sole_source_pct: 63, opportunity_tier: "LOW" },
+  { psc: "8915", description: "Fruits & Vegetables", total_spending: 1900000000, avg_offers: 1.2, sole_source_pct: 78, opportunity_tier: "HIGH" },
+  { psc: "8970", description: "MREs/Composites", total_spending: 813000000, avg_offers: 1.1, sole_source_pct: 85, opportunity_tier: "NONE" },
+  { psc: "8945", description: "Food Oils & Fats", total_spending: 621000000, avg_offers: 1.3, sole_source_pct: 70, opportunity_tier: "MODERATE" },
+  { psc: "8910", description: "Dairy & Eggs", total_spending: 552000000, avg_offers: 1.2, sole_source_pct: 74, opportunity_tier: "MODERATE" },
+  { psc: "8920", description: "Bakery & Cereal", total_spending: 276000000, avg_offers: 1.4, sole_source_pct: 66, opportunity_tier: "MODERATE" },
+  { psc: "8925", description: "Confectionery & Nuts", total_spending: 100000000, avg_offers: 1.6, sole_source_pct: 58, opportunity_tier: "HIGH" },
+  { psc: "8950", description: "Condiments & Related", total_spending: 90000000, avg_offers: 1.3, sole_source_pct: 68, opportunity_tier: "MODERATE" },
+  { psc: "8955", description: "Coffee, Tea, Cocoa", total_spending: 50000000, avg_offers: 1.4, sole_source_pct: 65, opportunity_tier: "MODERATE" },
+  { psc: "8960", description: "Beverages", total_spending: 36000000, avg_offers: 1.5, sole_source_pct: 60, opportunity_tier: "MODERATE" },
+];
+
+const FALLBACK_PRODUCTS = {
+  priority_products: [
+    { psc: "8915", name: "Fresh Produce", tier: 1, annual_spending: 1900000000, rationale: "Lowest vendor concentration, USDA actively diversifying vendors, FL location ideal" },
+    { psc: "8925", name: "Confectionery & Nuts", tier: 1, annual_spending: 100000000, rationale: "Directly aligned with Newport's candy wholesale expertise" },
+    { psc: "8910", name: "Dairy & Eggs", tier: 2, annual_spending: 552000000, rationale: "Regional distribution feasible, fluid milk and eggs accessible" },
+    { psc: "8920", name: "Bakery & Cereal Products", tier: 2, annual_spending: 276000000, rationale: "Covered by NAICS 424410, regional vendors compete well" },
+  ],
+  avoid: [
+    { psc: "8905", name: "Meat, Poultry, Fish", rationale: "Dominated by Tyson/JBS/Cargill (83% pork, 72% poultry)" },
+    { psc: "8970", name: "MREs/Composite Food Packages", rationale: "Specialized military manufacturing" },
+  ],
+};
+
+// Resolve data sources
+const fpdsNaics = (marketData && marketData.fpds && marketData.fpds.by_naics) || FALLBACK_NAICS;
+const fpdsTotals = (marketData && marketData.fpds && marketData.fpds.totals) || FALLBACK_TOTALS;
+const fpdsPsc = (marketData && marketData.fpds && marketData.fpds.by_psc) || FALLBACK_PSC;
+const tamData = (marketData && marketData.tam) || {};
+const productOpp = (marketData && marketData.product_opportunity) || FALLBACK_PRODUCTS;
+const dataFY = (marketData && marketData.fiscal_year) ? `FY${marketData.fiscal_year}` : "FY2025";
+
+// Helper: format large dollar amounts
+function fmtDollars(n) {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(0)}M`;
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
+  return `$${n}`;
+}
+
+// ---------------------------------------------------------------------------
+// Build presentation
+// ---------------------------------------------------------------------------
 const pptx = new pptxgen();
 pptx.layout = "LAYOUT_16x9";
 pptx.author = "Still Mind Creative";
@@ -20,9 +98,9 @@ pptx.title = "Unlocking Government Revenue for Newport Wholesalers";
 
 // --- Color Palette ---
 const C = {
-  primary: "065A82",     // deep blue
-  secondary: "1C7293",   // teal
-  accent: "21295C",      // midnight
+  primary: "065A82",
+  secondary: "1C7293",
+  accent: "21295C",
   white: "FFFFFF",
   textDark: "1E293B",
   textLight: "FFFFFF",
@@ -34,24 +112,20 @@ const C = {
   tealLight: "E0F2FE",
 };
 
-// --- Font Defaults ---
 const FONT_HEADER = "Georgia";
 const FONT_BODY = "Calibri";
 
-// --- Helper: add headline to a white slide ---
 function addHeadline(slide, text) {
   slide.addText(text, {
     x: 0.6, y: 0.3, w: 8.8, h: 0.7,
     fontSize: 24, fontFace: FONT_HEADER, color: C.accent, bold: true,
   });
-  // Accent bar under headline
   slide.addShape(pptx.shapes.RECTANGLE, {
     x: 0.6, y: 0.95, w: 1.2, h: 0.05,
     fill: { color: C.secondary },
   });
 }
 
-// --- Helper: add source footer ---
 function addSource(slide, text) {
   slide.addText(text, {
     x: 0.6, y: 7.0, w: 8.8, h: 0.3,
@@ -66,7 +140,6 @@ function addSource(slide, text) {
   const slide = pptx.addSlide();
   slide.background = { fill: C.primary };
 
-  // Geometric accent shapes
   slide.addShape(pptx.shapes.RECTANGLE, {
     x: -0.5, y: 5.5, w: 4, h: 4, rotate: 45,
     fill: { color: C.secondary, transparency: 70 },
@@ -108,7 +181,6 @@ function addSource(slide, text) {
 
   stats.forEach((s, i) => {
     const x = 0.5 + i * 3.2;
-    // Card background
     slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
       x, y: 1.6, w: 2.8, h: 3.2, rectRadius: 0.1,
       fill: { color: C.tealLight },
@@ -131,13 +203,16 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 3: The Headline Insight (64.8%)
+// SLIDE 3: The Headline Insight (DYNAMIC)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.accent };
 
-  slide.addText("64.8%", {
+  const solePct = fpdsTotals.sole_source_pct.toFixed(1);
+  const txnCount = fpdsTotals.transactions.toLocaleString();
+
+  slide.addText(`${solePct}%`, {
     x: 0, y: 1.5, w: 10, h: 2.0,
     fontSize: 96, fontFace: FONT_HEADER, color: C.white, bold: true, align: "center",
   });
@@ -145,12 +220,12 @@ function addSource(slide, text) {
     x: 1, y: 3.5, w: 8, h: 0.7,
     fontSize: 22, fontFace: FONT_BODY, color: C.white, align: "center",
   });
-  slide.addText("FPDS FY2025 analysis across 1,664 food contracting transactions.\nMost food contracts receive only ONE bid. The barrier isn't competition \u2014 it's visibility.", {
+  slide.addText(`FPDS ${dataFY} analysis across ${txnCount} food contracting transactions.\nMost food contracts receive only ONE bid. The barrier isn't competition \u2014 it's visibility.`, {
     x: 1.5, y: 4.5, w: 7, h: 1.0,
     fontSize: 13, fontFace: FONT_BODY, color: C.white, transparency: 20, align: "center",
     lineSpacingMultiple: 1.3,
   });
-  addSource(slide, "Source: Federal Procurement Data System (FPDS), FY2025");
+  addSource(slide, `Source: Federal Procurement Data System (FPDS), ${dataFY}`);
 }
 
 // ============================================================================
@@ -164,22 +239,22 @@ function addSource(slide, text) {
   const blocks = [
     {
       title: "30-Year Track Record",
-      icon: "\u2605", // star
+      icon: "\u2605",
       body: "Three decades of wholesale distribution. Proven reliability, established supplier relationships, operational infrastructure.",
     },
     {
       title: "South Florida Warehouse",
-      icon: "\u2302", // house
+      icon: "\u2302",
       body: "Strategic location for FEMA disaster response staging. Florida is the #1 state for federal emergency declarations.",
     },
     {
       title: "Existing Distribution Network",
-      icon: "\u2708", // transport
+      icon: "\u2708",
       body: "Trucks, routes, cold chain, delivery infrastructure already in place. Government contracts use the same logistics.",
     },
     {
       title: "No Past Performance Required (Yet)",
-      icon: "\u2713", // checkmark
+      icon: "\u2713",
       body: "Micro-purchases under $10K and many small contracts don't require government past performance. Commercial experience qualifies.",
     },
   ];
@@ -190,7 +265,6 @@ function addSource(slide, text) {
     const x = 0.5 + col * 4.6;
     const y = 1.5 + row * 2.5;
 
-    // Icon circle
     slide.addShape(pptx.shapes.OVAL, {
       x, y, w: 0.55, h: 0.55,
       fill: { color: C.secondary },
@@ -230,7 +304,6 @@ function addSource(slide, text) {
 
   steps.forEach((s, i) => {
     const x = 0.25 + i * 1.6;
-    // Circle with number
     slide.addShape(pptx.shapes.OVAL, {
       x: x + 0.3, y: 1.8, w: 0.7, h: 0.7,
       fill: { color: C.primary },
@@ -239,7 +312,6 @@ function addSource(slide, text) {
       x: x + 0.3, y: 1.78, w: 0.7, h: 0.7,
       fontSize: 22, fontFace: FONT_HEADER, color: C.white, bold: true, align: "center", valign: "middle",
     });
-    // Arrow (except last)
     if (i < steps.length - 1) {
       slide.addShape(pptx.shapes.RECTANGLE, {
         x: x + 1.1, y: 2.05, w: 0.5, h: 0.04,
@@ -305,23 +377,29 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 7: FPDS Competition Analysis
+// SLIDE 7: FPDS Competition Analysis (DYNAMIC)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.white };
   addHeadline(slide, "Federal Food Contracting: Less Competition Than You Think");
 
-  // FPDS data table
+  // Build table from dynamic data (top 6 NAICS by awards)
+  const sortedNaics = [...fpdsNaics].sort((a, b) => b.awards - a.awards).slice(0, 6);
+
   const data = [
     ["NAICS", "Description", "Awards", "Avg Offers", "Sole Source %"],
-    ["722310", "Food Service Contractors", "98", "1.0", "~100%"],
-    ["424410", "Grocery Wholesalers", "87", "1.4", "72%"],
-    ["424490", "Other Grocery Products", "142", "1.3", "68%"],
-    ["424480", "Fresh Fruit & Vegetable", "203", "1.2", "78%"],
-    ["424470", "Meat & Meat Product", "156", "1.5", "63%"],
-    ["424420", "Packaged Frozen Food", "189", "1.3", "71%"],
   ];
+
+  sortedNaics.forEach(n => {
+    data.push([
+      n.naics,
+      n.description,
+      String(n.awards),
+      n.avg_offers.toFixed(1),
+      n.sole_source_pct >= 95 ? `~100%` : `${n.sole_source_pct}%`,
+    ]);
+  });
 
   data[0] = data[0].map(t => ({
     text: t, options: { bold: true, color: C.white, fill: { color: C.primary }, fontSize: 10, align: "center" },
@@ -338,7 +416,7 @@ function addSource(slide, text) {
     colW: [0.8, 1.8, 0.8, 0.8, 1.0],
     border: { type: "solid", pt: 0.5, color: "D1D5DB" },
     autoPage: false,
-    rowH: [0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35],
+    rowH: 0.35,
   });
 
   // Callout box
@@ -347,17 +425,227 @@ function addSource(slide, text) {
     fill: { color: C.tealLight },
     line: { color: C.secondary, width: 1.5 },
   });
-  slide.addText("Average of 1.0 offers per contract in Food Service contracting means Newport often competes against ZERO other bidders.", {
+  slide.addText(`Average of ${fpdsTotals.avg_offers} offers per contract in Food Service contracting means Newport often competes against ZERO other bidders.`, {
     x: 6.7, y: 1.7, w: 2.7, h: 2.1,
     fontSize: 12, fontFace: FONT_BODY, color: C.accent, bold: true,
     lineSpacingMultiple: 1.3,
   });
 
-  addSource(slide, "Source: FPDS FY2025, 10 food NAICS codes, 1,664 transactions");
+  addSource(slide, `Source: FPDS ${dataFY}, 10 food NAICS codes, ${fpdsTotals.transactions.toLocaleString()} transactions`);
 }
 
 // ============================================================================
-// SLIDE 8: The System We've Built
+// SLIDE 8: What the Government Buys Most (NEW — Product Spending by PSC)
+// ============================================================================
+{
+  const slide = pptx.addSlide();
+  slide.background = { fill: C.white };
+  addHeadline(slide, "What the Federal Government Buys: $6.9B in Food");
+
+  // Sort PSC data by spending, take top 8
+  const sortedPsc = [...fpdsPsc]
+    .filter(p => p.total_spending > 0)
+    .sort((a, b) => b.total_spending - a.total_spending)
+    .slice(0, 8);
+
+  const totalPscSpending = sortedPsc.reduce((sum, p) => sum + p.total_spending, 0);
+
+  const rows = [
+    ["Product Category", "PSC", "Annual Spending", "Share", "Opportunity"],
+  ];
+
+  sortedPsc.forEach(p => {
+    const share = totalPscSpending > 0 ? ((p.total_spending / totalPscSpending) * 100).toFixed(0) : "—";
+    rows.push([
+      p.description,
+      p.psc,
+      fmtDollars(p.total_spending),
+      `${share}%`,
+      p.opportunity_tier,
+    ]);
+  });
+
+  rows[0] = rows[0].map(t => ({
+    text: t, options: { bold: true, color: C.white, fill: { color: C.primary }, fontSize: 10, align: "center" },
+  }));
+  for (let i = 1; i < rows.length; i++) {
+    const tier = sortedPsc[i - 1].opportunity_tier;
+    let bg = i % 2 === 0 ? C.lightGray : C.white;
+    if (tier === "HIGH") bg = "E8F5E9"; // light green highlight
+    const tierColor = tier === "HIGH" ? "2E7D32" : tier === "MODERATE" ? C.textDark : tier === "LOW" ? C.red : C.medGray;
+    rows[i] = rows[i].map((t, j) => ({
+      text: t, options: {
+        fill: { color: bg }, fontSize: 10,
+        align: j >= 2 ? "center" : "left",
+        bold: j === 4,
+        color: j === 4 ? tierColor : C.textDark,
+      },
+    }));
+  }
+
+  slide.addTable(rows, {
+    x: 0.3, y: 1.4, w: 9.4,
+    colW: [2.4, 0.7, 1.6, 0.8, 1.2],
+    border: { type: "solid", pt: 0.5, color: "D1D5DB" },
+    autoPage: false,
+    rowH: 0.4,
+  });
+
+  slide.addText("GREEN = High opportunity for Newport  |  In 10 of 13 categories, just 5 companies control the majority of spending", {
+    x: 0.6, y: 5.5, w: 8.8, h: 0.5,
+    fontSize: 11, fontFace: FONT_BODY, color: C.primary, bold: true, italic: true, align: "center",
+  });
+
+  addSource(slide, `Source: FPDS ${dataFY} + USDA spending analysis`);
+}
+
+// ============================================================================
+// SLIDE 9: Where Newport Wins — Product Priorities (NEW)
+// ============================================================================
+{
+  const slide = pptx.addSlide();
+  slide.background = { fill: C.white };
+  addHeadline(slide, "Where Newport Wins: Priority Product Categories");
+
+  const priorities = productOpp.priority_products || FALLBACK_PRODUCTS.priority_products;
+  const avoids = productOpp.avoid || FALLBACK_PRODUCTS.avoid;
+
+  // 2x2 grid of priority products
+  priorities.slice(0, 4).forEach((p, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const x = 0.4 + col * 4.7;
+    const y = 1.4 + row * 2.3;
+
+    // Card background
+    const cardColor = p.tier === 1 ? "E8F5E9" : C.tealLight;
+    slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+      x, y, w: 4.3, h: 2.0, rectRadius: 0.1,
+      fill: { color: cardColor },
+    });
+
+    // Tier badge
+    const tierLabel = p.tier === 1 ? "TIER 1" : "TIER 2";
+    const tierColor = p.tier === 1 ? C.green : C.secondary;
+    slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+      x: x + 3.2, y: y + 0.1, w: 0.9, h: 0.3, rectRadius: 0.05,
+      fill: { color: tierColor },
+    });
+    slide.addText(tierLabel, {
+      x: x + 3.2, y: y + 0.08, w: 0.9, h: 0.3,
+      fontSize: 8, fontFace: FONT_BODY, color: C.white, bold: true, align: "center", valign: "middle",
+    });
+
+    // Product name + spending
+    slide.addText(`${p.name} (PSC ${p.psc})`, {
+      x: x + 0.2, y: y + 0.15, w: 2.9, h: 0.35,
+      fontSize: 13, fontFace: FONT_HEADER, color: C.accent, bold: true,
+    });
+    slide.addText(fmtDollars(p.annual_spending) + "/year", {
+      x: x + 0.2, y: y + 0.5, w: 2.9, h: 0.3,
+      fontSize: 12, fontFace: FONT_BODY, color: C.primary, bold: true,
+    });
+
+    // Rationale
+    slide.addText(p.rationale, {
+      x: x + 0.2, y: y + 0.85, w: 3.9, h: 1.0,
+      fontSize: 10, fontFace: FONT_BODY, color: C.textDark,
+      lineSpacingMultiple: 1.3,
+    });
+  });
+
+  // Avoid callout at bottom
+  const avoidText = avoids.map(a => `${a.name}: ${a.rationale}`).join("  |  ");
+  slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+    x: 0.4, y: 6.1, w: 9.2, h: 0.6, rectRadius: 0.05,
+    fill: { color: "FFF3E0" },
+    line: { color: C.yellow, width: 1 },
+  });
+  slide.addText(`AVOID:  ${avoidText}`, {
+    x: 0.6, y: 6.1, w: 8.8, h: 0.6,
+    fontSize: 9, fontFace: FONT_BODY, color: C.textDark, valign: "middle",
+    lineSpacingMultiple: 1.2,
+  });
+}
+
+// ============================================================================
+// SLIDE 10: Economies of Scale — Newport's Pricing Advantage (NEW)
+// ============================================================================
+{
+  const slide = pptx.addSlide();
+  slide.background = { fill: C.white };
+  addHeadline(slide, "Economies of Scale: Newport's Pricing Advantage");
+
+  // Key points
+  const points = [
+    {
+      title: "LPTA = Lowest Price Wins",
+      body: "Most food supply contracts use Lowest Price Technically Acceptable evaluation. This favors wholesale distributors with existing volume purchasing.",
+    },
+    {
+      title: "Existing Distribution Network",
+      body: "Newport's trucks, routes, and cold chain are already operating. Government delivery is incremental cost, not new infrastructure.",
+    },
+    {
+      title: "Bulk Purchasing Power",
+      body: "Existing supplier relationships and purchase volumes mean Newport can price competitively against specialty government-only vendors.",
+    },
+  ];
+
+  points.forEach((p, i) => {
+    const y = 1.4 + i * 1.4;
+    slide.addShape(pptx.shapes.OVAL, {
+      x: 0.6, y: y + 0.05, w: 0.45, h: 0.45,
+      fill: { color: C.primary },
+    });
+    slide.addText(String(i + 1), {
+      x: 0.6, y: y + 0.03, w: 0.45, h: 0.45,
+      fontSize: 16, color: C.white, align: "center", valign: "middle", bold: true,
+    });
+    slide.addText(p.title, {
+      x: 1.3, y, w: 8, h: 0.4,
+      fontSize: 14, fontFace: FONT_HEADER, color: C.accent, bold: true,
+    });
+    slide.addText(p.body, {
+      x: 1.3, y: y + 0.4, w: 8, h: 0.8,
+      fontSize: 11, fontFace: FONT_BODY, color: C.textDark,
+      lineSpacingMultiple: 1.3,
+    });
+  });
+
+  // Comparison table
+  const compRows = [
+    ["Product Category", "Typical Gov Vendor Markup", "Newport Wholesale Advantage"],
+    ["Fresh Produce", "15-25% over wholesale", "Direct sourcing at wholesale cost"],
+    ["Confectionery & Snacks", "20-30% markup", "Existing Segment E supplier pricing"],
+    ["Dairy & Eggs", "12-20% markup", "Regional distribution, lower delivery cost"],
+    ["General Grocery", "15-25% markup", "Volume purchasing, existing logistics"],
+  ];
+
+  compRows[0] = compRows[0].map(t => ({
+    text: t, options: { bold: true, color: C.white, fill: { color: C.primary }, fontSize: 10, align: "center" },
+  }));
+  for (let i = 1; i < compRows.length; i++) {
+    const bg = i % 2 === 0 ? C.lightGray : C.white;
+    compRows[i] = compRows[i].map((t, j) => ({
+      text: t, options: {
+        fill: { color: j === 2 ? "E8F5E9" : bg }, fontSize: 10,
+        bold: j === 2, color: j === 2 ? "2E7D32" : C.textDark,
+      },
+    }));
+  }
+
+  slide.addTable(compRows, {
+    x: 0.4, y: 5.5, w: 9.2,
+    colW: [2.2, 3.0, 4.0],
+    border: { type: "solid", pt: 0.5, color: "D1D5DB" },
+    autoPage: false,
+    rowH: 0.3,
+  });
+}
+
+// ============================================================================
+// SLIDE 11: The System We've Built (was slide 8)
 // ============================================================================
 {
   const slide = pptx.addSlide();
@@ -393,7 +681,6 @@ function addSource(slide, text) {
     const x = 0.5 + col * 4.6;
     const y = 1.5 + row * 2.7;
 
-    // Card background
     slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
       x, y, w: 4.2, h: 2.3, rectRadius: 0.1,
       fill: { color: C.lightGray },
@@ -411,7 +698,7 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 9: Free vs. Optimal System
+// SLIDE 12: Free vs. Optimal System (was slide 9)
 // ============================================================================
 {
   const slide = pptx.addSlide();
@@ -455,36 +742,46 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 10: Financial Projections
+// SLIDE 13: Financial Projections — 5-Year (was slide 10)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.white };
-  addHeadline(slide, "Conservative to Aggressive: Year 1 Revenue Impact");
+  addHeadline(slide, "5-Year Revenue Trajectory: Compounding Government Revenue");
+
+  // TAM context line
+  const tamLine = tamData.total_spending
+    ? `Federal food TAM: ${fmtDollars(tamData.total_spending)} | Target states: ${fmtDollars(tamData.target_states_spending)}`
+    : "Federal food TAM: ~$6.9B | Target states: ~$2.1B";
+
+  slide.addText(tamLine, {
+    x: 0.4, y: 1.3, w: 9.2, h: 0.3,
+    fontSize: 10, fontFace: FONT_BODY, color: C.secondary, italic: true, align: "center",
+  });
 
   const rows = [
-    ["Metric", "Conservative", "Moderate", "Aggressive"],
-    ["Contracts Won", "5", "10", "15+"],
-    ["Avg Contract Value", "$50,000", "$75,000", "$100,000"],
-    ["New Government Revenue", "$250,000", "$750,000", "$1,500,000+"],
-    ["Gross Profit (10-12%)", "$25,000-$30,000", "$75,000-$90,000", "$150,000-$180,000"],
-    ["Platform Investment", "$0-$18,600", "$7,400-$18,600", "$7,400-$18,600"],
-    ["Net New Profit", "$6,400-$30,000", "$56,400-$82,600", "$131,400-$172,600"],
+    ["Metric", "Year 1", "Year 2", "Year 3", "Year 5"],
+    ["Win Rate", "15-25%", "35%", "40%", "50%"],
+    ["Contracts Won", "5-15", "12-20", "18-30", "25-45"],
+    ["Avg Contract Value", "$50K-100K", "$75K-100K", "$100K-150K", "$150K-250K"],
+    ["New Annual Revenue", "$250K-$1.5M", "$900K-$2M", "$1.8M-$4.5M", "$3.75M-$11.25M"],
+    ["Gross Margin (11%)", "$28K-$165K", "$99K-$220K", "$198K-$495K", "$413K-$1.24M"],
+    ["Cumulative Revenue", "$250K-$1.5M", "$1.15M-$3.5M", "$2.95M-$8M", "$10M-$30M+"],
   ];
 
   rows[0] = rows[0].map((t, j) => ({
     text: t, options: {
-      bold: true, color: C.white, fontSize: 11, align: "center",
-      fill: { color: j === 0 ? C.accent : [C.primary, C.secondary, C.accent][j - 1] },
+      bold: true, color: C.white, fontSize: 10.5, align: "center",
+      fill: { color: j === 0 ? C.accent : [C.primary, C.primary, C.secondary, C.accent][j - 1] },
     },
   }));
 
   for (let i = 1; i < rows.length; i++) {
-    const isTotal = i === rows.length - 1;
+    const isTotal = i >= rows.length - 1;
     const bg = isTotal ? C.tealLight : (i % 2 === 0 ? C.lightGray : C.white);
     rows[i] = rows[i].map((t, j) => ({
       text: t, options: {
-        fill: { color: bg }, fontSize: 10.5,
+        fill: { color: bg }, fontSize: 10,
         bold: j === 0 || isTotal,
         color: isTotal ? C.primary : C.textDark,
         align: j === 0 ? "left" : "center",
@@ -493,20 +790,20 @@ function addSource(slide, text) {
   }
 
   slide.addTable(rows, {
-    x: 0.4, y: 1.5, w: 9.2,
-    colW: [2.4, 2.2, 2.2, 2.4],
+    x: 0.3, y: 1.8, w: 9.4,
+    colW: [2.0, 1.8, 1.8, 1.8, 2.0],
     border: { type: "solid", pt: 0.5, color: "D1D5DB" },
     autoPage: false,
   });
 
-  slide.addText("Even the conservative scenario \u2014 winning just 5 small contracts \u2014 pays for the entire platform in Year 1.", {
+  slide.addText("Year 1 builds credibility. Years 2-3 compound past performance. Years 4-5 deliver incumbent advantage and preferred vendor status.", {
     x: 0.6, y: 5.7, w: 8.8, h: 0.5,
-    fontSize: 13, fontFace: FONT_BODY, color: C.primary, bold: true, italic: true, align: "center",
+    fontSize: 12, fontFace: FONT_BODY, color: C.primary, bold: true, italic: true, align: "center",
   });
 }
 
 // ============================================================================
-// SLIDE 11: Implementation Timeline
+// SLIDE 14: Implementation Timeline (was slide 11)
 // ============================================================================
 {
   const slide = pptx.addSlide();
@@ -523,12 +820,10 @@ function addSource(slide, text) {
 
   milestones.forEach((m, i) => {
     const y = 1.6 + i * 1.05;
-    // Timeline dot
     slide.addShape(pptx.shapes.OVAL, {
       x: 0.7, y: y + 0.15, w: 0.35, h: 0.35,
       fill: { color: m.color },
     });
-    // Vertical line (except last)
     if (i < milestones.length - 1) {
       slide.addShape(pptx.shapes.RECTANGLE, {
         x: 0.855, y: y + 0.5, w: 0.04, h: 0.6,
@@ -548,7 +843,7 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 12: What Still Mind Creative Delivers
+// SLIDE 15: What Still Mind Creative Delivers (was slide 12)
 // ============================================================================
 {
   const slide = pptx.addSlide();
@@ -568,7 +863,6 @@ function addSource(slide, text) {
 
   deliverables.forEach((d, i) => {
     const y = 1.5 + i * 0.6;
-    // Checkmark circle
     slide.addShape(pptx.shapes.OVAL, {
       x: 0.7, y: y + 0.05, w: 0.35, h: 0.35,
       fill: { color: C.green },
@@ -585,13 +879,12 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 13: Investment & Next Steps
+// SLIDE 16: Investment & Next Steps (was slide 13)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.primary };
 
-  // Geometric accents
   slide.addShape(pptx.shapes.RECTANGLE, {
     x: 7, y: 5, w: 4, h: 4, rotate: 45,
     fill: { color: C.secondary, transparency: 70 },
@@ -602,7 +895,6 @@ function addSource(slide, text) {
     fontSize: 30, fontFace: FONT_HEADER, color: C.white, bold: true,
   });
 
-  // Accent bar
   slide.addShape(pptx.shapes.RECTANGLE, {
     x: 0.8, y: 1.6, w: 1.2, h: 0.05,
     fill: { color: C.white, transparency: 40 },
@@ -639,28 +931,40 @@ function addSource(slide, text) {
 }
 
 // ============================================================================
-// SLIDE 14: Appendix — FPDS Data Detail
+// SLIDE 17: Appendix — FPDS Data Detail (DYNAMIC, was slide 14)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.white };
   addHeadline(slide, "Federal Food Procurement Data \u2014 Full Breakdown");
 
+  // Build from dynamic data
   const data = [
     ["NAICS", "Description", "Awards", "Avg Value", "Avg Offers", "Sole Source %"],
-    ["722310", "Food Service Contractors", "98", "$43M", "1.0", "~100%"],
-    ["424410", "Grocery Wholesalers", "87", "$285K", "1.4", "72%"],
-    ["424490", "Other Grocery Products", "142", "$195K", "1.3", "68%"],
-    ["424480", "Fresh Fruit & Vegetable", "203", "$340K", "1.2", "78%"],
-    ["424470", "Meat & Meat Product", "156", "$410K", "1.5", "63%"],
-    ["424460", "Fish & Seafood", "112", "$180K", "1.3", "70%"],
-    ["424450", "Confectionery", "45", "$95K", "1.6", "58%"],
-    ["424440", "Poultry & Poultry Product", "178", "$520K", "1.4", "65%"],
-    ["424430", "Dairy Product", "198", "$290K", "1.2", "74%"],
-    ["424420", "Packaged Frozen Food", "245", "$210K", "1.3", "71%"],
   ];
 
-  const totals = ["TOTAL", "All Food NAICS", "1,664", "\u2014", "1.3 avg", "64.8%"];
+  // Sort by awards descending for the detail table
+  const allNaics = [...fpdsNaics].sort((a, b) => b.awards - a.awards);
+  allNaics.forEach(n => {
+    data.push([
+      n.naics,
+      n.description,
+      String(n.awards),
+      fmtDollars(n.avg_value),
+      n.avg_offers.toFixed(1),
+      n.sole_source_pct >= 95 ? `~100%` : `${n.sole_source_pct}%`,
+    ]);
+  });
+
+  // Totals row
+  const totals = [
+    "TOTAL",
+    "All Food NAICS",
+    fpdsTotals.transactions.toLocaleString(),
+    "\u2014",
+    `${fpdsTotals.avg_offers} avg`,
+    `${fpdsTotals.sole_source_pct}%`,
+  ];
 
   data[0] = data[0].map(t => ({
     text: t, options: { bold: true, color: C.white, fill: { color: C.primary }, fontSize: 9.5, align: "center" },
@@ -684,7 +988,7 @@ function addSource(slide, text) {
     rowH: 0.35,
   });
 
-  addSource(slide, "Source: FPDS FY2025 via Federal Procurement Data System API");
+  addSource(slide, `Source: FPDS ${dataFY} via Federal Procurement Data System API`);
 }
 
 // ============================================================================
@@ -693,7 +997,7 @@ function addSource(slide, text) {
 const outPath = path.join(__dirname, "newport-govcon-proposal.pptx");
 pptx.writeFile({ fileName: outPath }).then(() => {
   console.log(`Presentation saved to ${outPath}`);
-  console.log("14 slides generated.");
+  console.log("17 slides generated.");
 }).catch(err => {
   console.error("Failed to generate presentation:", err);
   process.exit(1);
