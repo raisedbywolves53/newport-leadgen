@@ -204,6 +204,12 @@ class SAMClient:
         # Office address
         office = opp.get("officeAddress", {}) or {}
 
+        # Place of performance (feeds geography scoring)
+        pop = opp.get("placeOfPerformance", {}) or {}
+
+        # Award value (feeds contract size scoring)
+        award = opp.get("award", {}) or {}
+
         return {
             "notice_id": opp.get("noticeId", ""),
             "title": opp.get("title", ""),
@@ -219,6 +225,11 @@ class SAMClient:
             "classification_code": opp.get("classificationCode", ""),
             "set_aside": opp.get("typeOfSetAside", ""),
             "set_aside_description": opp.get("typeOfSetAsideDescription", ""),
+            "pop_state": pop.get("state", {}).get("code", "") if isinstance(pop.get("state"), dict) else str(pop.get("state", "") or ""),
+            "pop_city": pop.get("city", {}).get("name", "") if isinstance(pop.get("city"), dict) else str(pop.get("city", "") or ""),
+            "pop_county": pop.get("county", {}).get("name", "") if isinstance(pop.get("county"), dict) else str(pop.get("county", "") or ""),
+            "award_floor": award.get("floor", ""),
+            "award_ceiling": award.get("ceiling", ""),
             "poc_name": poc.get("fullName", ""),
             "poc_email": poc.get("email", ""),
             "poc_phone": poc.get("phone", ""),
