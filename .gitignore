@@ -34,5 +34,9 @@ logs/
 Thumbs.db
 desktop.ini
 
+# Generated outputs
+pitchbook/*.pptx
+dashboard/*.xlsx
+
 # Claude Code
 .claude/

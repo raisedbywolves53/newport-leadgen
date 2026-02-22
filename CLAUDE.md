@@ -8,7 +8,7 @@ Automated lead generation and competitive intelligence pipeline for Newport Whol
 
 ```
 config/              # JSON configs: ICP definitions, exclusions, government contracts
-enrichment/          # API clients: Apollo.io, SAM.gov, USASpending.gov
+enrichment/          # API clients: Apollo.io, SAM.gov (Opps + Entity), USASpending.gov, Grants.gov
 scrapers/            # CLI tools: apollo_prospector.py, contract_scanner.py
 crm/                 # Google Sheets CRM integration
 orchestrator/        # Campaign runner
@@ -28,13 +28,16 @@ python scrapers/apollo_prospector.py --segment all --reveal-emails --max-reveals
 ```
 
 ### Government Contract Scanner (`scrapers/contract_scanner.py`)
-Federal food procurement intelligence from SAM.gov + USASpending.gov.
+Federal food procurement intelligence from SAM.gov + USASpending.gov + Grants.gov. 9 reports.
 ```
 python scrapers/contract_scanner.py --report all --dry-run
 python scrapers/contract_scanner.py --report market-size --fiscal-years 2024,2025
 python scrapers/contract_scanner.py --report expiring --months-ahead 12 --max-pages 3
 python scrapers/contract_scanner.py --report opportunities --max-pages 2
 python scrapers/contract_scanner.py --report incumbents --max-pages 5
+python scrapers/contract_scanner.py --report competitors --states FL,GA,AL
+python scrapers/contract_scanner.py --report analytics --fiscal-years 2023,2024,2025
+python scrapers/contract_scanner.py --report grants
 ```
 
 ## Segments
@@ -50,8 +53,9 @@ python scrapers/contract_scanner.py --report incumbents --max-pages 5
 ## API Keys Required
 
 - `APOLLO_API_KEY` — Apollo.io for people search and enrichment
-- `SAM_API_KEY` — SAM.gov for federal contract data (free, 1,000 req/day)
+- `SAM_API_KEY` — SAM.gov for opportunities + entity data (free, 1,000 req/day)
 - USASpending.gov — no key needed
+- Grants.gov — no key needed
 
 ## Config Files
 
@@ -70,21 +74,31 @@ python scrapers/contract_scanner.py --report incumbents --max-pages 5
 
 ### Completed
 - Full Apollo prospector pipeline (segments A-E) with enterprise people search, email reveal, exclusion filters, geographic filtering
-- Government contract intelligence pipeline with 4 reports:
-  - **Expiring contracts** — SAM.gov awards expiring in N months
+- Government contract intelligence pipeline with 9 reports:
+  - **Expiring contracts** — USASpending awards expiring in N months
   - **Incumbent analysis** — vendor aggregation (contracts, value, competition %)
-  - **Opportunity pipeline** — active solicitations/pre-sols/sources sought
+  - **Small contracts** — $10K-$350K simplified acquisition range
+  - **FEMA procurement** — disaster food contracts
+  - **Opportunity pipeline** — active solicitations/pre-sols/sources sought (7 ptypes)
   - **Market sizing** — USASpending spending by NAICS + agency per FY
+  - **Competitor registry** — SAM.gov registered vendors by NAICS/state (NEW)
+  - **Computed analytics** — trends, geography heatmap, recipient concentration (NEW)
+  - **Grants pipeline** — Grants.gov USDA food grants (NEW)
+- API clients: `sam_client.py` (opportunities), `sam_entity_client.py` (entity registry), `usaspending_client.py` (awards + enhanced endpoints), `grants_client.py` (grants)
+- USASpending enhanced endpoints: `spending_by_recipient`, `spending_by_county`, `spending_by_geography`, `recipient_profile`, `new_awards_over_time`, `search_subawards`
 - Cache layer for SAM.gov rate limit management (24hr TTL, `data/cache/`)
 - 10 primary NAICS codes (food wholesale 4244xx + food service 722310), 42 secondary (food manufacturing 311xxx)
+- 10 target states: FL, GA, AL, SC, NC, TN, MS, LA, VA, TX
 
-### Not Yet Verified Against Live APIs
-- Contract scanner reports (expiring, incumbents, opportunities) require SAM_API_KEY to test
-- Market-size report runs without a key (USASpending is free) — test with: `python scrapers/contract_scanner.py --report market-size --fiscal-years 2024,2025`
-- After getting SAM key, verify all reports produce valid CSV output and cache works
+### Verified Against Live APIs
+- USASpending endpoints: market-size, small-contracts, fema, spending_by_recipient, spending_by_geography, new_awards_over_time — all confirmed working
+- Grants.gov: search_grants confirmed working (136 food-related results)
+- SAM.gov Opportunities: requires SAM_API_KEY (key is set in .env)
+- SAM.gov Entity API: requires SAM_API_KEY (same key, shares 1,000/day limit)
 
 ### Remaining Backlog
 - CRM integration (Google Sheets push)
 - Outreach automation (Instantly email, Twilio SMS, Retell voice)
 - Campaign orchestrator
 - Dashboard/tracking
+- Pitchbook generator update to pull live data from API outputs

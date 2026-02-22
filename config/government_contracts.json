@@ -76,7 +76,6 @@
   "api": {
     "sam": {
       "base_url": "https://api.sam.gov",
-      "contract_awards_path": "/opportunities/v2/search",
       "opportunities_path": "/opportunities/v2/search",
       "entity_path": "/entity-information/v3/entities",
       "rate_limit_daily": 1000,
@@ -85,7 +84,8 @@
       "retry_backoff_base": 5,
       "retry_backoff_max": 60,
       "results_per_page": 100,
-      "date_format": "MM/dd/yyyy"
+      "date_format": "MM/dd/yyyy",
+      "note": "SAM.gov only exposes an Opportunities API. Historical award data comes from USASpending.gov."
     },
     "usaspending": {
       "base_url": "https://api.usaspending.gov/api/v2",
@@ -95,9 +95,24 @@
       "retry_attempts": 3,
       "retry_backoff_base": 2,
       "retry_backoff_max": 30,
-      "results_per_page": 100
+      "results_per_page": 100,
+      "note": "Free, no API key, no daily limit. Source of truth for all contract award data (FPDS)."
     }
   },
+  "simplified_acquisition": {
+    "micro_purchase_threshold": 15000,
+    "simplified_threshold": 350000,
+    "small_contract_min": 10000,
+    "small_contract_max": 350000,
+    "note": "FAR Part 13 thresholds. Micro-purchase: no competition required. SAT: simplified procedures."
+  },
+  "fema": {
+    "department_code": "7000",
+    "subtier_code": "7022",
+    "agency_name": "Federal Emergency Management Agency",
+    "note": "FEMA food procurement for disaster response. Often emergency/sole-source."
+  },
+  "target_states": ["FL", "GA", "AL", "SC", "NC", "TN", "MS", "LA", "VA", "TX"],
   "analysis": {
     "expiring_lookahead_months": 12,
     "fiscal_years": [2023, 2024, 2025],

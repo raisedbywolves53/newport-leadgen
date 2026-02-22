@@ -1,23 +1,26 @@
-"""Generate Newport Wholesalers Government Contract Entry Pitchbook.
+"""Generate Newport Wholesalers Government Contract Entry Pitchbook v3.
 
-Creates a 16-slide professional PowerPoint presentation targeting
+Creates a 14-slide professional PowerPoint presentation targeting
 Newport leadership to secure buy-in for government contract entry,
 with Still Mind Creative as the operational partner.
 
-v2 — Full content rewrite: realistic FL pipeline numbers, sourced fraud data,
-decision-tree risk framework, internal champions, selling seed, compelling close.
+v3 — Grounded in reality: no inflated TAMs, no salesy dream-selling,
+no EBITDA multiples, no pipe-dream valuations. Each claim backed by real data.
+Sent alongside a working dashboard with example contracts.
 
 Usage:
     python pitchbook/generate_pitchbook.py
 """
 
+import math
 import sys
 from datetime import datetime
 from pathlib import Path
 
 from pptx import Presentation
+from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
+from pptx.enum.chart import XL_CHART_TYPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Emu, Inches, Pt
 
@@ -40,6 +43,8 @@ AMBER = RGBColor(0xE6, 0x8A, 0x00)
 SLIDE_WIDTH = Inches(13.333)
 SLIDE_HEIGHT = Inches(7.5)
 
+
+# ========== HELPERS ==========
 
 def set_slide_bg(slide, color):
     """Set solid background color for a slide."""
@@ -210,981 +215,1268 @@ def add_callout_bar(slide, left, top, width, height, text,
     return shape
 
 
+def add_bar_chart(slide, left, top, width, height, categories, values,
+                  series_name="", bar_color=NAVY, number_format=None):
+    """Add a column chart with styled bars and optional data labels."""
+    chart_data = CategoryChartData()
+    chart_data.categories = categories
+    chart_data.add_series(series_name, values)
+    chart_frame = slide.shapes.add_chart(
+        XL_CHART_TYPE.COLUMN_CLUSTERED, left, top, width, height, chart_data
+    )
+    chart = chart_frame.chart
+    chart.has_legend = False
+    plot = chart.plots[0]
+    plot.gap_width = 80
+    series = plot.series[0]
+    series.format.fill.solid()
+    series.format.fill.fore_color.rgb = bar_color
+    if number_format:
+        series.has_data_labels = True
+        labels = series.data_labels
+        labels.font.size = Pt(12)
+        labels.font.bold = True
+        labels.font.color.rgb = NAVY
+        labels.font.name = "Calibri"
+        labels.number_format = number_format
+    cat_axis = chart.category_axis
+    cat_axis.tick_labels.font.size = Pt(11)
+    cat_axis.tick_labels.font.name = "Calibri"
+    cat_axis.tick_labels.font.color.rgb = DARK_GRAY
+    val_axis = chart.value_axis
+    val_axis.tick_labels.font.size = Pt(10)
+    val_axis.tick_labels.font.name = "Calibri"
+    val_axis.tick_labels.font.color.rgb = MED_GRAY
+    val_axis.has_major_gridlines = True
+    val_axis.major_gridlines.format.line.color.rgb = LIGHT_GRAY
+    return chart_frame
+
+
 # ========== SLIDE BUILDERS ==========
 
 def slide_01_cover(prs):
-    """Slide 1: Cover"""
+    """Slide 1: Cover — clean, professional, no inflated promises."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, NAVY)
 
-    add_textbox(slide, Inches(1.5), Inches(1.5), Inches(10), Inches(1.5),
+    add_textbox(slide, Inches(1.5), Inches(1.8), Inches(10), Inches(1.2),
                 "Newport Wholesalers", font_size=48, font_color=WHITE, bold=True,
                 alignment=PP_ALIGN.CENTER)
 
-    add_textbox(slide, Inches(1.5), Inches(3.0), Inches(10), Inches(1),
-                "Government Contract Entry Strategy", font_size=32, font_color=GOLD,
-                bold=False, alignment=PP_ALIGN.CENTER)
+    add_textbox(slide, Inches(1.5), Inches(3.2), Inches(10), Inches(0.8),
+                "A Strategy for Government Food Procurement",
+                font_size=28, font_color=GOLD,
+                alignment=PP_ALIGN.CENTER)
 
-    add_divider(slide, Inches(4), Inches(4.2), Inches(5))
+    add_divider(slide, Inches(4), Inches(4.3), Inches(5))
 
-    add_textbox(slide, Inches(1.5), Inches(4.6), Inches(10), Inches(0.5),
-                "Prepared by Still Mind Creative LLC", font_size=18,
-                font_color=WHITE, alignment=PP_ALIGN.CENTER)
+    add_textbox(slide, Inches(1.5), Inches(4.8), Inches(10), Inches(0.5),
+                "Prepared by Still Mind Creative LLC",
+                font_size=18, font_color=WHITE, alignment=PP_ALIGN.CENTER)
 
-    add_textbox(slide, Inches(1.5), Inches(5.2), Inches(10), Inches(0.5),
-                datetime.now().strftime("%B %Y"), font_size=16,
-                font_color=MED_GRAY, alignment=PP_ALIGN.CENTER)
+    add_textbox(slide, Inches(1.5), Inches(5.4), Inches(10), Inches(0.4),
+                datetime.now().strftime("%B %Y"),
+                font_size=16, font_color=MED_GRAY, alignment=PP_ALIGN.CENTER)
 
-    add_textbox(slide, Inches(1.5), Inches(6.5), Inches(10), Inches(0.4),
+    add_textbox(slide, Inches(1.5), Inches(6.6), Inches(10), Inches(0.4),
                 "CONFIDENTIAL", font_size=12, font_color=MED_GRAY,
                 alignment=PP_ALIGN.CENTER)
 
 
-def slide_02_exec_summary(prs):
-    """Slide 2: Executive Summary — The 30-Year Seed"""
+def slide_02_you_built_something_real(prs):
+    """Slide 2: 'You Built Something Real' — emotional foundation."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Executive Summary", font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "You Built Something Real", font_size=36, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    # The narrative — visual KPI row first
-    cards = [
-        ("30+", "Years in FL\nFood Wholesale"),
-        ("$15-20M", "Realistic 3-Year\nPipeline (FL Only)"),
-        ("76", "FL Decision Makers\nAlready Identified"),
-        ("$5-12K", "Year 1 Investment\n(Registrations + Materials)"),
+    # LEFT: Vertical timeline — visual mass of 30 years
+    # Stack of navy bars representing decades of continuous operation
+    for i in range(15):
+        y_bar = Inches(1.4) + i * Inches(0.22)
+        bar_w = Inches(3.2) - i * Inches(0.03)
+        alpha = max(0.4, 1.0 - i * 0.04)
+        shape = slide.shapes.add_shape(1, Inches(0.8), y_bar, bar_w, Inches(0.14))
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = NAVY if i < 10 else LIGHT_NAVY
+        shape.line.fill.background()
+
+    add_textbox(slide, Inches(0.8), Inches(4.8), Inches(3.5), Inches(0.6),
+                "30 YEARS", font_size=42, font_color=NAVY, bold=True)
+    add_textbox(slide, Inches(0.8), Inches(5.4), Inches(3.5), Inches(0.4),
+                "of continuous operation", font_size=16, font_color=MED_GRAY)
+
+    # RIGHT: Three bold statements with gold left borders
+    statements = [
+        "Real warehouses. Real trucks.\nReal employees.",
+        "~30 years of auditable\nfinancial records.",
+        "An American business that pays\nAmerican taxes.",
     ]
-    card_width = Inches(2.7)
-    card_gap = Inches(0.3)
+    for i, stmt in enumerate(statements):
+        y_stmt = Inches(1.5) + i * Inches(1.4)
+        # Gold left accent bar
+        border = slide.shapes.add_shape(
+            1, Inches(5.2), y_stmt, Inches(0.08), Inches(1.0))
+        border.fill.solid()
+        border.fill.fore_color.rgb = GOLD
+        border.line.fill.background()
+        add_textbox(slide, Inches(5.5), y_stmt + Inches(0.1),
+                    Inches(7), Inches(0.8),
+                    stmt, font_size=22, font_color=NAVY, bold=True)
+
+    # Bottom callout — full width
+    add_callout_bar(slide, Inches(0.8), Inches(6.2), Inches(11.7), Inches(0.8),
+                    "In the current environment, this is the most valuable thing "
+                    "a food distributor can have.",
+                    font_size=16)
+
+
+def slide_03_why_government_customers(prs):
+    """Slide 3: 'Why Government Customers Are Different' — structural advantages."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_slide_bg(slide, WHITE)
+
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "Why Government Customers Are Different",
+                font_size=36, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
+
+    # Four KPI cards showing structural advantages
+    cards = [
+        ("Net-30\nPayment", "Enforced by federal law\n(Prompt Payment Act)"),
+        ("3-5 Year\nContracts", "With built-in\nprice escalators"),
+        ("Recession-\nProof", "Spending INCREASED\nduring 2008-09"),
+        ("Higher\nMargins", "5-15% above equivalent\nprivate sector"),
+    ]
+    card_w = Inches(2.7)
+    card_h = Inches(1.4)
+    gap = Inches(0.3)
     start_x = Inches(0.8)
     for i, (val, label) in enumerate(cards):
-        x = start_x + i * (card_width + card_gap)
-        add_kpi_card(slide, x, Inches(1.5), card_width, Inches(1.3), val, label,
-                     value_size=30)
+        x = start_x + i * (card_w + gap)
+        add_kpi_card(slide, x, Inches(1.3), card_w, card_h,
+                     val, label, value_color=NAVY, value_size=22)
 
-    # The story
-    add_textbox(slide, Inches(0.8), Inches(3.2), Inches(11.5), Inches(0.4),
-                "The Story in 60 Seconds:", font_size=20, font_color=NAVY, bold=True)
+    # Bar chart: Federal food spending FY2023-2025 (USASpending data)
+    add_textbox(slide, Inches(0.8), Inches(2.9), Inches(6), Inches(0.4),
+                "Federal Food Spending Growth (USASpending.gov)",
+                font_size=14, font_color=NAVY, bold=True)
+    add_bar_chart(slide,
+                  Inches(0.8), Inches(3.3), Inches(5.5), Inches(2.8),
+                  categories=["FY2023", "FY2024", "FY2025"],
+                  values=(1.276, 1.322, 1.467),
+                  series_name="Federal Food Spending ($B)",
+                  bar_color=NAVY,
+                  number_format='"$"0.000"B"')
 
-    items = [
-        "Newport has spent 30 years building the exact infrastructure governments need: warehouses, trucks, cold chain, supplier relationships, and a track record of feeding people.",
-        "The federal government is in the middle of the largest fraud crackdown in procurement history. Agencies are desperate for verifiable, legitimate American vendors.",
-        "We've identified $15-20M in realistic, winnable Florida contracts over 3 years — school districts, county jails, federal prisons, and private contractor supply chains.",
-        "Newport's sales team builds relationships and closes deals. Still Mind Creative handles the government procurement bureaucracy — monitoring, proposals, compliance.",
-        "Year 1 is about winning contracts — even small ones — to build the credibility that compounds into larger wins. The investment is modest. The upside is a new revenue channel that transforms the business.",
+    # Right side: Context text
+    context_lines = [
+        "This is federal spending only on food",
+        "wholesale NAICS codes (4244xx).",
+        "",
+        "State and local spending (school",
+        "districts, county jails, state prisons)",
+        "adds multiples more.",
+        "",
+        "Government is the structurally ideal",
+        "client. They sign long contracts,",
+        "print money, and pay on time.",
     ]
-    add_bullet_list(slide, Inches(0.8), Inches(3.7), Inches(11.5), Inches(3.5),
-                    items, font_size=15, spacing=Pt(8))
+    add_multiline_textbox(slide, Inches(7.0), Inches(3.3),
+                          Inches(5.5), Inches(2.8),
+                          context_lines, font_size=13,
+                          font_color=MED_GRAY, line_spacing=Pt(2))
 
-
-def slide_03_market_opportunity(prs):
-    """Slide 3: The Market Opportunity — What Newport Can Actually Win"""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    set_slide_bg(slide, WHITE)
-
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "What Newport Can Actually Win in Florida",
-                font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
-
-    add_textbox(slide, Inches(0.8), Inches(1.3), Inches(11), Inches(0.4),
-                "Not the total market. Not the fantasy. The contracts a Florida wholesale distributor can realistically bid and win.",
-                font_size=15, font_color=MED_GRAY)
-
-    # Main table: FL opportunity breakdown
-    data = [
-        ["Channel", "# of Targets", "Contract Value (Each)", "Bid Window", "Year 1 Target", "3-Year Target"],
-        ["FL School District ITBs\n(category bids: meat, dairy, frozen, produce)",
-         "67 districts\n(Top 25 by enrollment)", "$2-10M per category", "Feb-May\n(for July start)",
-         "$0-3M\n(1-2 wins)", "$5-15M/yr"],
-        ["FL County Jail Food Supply\n(self-operated kitchens)",
-         "3-5 confirmed\nself-op counties", "$1-3.5M/yr per county", "Varies by\ncounty cycle",
-         "$0-2M\n(1 win)", "$3-8M/yr"],
-        ["BOP Quarterly Subsistence\n(8 FL federal prisons)",
-         "8 institutions\n(FCC Coleman = largest)", "$75K-2.5M/quarter", "Quarterly\n(constant cycle)",
-         "$0-500K\n(1-2 quarters)", "$1-3M/yr"],
-        ["Private Contractor Supply\n(GEO, CoreCivic, Trinity, Aramark)",
-         "4-6 FL-based\ncontractors", "Varies by\nfacility", "Ongoing vendor\napplications",
-         "Vendor approval\n+ first orders", "$1-3M/yr"],
-        ["USDA AMS / LFPA / FEMA\n(commodity, emergency, food bank)",
-         "Multiple\nprograms", "$200K-5M each", "Year-round", "Applications\nsubmitted",
-         "$500K-3M/yr"],
-    ]
-    add_table(slide, Inches(0.3), Inches(1.8), Inches(12.7),
-              len(data), 6, data,
-              col_widths=[Inches(3.2), Inches(1.7), Inches(1.8), Inches(1.5), Inches(1.8), Inches(1.8)],
-              font_size=10)
-
-    # Bottom KPI summary
-    cards = [
-        ("$1-2.5M", "Year 1 Realistic\nMidpoint"),
-        ("$5-8M", "Year 2 Realistic\nMidpoint"),
-        ("$10-15M", "Year 3 Realistic\nMidpoint"),
-        ("$15-20M", "Cumulative\n3-Year Pipeline"),
-    ]
-    card_width = Inches(2.7)
-    for i, (val, label) in enumerate(cards):
-        x = Inches(0.8) + i * (card_width + Inches(0.3))
-        add_kpi_card(slide, x, Inches(5.8), card_width, Inches(1.3), val, label,
-                     value_color=GREEN, value_size=28)
-
-    add_textbox(slide, Inches(0.8), Inches(7.15), Inches(11), Inches(0.3),
-                "Source: Conservative projection based on FL district enrollment data, BOP population, county jail populations, and industry bid win rates (15-25% for new entrants).",
+    # Bottom note
+    add_textbox(slide, Inches(0.8), Inches(6.5), Inches(11.5), Inches(0.5),
+                "Source: USASpending.gov, NAICS 424410/424420/424430/424440/424450/424460/424470/424480/424490 + 722310. "
+                "Federal food procurement only. State/local adds $9-13B+ annually.",
                 font_size=10, font_color=MED_GRAY)
 
 
 def slide_04_fraud_crisis(prs):
-    """Slide 4: Why Now — The Fraud Crisis"""
+    """Slide 4: 'Why Now — The Fraud Crisis' — door is open for real companies."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Why Now — The Fraud Crisis Creates Opportunity",
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "Why Now \u2014 The Fraud Crisis",
                 font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    # Fraud data table — sourced, not inflated
-    data = [
-        ["What Happened", "Scale", "Source", "Newport Implication"],
-        ["False Claims Act recoveries hit\nall-time record (FY2025)",
-         "$6.9 BILLION\n(single fiscal year)",
-         "DOJ FCA\nAnnual Report",
-         "Procurement officers are terrified of\nawarding to the wrong vendor"],
-        ["COVID pandemic program fraud\n(PPP, EIDL, nutrition programs)",
-         "$200-300 BILLION\n(cumulative est.)",
-         "GAO / OIG\nReports",
-         "Every new vendor faces heightened\nscrutiny — legitimacy is a weapon"],
-        ["Feeding Our Future fraud\n(MN school nutrition)",
-         "$250M stolen\n79 indicted, 56+ guilty",
-         "DOJ Press\nReleases (2023-26)",
-         "School nutrition procurement under\nmicroscope — clean vendors wanted"],
-        ["SBA 8(a) program — first audit\nin 50 years",
-         "1,091 firms suspended\n(25% of program)",
-         "SBA OIG\n(Jan-Feb 2026)",
-         "Set-aside contracts need legitimate\nsmall businesses to fill the gaps"],
-        ["Aramark class-action (Dec 2025) —\ncutting meals, insect contamination",
-         "Multiple states\naffected",
-         "Reuters /\nLegal filings",
-         "Agencies losing faith in mega-FSMCs —\nopening doors for alternatives"],
-        ["Trinity Services OK contract voided\nafter 4 weeks (June 2025)",
-         "State-level\ncontract failure",
-         "OK DOC Public\nRecords",
-         "Even experienced gov contractors\nare stumbling — room for new entrants"],
+    # Fraud data cards — sourced, not inflated
+    fraud_items = [
+        ("$6.8B", "False Claims Act recoveries\nFY2025 (all-time record)", "DOJ"),
+        ("$250M+", "Feeding Our Future\nschool nutrition fraud stolen", "DOJ"),
+        ("1,091", "8(a) firms suspended\n(25% of program)", "SBA OIG\nJan 2026"),
+        ("Class-Action", "Aramark Dec 2025 \u2014\ncutting meals, contamination", "Reuters"),
+        ("Voided", "Trinity OK contract\nvoided after 4 weeks", "OK DOC\nRecords"),
     ]
-    add_table(slide, Inches(0.3), Inches(1.5), Inches(12.7),
-              len(data), 4, data,
-              col_widths=[Inches(3.2), Inches(2.2), Inches(1.8), Inches(3.5)],
-              font_size=10)
+    card_w = Inches(2.3)
+    card_h = Inches(2.0)
+    gap = Inches(0.2)
+    start_x = Inches(0.5)
+
+    for i, (number, desc, source) in enumerate(fraud_items):
+        x = start_x + i * (card_w + gap)
+        y = Inches(1.3)
+
+        # Card background
+        card = slide.shapes.add_shape(1, x, y, card_w, card_h)
+        card.fill.solid()
+        card.fill.fore_color.rgb = LIGHT_GRAY
+        card.line.color.rgb = RED
+        card.line.width = Pt(1.5)
+
+        # Number header bar
+        header = slide.shapes.add_shape(1, x, y, card_w, Inches(0.5))
+        header.fill.solid()
+        header.fill.fore_color.rgb = NAVY
+        header.line.fill.background()
+        add_textbox(slide, x, y, card_w, Inches(0.5),
+                    number, font_size=18, font_color=GOLD, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Description
+        add_textbox(slide, x + Inches(0.1), y + Inches(0.6),
+                    card_w - Inches(0.2), Inches(0.9),
+                    desc, font_size=11, font_color=DARK_GRAY,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Source
+        add_textbox(slide, x + Inches(0.1), y + card_h - Inches(0.4),
+                    card_w - Inches(0.2), Inches(0.3),
+                    f"Source: {source}", font_size=9, font_color=MED_GRAY,
+                    alignment=PP_ALIGN.CENTER)
+
+    # Comparison table: "What Agencies Now Verify" vs "What Newport Has"
+    add_textbox(slide, Inches(0.8), Inches(3.6), Inches(11), Inches(0.4),
+                "What Agencies Now Verify vs. What Newport Has",
+                font_size=16, font_color=NAVY, bold=True)
+
+    comp_data = [
+        ["What Agencies Now Verify", "What Newport Has"],
+        ["Continuous operating history", "~30 years of continuous Florida operations"],
+        ["Physical infrastructure", "Warehouses, trucks, cold chain (inspectable)"],
+        ["Clean financial records", "Decades of auditable books and tax returns"],
+        ["American ownership", "American-owned, American-operated, American taxes"],
+    ]
+    add_table(slide, Inches(1.5), Inches(4.1), Inches(10.3),
+              len(comp_data), 2, comp_data,
+              col_widths=[Inches(4.5), Inches(5.8)],
+              font_size=13)
 
     # Bottom callout
-    add_callout_bar(slide, Inches(1.5), Inches(6.3), Inches(10), Inches(0.8),
-                    '"Newport doesn\'t need to pretend to be something it\'s not.\n'
-                    'It IS what the government is looking for — a real company, with real infrastructure, real history."',
+    add_callout_bar(slide, Inches(1.0), Inches(6.3), Inches(11.3), Inches(0.8),
+                    "The door is open for real companies. Not because the market "
+                    "is big \u2014 because agencies are desperate for legitimate, "
+                    "verifiable vendors.",
                     font_size=15)
 
 
 def slide_05_competitive_moat(prs):
-    """Slide 5: Newport's Competitive Moat"""
+    """Slide 5: 'Newport's Competitive Moat' — diagram + excluded competitors."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Newport's Competitive Moat", font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "Newport\u2019s Competitive Moat",
+                font_size=36, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    add_textbox(slide, Inches(0.8), Inches(1.4), Inches(11), Inches(0.5),
-                "What scared procurement officers want to see — and what Newport already has:",
-                font_size=18, font_color=MED_GRAY)
+    # --- MOAT DIAGRAM ---
+    # Background moat rectangle (light gold)
+    moat_x, moat_y = Inches(0.5), Inches(1.3)
+    moat_w, moat_h = Inches(12.3), Inches(3.2)
+    moat_bg = slide.shapes.add_shape(5, moat_x, moat_y, moat_w, moat_h)  # ROUNDED_RECT
+    moat_bg.fill.solid()
+    moat_bg.fill.fore_color.rgb = GOLD_LIGHT
+    moat_bg.line.color.rgb = GOLD
+    moat_bg.line.width = Pt(2)
 
-    # Two-column table format instead of bullets
-    data = [
-        ["What Governments Verify", "Newport's Position", "Why It Matters"],
-        ["Continuous business history", "30+ years in Florida",
-         "Proves stability — shell companies get caught in months"],
-        ["Physical infrastructure", "Warehouses + truck fleet (address verifiable)",
-         "Inspectable, real — not a P.O. box and a dream"],
-        ["Cold chain capability", "Existing refrigerated distribution",
-         "Critical for food safety compliance (HACCP/SQF)"],
-        ["Financial stability", "25+ years of American tax returns, banking relationships",
-         "Auditable, provable — the 8(a) frauds had none of this"],
-        ["Small business qualification", "NAICS 424410 ($200M threshold)",
-         "Locks out Sysco, US Foods, Aramark from set-aside bids"],
-        ["Florida home state", "Local presence, local preference scoring",
-         "FL state/county contracts give scoring advantage to FL vendors"],
-        ["Product breadth", "Grocery + frozen + dairy + produce + dry goods",
-         "Single-vendor convenience for smaller agencies"],
-        ["Existing sales team", "Experienced relationship builders",
-         "Government contracts are won in meetings, not on paper"],
+    # Central box: NEWPORT
+    cw, ch = Inches(3.2), Inches(0.8)
+    cx = moat_x + moat_w // 2 - cw // 2
+    cy = moat_y + moat_h // 2 - ch // 2
+    center = slide.shapes.add_shape(5, cx, cy, cw, ch)
+    center.fill.solid()
+    center.fill.fore_color.rgb = NAVY
+    center.line.fill.background()
+    add_textbox(slide, cx, cy, cw, ch,
+                "NEWPORT\nWHOLESALERS", font_size=16, font_color=WHITE, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    # Surrounding advantage items (3 top, 3 bottom)
+    items_top = [
+        "~30 Years\nOperating History",
+        "Real Infrastructure\n(Inspectable)",
+        "Small Business\nQualification",
     ]
-    add_table(slide, Inches(0.3), Inches(2.0), Inches(12.7),
-              len(data), 3, data,
-              col_widths=[Inches(3), Inches(4.2), Inches(5.5)],
-              font_size=11)
+    items_bottom = [
+        "Florida Home Base\n(Local Preference)",
+        "Broad-Line\nProduct Range",
+        "Existing Supply Chain\n& Relationships",
+    ]
+
+    item_w = Inches(3.2)
+    item_h = Inches(0.7)
+    item_gap = (moat_w - 3 * item_w - Inches(0.6)) // 2
+
+    for i, text in enumerate(items_top):
+        ix = moat_x + Inches(0.3) + i * (item_w + item_gap)
+        iy = moat_y + Inches(0.25)
+        box = slide.shapes.add_shape(5, ix, iy, item_w, item_h)
+        box.fill.solid()
+        box.fill.fore_color.rgb = WHITE
+        box.line.color.rgb = GOLD
+        box.line.width = Pt(1.5)
+        add_textbox(slide, ix, iy, item_w, item_h,
+                    text, font_size=12, font_color=NAVY, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+    for i, text in enumerate(items_bottom):
+        ix = moat_x + Inches(0.3) + i * (item_w + item_gap)
+        iy = moat_y + moat_h - item_h - Inches(0.25)
+        box = slide.shapes.add_shape(5, ix, iy, item_w, item_h)
+        box.fill.solid()
+        box.fill.fore_color.rgb = WHITE
+        box.line.color.rgb = GOLD
+        box.line.width = Pt(1.5)
+        add_textbox(slide, ix, iy, item_w, item_h,
+                    text, font_size=12, font_color=NAVY, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+    # --- EXCLUDED SECTION ---
+    add_textbox(slide, Inches(0.8), Inches(4.7), Inches(11.5), Inches(0.4),
+                "EXCLUDED from small business set-asides:",
+                font_size=16, font_color=RED, bold=True)
+
+    excluded = [
+        ("Sysco", "$76B"),
+        ("US Foods", "$37B"),
+        ("Aramark", "$17B"),
+        ("Compass Group", "$40B"),
+        ("Sodexo", "$25B"),
+    ]
+    ex_x = Inches(0.8)
+    for name, rev in excluded:
+        ex_w = Inches(2.0)
+        shape = slide.shapes.add_shape(1, ex_x, Inches(5.15), ex_w, Inches(0.45))
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = LIGHT_GRAY
+        shape.line.color.rgb = RED
+        shape.line.width = Pt(1)
+        add_textbox(slide, ex_x, Inches(5.15), ex_w, Inches(0.45),
+                    f"\u2717 {name} ({rev})", font_size=11, font_color=RED,
+                    bold=True, alignment=PP_ALIGN.CENTER)
+        ex_x += ex_w + Inches(0.3)
 
     # Set-aside callout
-    shape = slide.shapes.add_shape(1, Inches(0.8), Inches(6.2), Inches(11.7), Inches(1))
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = RGBColor(0xFE, 0xF9, 0xE7)
-    shape.line.color.rgb = GOLD
-    shape.line.width = Pt(2)
+    callout = slide.shapes.add_shape(
+        1, Inches(0.8), Inches(5.9), Inches(11.7), Inches(1.3))
+    callout.fill.solid()
+    callout.fill.fore_color.rgb = GOLD_LIGHT
+    callout.line.color.rgb = GOLD
+    callout.line.width = Pt(2)
 
-    add_textbox(slide, Inches(1.0), Inches(6.25), Inches(11.3), Inches(0.4),
-                "KEY ADVANTAGE: ~23% of federal contracts are reserved for small businesses.",
+    add_textbox(slide, Inches(1.0), Inches(5.95), Inches(11.3), Inches(0.4),
+                "~23% of federal contracts are reserved for small businesses. "
+                "Newport qualifies.",
                 font_size=16, font_color=NAVY, bold=True)
-    add_textbox(slide, Inches(1.0), Inches(6.65), Inches(11.3), Inches(0.5),
-                "Newport qualifies. Sysco, US Foods, Aramark, Compass, and every other billion-dollar distributor do not. "
-                "They are legally excluded from bidding on these contracts. This is not a nice-to-have — it is a structural advantage.",
+    add_textbox(slide, Inches(1.0), Inches(6.4), Inches(11.3), Inches(0.7),
+                "The three largest food distributors in America cannot bid on these "
+                "contracts. They are legally excluded. This is not a nice-to-have \u2014 "
+                "it is a structural advantage that cannot be replicated by any "
+                "billion-dollar competitor.",
                 font_size=13, font_color=DARK_GRAY)
 
 
-def slide_06_competitive_landscape(prs):
-    """Slide 6: Competitive Landscape — flipped: FIGHT HERE on left."""
+def slide_06_targets_identified(prs):
+    """Slide 6: 'What We're Targeting' — realistic TAM first, then pursuit process."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Where to Fight — And Where Not To",
-                font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "What We\u2019re Targeting \u2014 Realistic and Defensible",
+                font_size=34, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    # LEFT: Fight here (the emphasis)
-    add_textbox(slide, Inches(0.8), Inches(1.5), Inches(5.5), Inches(0.4),
-                "FIGHT HERE — WIN NOW", font_size=20, font_color=GREEN, bold=True)
-    fight_items = [
-        "FL school district category ITBs (25 districts, lowest bid wins)",
-        "FL county jails — self-operated kitchens (Pinellas, Polk, Miami-Dade)",
-        "BOP quarterly subsistence (8 FL prisons, constant bid cycle)",
-        "Small business set-aside contracts (Sysco/US Foods locked out)",
-        "Private contractor vendor applications (GEO, Trinity — both in FL)",
-        "Sources Sought responses (shape future solicitations in your favor)",
-        "FEMA/FDEM emergency food staging (FL hurricane season)",
-        "Simplified acquisitions $15K-$350K (posted on SAM.gov daily)",
+    # TOP: Realistic TAM — contracts we can actually win
+    add_textbox(slide, Inches(0.5), Inches(1.15), Inches(12), Inches(0.35),
+                "Contracts Newport Can Fulfill \u2014 Direct Government and Private Sector Serving Government (FL + Nationwide)",
+                font_size=14, font_color=NAVY, bold=True)
+
+    tam_data = [
+        ["Contract Type", "Available Volume", "Value Range", "Year 1 Target"],
+        ["FL School District Category ITBs\n(meat, dairy, frozen, produce)",
+         "67 districts (top 15 by\nenrollment targeted)",
+         "$2-10M per\ncategory bid",
+         "1-2 category wins"],
+        ["BOP Quarterly Subsistence\n(6 FL federal prisons)",
+         "Quarterly cycle \u2014\nconstant bid flow",
+         "$75K-$2.5M\nper quarter",
+         "1-2 quarterly wins"],
+        ["FL County Jail Food Supply\n(self-operated kitchens)",
+         "5-10 self-op counties\n(Pinellas, Polk, Brevard...)",
+         "$1-3.5M/year\nper county",
+         "1 win"],
+        ["Private Contractor Supply\n(GEO, Trinity, CoreCivic)",
+         "FL-based HQs \u2014\napply as vendor",
+         "Facility-\ndependent",
+         "Vendor approval\n+ first orders"],
+        ["Nationwide SAM.gov Simplified\nAcquisitions ($15K-$350K)",
+         "1,600-3,000 food postings\nper year nationwide",
+         "$15K-$350K\neach",
+         "5-10 responses"],
+        ["USDA AMS / LFPA / FEMA\n(commodity, emergency, food bank)",
+         "Multiple programs\nyear-round",
+         "$200K-$5M\neach",
+         "Applications\nsubmitted"],
     ]
-    add_bullet_list(slide, Inches(0.8), Inches(2.0), Inches(5.5), Inches(3.0),
-                    fight_items, font_size=13, font_color=DARK_GRAY,
-                    bullet_char="\u2713", spacing=Pt(5))
-
-    # RIGHT: Don't fight here
-    add_textbox(slide, Inches(6.8), Inches(1.5), Inches(5.5), Inches(0.4),
-                "DON'T FIGHT HERE (YET)", font_size=20, font_color=RED, bold=True)
-    dont_items = [
-        "DLA Prime Vendor mega-contracts (Sysco/US Foods stranglehold)",
-        "National FSMC contracts (Aramark, Compass, Sodexo)",
-        "VA medical center food (locked under US Foods SPV through 2028)",
-        "Large multi-state school nutrition cooperatives",
-        "Contracts requiring 5+ years government past performance",
-        "Micro-purchases under $15K (not posted, relationship-dependent)",
-    ]
-    add_bullet_list(slide, Inches(6.8), Inches(2.0), Inches(5.5), Inches(2.5),
-                    dont_items, font_size=13, font_color=MED_GRAY,
-                    bullet_char="\u2717", spacing=Pt(5))
-
-    # Dual path strategy table
-    add_textbox(slide, Inches(0.8), Inches(5.0), Inches(11), Inches(0.4),
-                "THE DUAL-PATH STRATEGY", font_size=18, font_color=NAVY, bold=True)
-
-    data = [
-        ["Path", "Target", "How It Works", "Why It's Smart"],
-        ["Path 1:\nDirect Government",
-         "School districts, BOP,\ncounty jails, USDA",
-         "Win contracts directly\nthrough competitive bidding",
-         "Build past performance\n+ direct agency relationships"],
-        ["Path 2:\nPrivate Contractor Supply",
-         "GEO Group (Boca Raton),\nTrinity (Oldsmar), CoreCivic,\nAramark, Compass",
-         "Become approved vendor —\nthey issue their own RFPs\nfor food supply",
-         "Volume without bidding\noverhead — they manage\nthe government contract"],
-    ]
-    add_table(slide, Inches(0.5), Inches(5.5), Inches(12.3),
-              len(data), 4, data,
-              col_widths=[Inches(2), Inches(2.8), Inches(3.5), Inches(3)],
+    add_table(slide, Inches(0.2), Inches(1.55), Inches(12.9),
+              len(tam_data), 4, tam_data,
+              col_widths=[Inches(3.2), Inches(3.2), Inches(2.0), Inches(2.5)],
               font_size=10)
 
-    add_textbox(slide, Inches(0.8), Inches(7.0), Inches(11), Inches(0.3),
-                "GEO Group HQ: Boca Raton, FL. Trinity HQ: Oldsmar, FL. Local meetings are possible this month.",
-                font_size=12, font_color=GOLD, bold=True)
+    # BOTTOM: How We Pursue Them — the process
+    add_textbox(slide, Inches(0.5), Inches(4.7), Inches(12), Inches(0.35),
+                "How We Go After Them:",
+                font_size=14, font_color=NAVY, bold=True)
+
+    process_data = [
+        ["Step", "What Happens", "Status"],
+        ["1. Register", "SAM.gov, MFMP, VendorLink, DemandStar \u2014 get in the system", "Ready to start"],
+        ["2. Monitor", "Daily scanning of all portals + saved search alerts", "Automated dashboard built"],
+        ["3. Source Contacts", "Compile decision maker info from public directories, agency sites", "76 FL contacts identified ($0)"],
+        ["4. Respond to Sources Sought", "Shape future solicitations \u2014 get known before bids drop", "Process defined"],
+        ["5. Prepare Compliance", "Capability statement, certifications, financial docs, insurance", "Checklist ready"],
+        ["6. Submit Bids", "RFQs, ITBs, RFPs \u2014 start with micro-purchases and simplified", "Templates in progress"],
+        ["7. Track & Iterate", "Measure results, assess often, test, learn, adjust", "Dashboard included"],
+    ]
+    add_table(slide, Inches(0.2), Inches(5.1), Inches(12.9),
+              len(process_data), 3, process_data,
+              col_widths=[Inches(2.5), Inches(6.7), Inches(3.7)],
+              font_size=10)
+
+    add_textbox(slide, Inches(0.8), Inches(7.1), Inches(11.5), Inches(0.3),
+                "Same process scales to all 50 states. The dashboard sent alongside "
+                "this presentation demonstrates the scanning and scoring system.",
+                font_size=11, font_color=NAVY, bold=True,
+                alignment=PP_ALIGN.CENTER)
 
 
-def slide_07_pipeline(prs):
-    """Slide 7: The Pipeline — Specific FL Opportunities"""
+def slide_07_how_door_opens(prs):
+    """Slide 7: 'How the Door Opens' — three graduated threshold panels."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "The Pipeline Is Real — Florida Opportunities",
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "How the Door Opens",
                 font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    add_textbox(slide, Inches(0.8), Inches(1.3), Inches(11), Inches(0.4),
-                "Specific, identifiable FL contracts Newport can pursue in the next 12 months:",
-                font_size=15, font_color=MED_GRAY)
+    add_textbox(slide, Inches(0.8), Inches(1.1), Inches(11), Inches(0.4),
+                "Government has specific thresholds that create low-barrier entry "
+                "points. Start with the smallest door.",
+                font_size=14, font_color=MED_GRAY)
 
-    # Detailed pipeline table with bid windows
-    data = [
-        ["Opportunity", "Agency/Level", "Est. Annual Value", "Bid Window", "Entry Point", "Priority"],
-        ["Category ITBs (meat, dairy,\nfrozen, produce, dry goods)",
-         "Polk County Schools\n(105K students) — Local",
-         "$5-10M\n(across categories)",
-         "Feb-May 2026\n(July start)",
-         "Lowest responsive\nbid wins (FL law)",
-         "HIGH"],
-        ["Category ITBs",
-         "Lee County Schools\n(95K students) — Local",
-         "$4-8M\n(across categories)",
-         "Feb-May 2026",
-         "Lowest responsive bid",
-         "HIGH"],
-        ["Self-op kitchen food supply",
-         "Pinellas County Jail\n(~3,100 inmates) — Local",
-         "$2.5-3.5M",
-         "Check county\nprocurement cycle",
-         "Direct buyer —\nno FSMC middleman",
-         "HIGH"],
-        ["Self-op kitchen food supply",
-         "Polk County Jail\n(~2,600 inmates) — Local",
-         "$2.1-3.0M",
-         "Check county\nprocurement cycle",
-         "Direct buyer",
-         "HIGH"],
-        ["Quarterly subsistence\n(meat, dairy, produce, bakery)",
-         "FCC Coleman Complex\n(~7,100 inmates) — Federal",
-         "$6-10M/yr\n($1.5-2.5M/qtr)",
-         "Quarterly:\nAug/Nov/Feb/May",
-         "Small business\nset-aside",
-         "HIGH"],
-        ["Quarterly subsistence",
-         "FCI Miami + FDC Miami\n(~2,100 inmates) — Federal",
-         "$1.5-3M/yr",
-         "Quarterly cycle",
-         "Small business\nset-aside",
-         "MEDIUM"],
-        ["Vendor application",
-         "GEO Group HQ\n(Boca Raton) — Contractor",
-         "Facility-dependent",
-         "Ongoing — apply\nanytime",
-         "Approved vendor list",
-         "MEDIUM"],
-        ["Vendor application",
-         "Trinity Services\n(Oldsmar, FL) — Contractor",
-         "Facility-dependent",
-         "Ongoing",
-         "Approved vendor list",
-         "MEDIUM"],
+    # Three door panels — increasing size left to right, top-aligned
+    doors = [
+        {
+            "num": "1",
+            "title": "Micro-Purchase",
+            "threshold": "Under $15,000",
+            "height": Inches(3.2),
+            "lines": [
+                "No competition required.",
+                "Agency buys directly.",
+                "Just show up and deliver.",
+                "",
+                "This is how you get your",
+                "first past performance",
+                "reference.",
+            ],
+        },
+        {
+            "num": "2",
+            "title": "Simplified Acquisition",
+            "threshold": "$15K \u2013 $350K",
+            "height": Inches(3.8),
+            "lines": [
+                "Only 3 quotes needed.",
+                "Average 2-4 bidders.",
+                "Most vendors don't bother.",
+                "",
+                "Posted on SAM.gov daily.",
+                "1,600-3,000 food postings",
+                "per year nationwide.",
+                "",
+                "Newport's sweet spot.",
+            ],
+        },
+        {
+            "num": "3",
+            "title": "Full Competition",
+            "threshold": "$350K+",
+            "height": Inches(4.5),
+            "lines": [
+                "Formal proposals required.",
+                "Past performance evaluated.",
+                "Price + technical capability.",
+                "",
+                "You EARN this by stacking",
+                "wins from Doors 1 and 2.",
+                "",
+                "This is where the multi-year,",
+                "multi-million-dollar contracts",
+                "live. School districts, BOP",
+                "quarterly subsistence, county",
+                "jail supply.",
+            ],
+        },
     ]
-    add_table(slide, Inches(0.2), Inches(1.8), Inches(12.9),
-              len(data), 6, data,
-              col_widths=[Inches(2.5), Inches(2.5), Inches(1.7), Inches(1.8), Inches(2.2), Inches(1.2)],
-              font_size=9)
+
+    widths = [Inches(3.2), Inches(3.5), Inches(4.0)]
+    door_y = Inches(1.6)
+    x = Inches(0.8)
+
+    for i, door in enumerate(doors):
+        w = widths[i]
+        h = door["height"]
+
+        # Door frame (rounded rectangle)
+        shape = slide.shapes.add_shape(5, x, door_y, w, h)
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = WHITE
+        shape.line.color.rgb = GOLD
+        shape.line.width = Pt(3)
+
+        # Door number badge (circle)
+        badge_sz = Inches(0.45)
+        badge = slide.shapes.add_shape(
+            9, x + w // 2 - badge_sz // 2,  # OVAL
+            door_y + Inches(0.15), badge_sz, badge_sz)
+        badge.fill.solid()
+        badge.fill.fore_color.rgb = NAVY
+        badge.line.fill.background()
+        add_textbox(slide, x + w // 2 - badge_sz // 2,
+                    door_y + Inches(0.15), badge_sz, badge_sz,
+                    door["num"], font_size=18, font_color=WHITE, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Title
+        add_textbox(slide, x + Inches(0.1), door_y + Inches(0.7),
+                    w - Inches(0.2), Inches(0.35),
+                    door["title"], font_size=16, font_color=NAVY, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Threshold
+        add_textbox(slide, x + Inches(0.1), door_y + Inches(1.05),
+                    w - Inches(0.2), Inches(0.3),
+                    door["threshold"], font_size=13, font_color=GOLD, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Body lines
+        y_line = door_y + Inches(1.4)
+        for line in door["lines"]:
+            add_textbox(slide, x + Inches(0.15), y_line,
+                        w - Inches(0.3), Inches(0.25),
+                        line, font_size=11, font_color=DARK_GRAY,
+                        alignment=PP_ALIGN.CENTER)
+            y_line += Inches(0.22)
+
+        # Arrow between doors
+        if i < 2:
+            arrow_x = x + w + Inches(0.05)
+            add_textbox(slide, arrow_x, door_y + Inches(1.2),
+                        Inches(0.4), Inches(0.4),
+                        "\u27A4", font_size=24, font_color=GOLD, bold=True,
+                        alignment=PP_ALIGN.CENTER)
+
+        x += w + Inches(0.45)
 
     # Bottom note
-    add_textbox(slide, Inches(0.8), Inches(6.8), Inches(11), Inches(0.5),
-                "This is Florida only. The same scanning and analysis methodology scales to all 50 states. "
-                "Nationwide simplified acquisitions ($15K-$350K) in food categories: 1,600-3,000 postings/year, $400M-$1.25B total value.",
-                font_size=12, font_color=NAVY, bold=True)
+    add_textbox(slide, Inches(0.8), Inches(6.5), Inches(11.5), Inches(0.5),
+                "The visual progression IS the strategy: start left, move right "
+                "over time. Each threshold crossed builds the credentials for "
+                "the next level.",
+                font_size=12, font_color=NAVY, bold=True,
+                alignment=PP_ALIGN.CENTER)
 
 
-def slide_08_decision_makers(prs):
-    """Slide 8: Decision Makers + Internal Champions"""
+def slide_08_realistic_path(prs):
+    """Slide 8: 'The Realistic Path — Year 1 Through Year 5' — staircase chart."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "We Know Who Buys the Food",
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "The Realistic Path \u2014 Year 1 Through Year 5",
+                font_size=34, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
+
+    # Staircase chart using shaped rectangles (full control over labels)
+    years_data = [
+        ("Year 1", "$500K-$2M", 1.25, NAVY,
+         "Stack 15-25 micro +\nsimplified wins. FL focus\n+ nationwide SAM.gov.\nBuild credentials."),
+        ("Year 2", "$2-5M", 3.5, NAVY,
+         "Past performance from\nYear 1 unlocks $100K-$500K\ncontracts. First BOP wins.\nFirst school district."),
+        ("Year 3", "$5-10M", 7.5, LIGHT_NAVY,
+         "Full competition bids.\nMulti-facility contracts.\nSE regional expansion.\nFSMC vendor channel."),
+        ("Year 4", "$8-15M", 11.5, LIGHT_NAVY,
+         "Established vendor status.\nOption year renewals.\nLarger contract vehicles."),
+        ("Year 5", "$10-20M", 15.0, GOLD,
+         "Government division is a\ncore business line. Repeat\ncustomers. Sticky,\nrecurring revenue."),
+    ]
+
+    max_val = 15.0
+    max_bar_h = Inches(2.5)
+    bar_w = Inches(2.0)
+    gap = Inches(0.3)
+    start_x = Inches(0.8)
+    base_y = Inches(4.1)  # Bottom of bars
+
+    for i, (year, range_label, val, color, desc) in enumerate(years_data):
+        x = start_x + i * (bar_w + gap)
+        bar_h = int(max_bar_h * val / max_val)
+        if bar_h < Inches(0.4):
+            bar_h = Inches(0.4)
+        y = base_y - bar_h
+
+        # Bar
+        bar = slide.shapes.add_shape(1, x, y, bar_w, bar_h)
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = color
+        bar.line.fill.background()
+
+        # Range label on bar
+        fc = WHITE if color != GOLD else NAVY
+        add_textbox(slide, x, y + Inches(0.05), bar_w, Inches(0.35),
+                    range_label, font_size=14, font_color=fc, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Year label below bar
+        add_textbox(slide, x, base_y + Inches(0.05), bar_w, Inches(0.3),
+                    year, font_size=13, font_color=NAVY, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Description below year label
+        add_textbox(slide, x, base_y + Inches(0.35), bar_w, Inches(1.2),
+                    desc, font_size=10, font_color=DARK_GRAY,
+                    alignment=PP_ALIGN.CENTER)
+
+    # Connecting note below chart
+    add_textbox(slide, Inches(0.8), Inches(5.7), Inches(11.5), Inches(0.35),
+                "Each step unlocks the next. Past performance from small wins is "
+                "the credential that opens larger doors.",
+                font_size=13, font_color=NAVY, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    # Acquisition mention — one sentence, passing, at the bottom
+    add_textbox(slide, Inches(1.5), Inches(6.2), Inches(10.3), Inches(0.8),
+                "As government contracts become a recurring revenue stream, they "
+                "also strengthen Newport's position for any future strategic "
+                "decisions \u2014 including potential acquisition interest, if "
+                "that matters down the road.",
+                font_size=11, font_color=MED_GRAY,
+                alignment=PP_ALIGN.CENTER)
+
+
+def slide_09_year_one_machine(prs):
+    """Slide 9: 'Year 1: Build the Machine' — three phases + success metrics."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_slide_bg(slide, WHITE)
+
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "Year 1: Build the Machine",
                 font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    # Two-panel layout: Left = contacts, Right = champions concept
-
-    # LEFT: Contact database summary
-    add_textbox(slide, Inches(0.5), Inches(1.3), Inches(6), Inches(0.4),
-                "76 FL Decision Makers Identified", font_size=18, font_color=NAVY, bold=True)
-
-    contact_data = [
-        ["Category", "Count", "Named", "Phone", "Email"],
-        ["School District Food Directors", "25", "23 (92%)", "25", "10"],
-        ["BOP Food Service Administrators", "9", "Call to ID", "9", "0"],
-        ["VA Nutrition & Food Service", "7", "Call to ID", "7", "0"],
-        ["Military Commissary Directors", "5", "4 (80%)", "5", "0"],
-        ["County Jail Food Service", "10", "2 named", "10", "4"],
-        ["Private Contractors", "8", "HQ contacts", "8", "0"],
-        ["Named FSMC Regional Execs", "7", "7 (100%)", "7", "0"],
-        ["BOP Wardens", "5", "5 (100%)", "5", "0"],
+    # Three phase blocks — horizontal timeline
+    phases = [
+        {
+            "title": "MONTHS 1-2",
+            "subtitle": "Foundation",
+            "color": NAVY,
+            "items": [
+                "SAM.gov registration",
+                "MFMP registration",
+                "Capability statement",
+                "Saved searches live",
+                "Dashboard built",
+            ],
+        },
+        {
+            "title": "MONTHS 3-6",
+            "subtitle": "First Wins",
+            "color": LIGHT_NAVY,
+            "items": [
+                "Respond to 10+ solicitations",
+                "Sources Sought responses",
+                "First 3-5 micro/simplified wins",
+                "First past performance refs",
+            ],
+        },
+        {
+            "title": "MONTHS 7-12",
+            "subtitle": "Scale",
+            "color": GOLD,
+            "items": [
+                "15+ total contracts",
+                "USDA AMS application",
+                "FSMC vendor applications",
+                "Nationwide scanning active",
+                "Proposal library built",
+            ],
+        },
     ]
-    add_table(slide, Inches(0.3), Inches(1.8), Inches(6.3),
-              len(contact_data), 5, contact_data,
-              col_widths=[Inches(2.5), Inches(0.8), Inches(1.2), Inches(0.9), Inches(0.9)],
-              font_size=10)
 
-    # Data cost note
-    add_textbox(slide, Inches(0.3), Inches(5.6), Inches(6.3), Inches(0.7),
-                "Current data: $0 cost (public records, agency websites, gov directories). "
-                "Full email enrichment via Apollo.io: ~$0.10/contact. "
-                "Verified direct dials: ~$5-10/contact via ZoomInfo/Lusha.",
-                font_size=10, font_color=MED_GRAY)
+    phase_w = Inches(3.7)
+    phase_gap = Inches(0.3)
+    phase_x = Inches(0.5)
+    phase_y = Inches(1.2)
+    phase_h = Inches(3.0)
 
-    # RIGHT: Internal Champions concept
-    add_textbox(slide, Inches(7), Inches(1.3), Inches(5.5), Inches(0.4),
-                "Who Actually Decides (And Who Influences)",
-                font_size=16, font_color=NAVY, bold=True)
+    for i, phase in enumerate(phases):
+        x = phase_x + i * (phase_w + phase_gap)
 
-    champion_data = [
-        ["Role", "What They Do", "Why They Matter"],
-        ["Contracting Officer\n(CO)",
-         "Legal authority to\nsign contracts",
-         "Final decision maker —\nbut relies on evaluators"],
-        ["Food Service\nAdministrator",
-         "Runs daily operations,\nknows what works/doesn't",
-         "Writes the specs that\ndetermine who can bid"],
-        ["Nutrition Director\n(schools)",
-         "Sets menu requirements\nand product standards",
-         "Their specs drive\npurchasing decisions"],
-        ["Warden / Facility\nDirector",
-         "Oversees entire facility\nincluding food service",
-         "Can push for vendor\nchanges if food = problems"],
-        ["End Users\n(staff, inmates, students)",
-         "File complaints about\ncurrent vendor quality",
-         "Dissatisfaction with\nincumbent = your opening"],
+        # Phase header bar
+        hdr = slide.shapes.add_shape(1, x, phase_y, phase_w, Inches(0.5))
+        hdr.fill.solid()
+        hdr.fill.fore_color.rgb = phase["color"]
+        hdr.line.fill.background()
+        hdr_fc = WHITE if phase["color"] != GOLD else NAVY
+        add_textbox(slide, x, phase_y, phase_w, Inches(0.5),
+                    f'{phase["title"]}  |  {phase["subtitle"]}',
+                    font_size=14, font_color=hdr_fc, bold=True,
+                    alignment=PP_ALIGN.CENTER)
+
+        # Phase content area
+        body = slide.shapes.add_shape(
+            1, x, phase_y + Inches(0.5), phase_w, phase_h - Inches(0.5))
+        body.fill.solid()
+        body.fill.fore_color.rgb = LIGHT_GRAY
+        body.line.color.rgb = phase["color"]
+        body.line.width = Pt(1.5)
+
+        # Bullet items
+        add_bullet_list(slide, x + Inches(0.15),
+                        phase_y + Inches(0.6),
+                        phase_w - Inches(0.3), phase_h - Inches(0.7),
+                        phase["items"], font_size=12, font_color=DARK_GRAY,
+                        bullet_char="\u2713", spacing=Pt(6))
+
+        # Arrow between phases
+        if i < 2:
+            arrow_x = x + phase_w + Inches(0.02)
+            add_textbox(slide, arrow_x, phase_y + Inches(1.0),
+                        Inches(0.3), Inches(0.4),
+                        "\u27A4", font_size=20, font_color=GOLD, bold=True,
+                        alignment=PP_ALIGN.CENTER)
+
+    # Bottom: Year 1 SUCCESS METRICS (KPI cards, in priority order)
+    add_textbox(slide, Inches(0.8), Inches(4.5), Inches(11), Inches(0.35),
+                "YEAR 1 SUCCESS METRICS (in priority order):",
+                font_size=14, font_color=NAVY, bold=True)
+
+    metrics = [
+        ("5+", "Past Performance\nReferences"),
+        ("15+", "Solicitations\nResponded To"),
+        ("10+", "Agency\nRelationships"),
+        ("$500K-$2M", "Revenue\n(secondary)"),
     ]
-    add_table(slide, Inches(6.8), Inches(1.8), Inches(6.2),
-              len(champion_data), 3, champion_data,
-              col_widths=[Inches(1.6), Inches(2.2), Inches(2.4)],
+    met_w = Inches(2.7)
+    met_gap = Inches(0.25)
+    met_x = Inches(0.8)
+
+    for i, (val, label) in enumerate(metrics):
+        x = met_x + i * (met_w + met_gap)
+        border = GOLD if i == 0 else MED_GRAY
+        vc = GREEN if i == 0 else NAVY
+        add_kpi_card(slide, x, Inches(4.9), met_w, Inches(1.2),
+                     val, label, value_color=vc, value_size=26,
+                     border_color=border)
+
+    # Highlight first metric
+    add_textbox(slide, met_x, Inches(6.2), met_w, Inches(0.3),
+                "\u2B06 THIS is the real asset",
+                font_size=10, font_color=GREEN, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    add_textbox(slide, met_x + 3 * (met_w + met_gap), Inches(6.2),
+                met_w, Inches(0.3),
+                "listed LAST \u2014 deliberately",
+                font_size=10, font_color=MED_GRAY,
+                alignment=PP_ALIGN.CENTER)
+
+
+def slide_10_small_wins_compound(prs):
+    """Slide 10: 'The Power of Compound Interest' — leverage deals, contract stacking."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_slide_bg(slide, WHITE)
+
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "The Power of Compound Interest",
+                font_size=36, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
+
+    add_textbox(slide, Inches(0.8), Inches(1.15), Inches(11.5), Inches(0.4),
+                "Government contracts don\u2019t just add revenue \u2014 they stack. "
+                "Each win is a credential that unlocks the next. This is compound "
+                "interest applied to business development.",
+                font_size=14, font_color=DARK_GRAY)
+
+    # How contracts stack over time
+    stack_data = [
+        ["", "Year 1", "Year 2", "Year 3", "Year 5"],
+        ["New contracts won", "3-5", "5-8", "4-12", "5-10"],
+        ["Carried from prior years\n(multi-year + renewals)", "\u2014", "3-5", "8-10", "20+"],
+        ["TOTAL ACTIVE CONTRACTS", "3-5", "8-13", "12-22", "25-30+"],
+        ["Estimated annual revenue", "$500K-$2M", "$2-5M", "$5-10M", "$10-20M"],
+        ["Avg contract length", "Quarterly-1yr", "1-3 years", "3-5 years", "3-5 years"],
+        ["Incumbent retention rate", "N/A (new)", "70-80%", "75-85%", "80-90%"],
+    ]
+    add_table(slide, Inches(0.5), Inches(1.7), Inches(12.3),
+              len(stack_data), 5, stack_data,
+              col_widths=[Inches(3.0), Inches(2.0), Inches(2.0), Inches(2.0), Inches(2.0)],
+              font_size=11)
+
+    # The leverage mechanism
+    add_textbox(slide, Inches(0.8), Inches(4.6), Inches(11), Inches(0.35),
+                "Why This Works \u2014 The Leverage Mechanism:",
+                font_size=14, font_color=NAVY, bold=True)
+
+    leverage_data = [
+        ["What You Leverage", "Into What", "Why It Compounds"],
+        ["1 flawless micro-purchase delivery",
+         "Documented past performance reference",
+         "Agencies weight past performance 20-30%\nin evaluations \u2014 you now have what\nmost new entrants don\u2019t"],
+        ["3-5 past performance references",
+         "Eligibility for $100K-$500K contracts",
+         "You\u2019ve bought your government track\nrecord \u2014 the most valuable credential\nin procurement"],
+        ["Multi-quarter delivery track record",
+         "Incumbent advantage on renewals",
+         "Agencies don\u2019t switch vendors without\ncause \u2014 retention runs 70-90%"],
+        ["~30 years of general business history",
+         "Credibility no new entrant can match",
+         "You\u2019re not building from zero \u2014 you\u2019re\ntranslating an existing track record\ninto a new market"],
+    ]
+    add_table(slide, Inches(0.3), Inches(5.0), Inches(12.7),
+              len(leverage_data), 3, leverage_data,
+              col_widths=[Inches(3.2), Inches(3.5), Inches(4.0)],
               font_size=10)
 
     # Bottom callout
-    add_callout_bar(slide, Inches(0.8), Inches(6.5), Inches(11.7), Inches(0.7),
-                    '"Target the Food Service Administrators first — they write the specs that determine who wins. '
-                    'Then the Contracting Officers who sign the check."',
+    add_callout_bar(slide, Inches(1.0), Inches(6.8), Inches(11.3), Inches(0.6),
+                    "Newport has ~30 years of general track record. Now we buy the "
+                    "government track record \u2014 and we\u2019re well-positioned to do "
+                    "it because of those ~30 years.",
                     font_size=14)
 
 
-def slide_09_operating_model(prs):
-    """Slide 9: The Operating Model"""
+def slide_11_division_of_labor(prs):
+    """Slide 11: 'A Suggested Approach' — here's what I'd recommend + how I can help."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "How This Actually Works — The Division of Labor",
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "A Suggested Approach",
                 font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    data = [
-        ["Newport Does", "Still Mind Creative Does"],
-        ["Assigns 1 salesperson (part-time on gov)", "Monitors SAM.gov, MFMP, DemandStar daily"],
-        ["Attends conferences & facility visits", "Scores and prioritizes opportunities"],
-        ["Builds relationships with decision makers", "Drafts Sources Sought responses"],
-        ["Reviews and approves proposals", "Prepares RFQ/RFP response drafts"],
-        ["Delivers the food", "Tracks deadlines, compliance, registrations"],
-        ["Signs the contracts", "Documents past performance after delivery"],
-        ["Collects the payments", "Provides weekly pipeline dashboard reports"],
+    add_textbox(slide, Inches(0.8), Inches(1.1), Inches(11.5), Inches(0.4),
+                "Based on everything above, here\u2019s what I\u2019d recommend "
+                "\u2014 and if you\u2019re open to it, here\u2019s how I can support you.",
+                font_size=14, font_color=DARK_GRAY)
+
+    # LEFT: What I'd Recommend Newport Do
+    add_textbox(slide, Inches(0.8), Inches(1.6), Inches(5.5), Inches(0.4),
+                "What I\u2019d Recommend Newport Do",
+                font_size=18, font_color=NAVY, bold=True)
+    recommend_items = [
+        "Register on SAM.gov, MFMP, VendorLink, DemandStar",
+        "Assign 1 existing salesperson (8-10 hrs/week)",
+        "Attend 1-2 industry conferences for face-to-face relationships",
+        "Start with micro-purchases and simplified acquisitions",
+        "Review and approve all proposals before submission",
+        "Deliver flawlessly on every contract won",
     ]
-    add_table(slide, Inches(1.5), Inches(1.5), Inches(10.3),
-              len(data), 2, data,
-              col_widths=[Inches(5.15), Inches(5.15)])
+    add_bullet_list(slide, Inches(0.8), Inches(2.1), Inches(5.5), Inches(2.5),
+                    recommend_items, font_size=13, font_color=DARK_GRAY,
+                    bullet_char="\u2713", spacing=Pt(8))
 
-    # Callout
-    add_callout_bar(slide, Inches(1.5), Inches(5.3), Inches(10.3), Inches(0.7),
-                    '"Your team does what they\'re already good at — selling and delivering.\n'
-                    'We handle the government procurement bureaucracy so they don\'t have to learn it."',
-                    font_size=16)
+    # RIGHT: How I Can Support You
+    add_textbox(slide, Inches(6.8), Inches(1.6), Inches(5.5), Inches(0.4),
+                "How I Can Support You",
+                font_size=18, font_color=NAVY, bold=True)
+    support_items = [
+        "Daily monitoring of all procurement portals",
+        "Opportunity scoring and prioritization",
+        "Proposal drafting and response preparation",
+        "Compliance tracking and deadline management",
+        "Past performance documentation after every delivery",
+        "Weekly pipeline and progress reports",
+        "Continuous research and strategy adjustment",
+    ]
+    add_bullet_list(slide, Inches(6.8), Inches(2.1), Inches(5.5), Inches(2.8),
+                    support_items, font_size=13, font_color=DARK_GRAY,
+                    bullet_char="\u2713", spacing=Pt(7))
 
-    # What they DON'T need to do
-    add_textbox(slide, Inches(0.8), Inches(6.3), Inches(11), Inches(0.3),
-                "What Newport Does NOT Need to Do:", font_size=16, font_color=RED, bold=True)
+    # What Newport Does NOT Need — still useful context
+    add_textbox(slide, Inches(0.8), Inches(4.7), Inches(11), Inches(0.35),
+                "What Newport Does NOT Need to Learn or Hire For:",
+                font_size=14, font_color=RED, bold=True)
 
     no_items = [
-        "Learn government procurement rules",
-        "Monitor bidding portals daily",
-        "Write proposals from scratch",
-        "Track compliance deadlines",
-        "Hire government sales specialists",
+        "Procurement rules",
+        "Portal monitoring",
+        "Proposal writing",
+        "Compliance tracking",
+        "Specialist hires",
     ]
-    txBox = slide.shapes.add_textbox(Inches(0.8), Inches(6.7), Inches(12), Inches(0.4))
-    tf = txBox.text_frame
-    p = tf.paragraphs[0]
-    p.text = "   ".join([f"\u2717 {item}" for item in no_items])
-    p.font.size = Pt(12)
-    p.font.color.rgb = MED_GRAY
-    p.font.name = "Calibri"
-
-
-def slide_10_roadmap_quick_wins(prs):
-    """Slide 10: Quick Wins Roadmap (Months 1-6)"""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    set_slide_bg(slide, WHITE)
-
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Roadmap: Quick Wins (Months 1-6)",
-                font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
-
-    # Phase 1: Foundation (Months 1-2)
-    shape1 = slide.shapes.add_shape(1, Inches(0.8), Inches(1.4), Inches(11.7), Inches(0.45))
-    shape1.fill.solid()
-    shape1.fill.fore_color.rgb = NAVY
-    shape1.line.fill.background()
-    add_textbox(slide, Inches(0.9), Inches(1.4), Inches(5), Inches(0.45),
-                "FOUNDATION  |  Months 1-2", font_size=16, font_color=WHITE, bold=True)
-
-    foundation_data = [
-        ["Action", "Owner", "Timeline", "Milestone"],
-        ["Register on SAM.gov", "Newport + SMC assists", "Week 1 (30-45 day process)", "Active SAM registration"],
-        ["Register on MFMP + VendorLink + DemandStar", "SMC handles", "Week 1-2", "Receiving FL bid alerts"],
-        ["Create government capability statement", "SMC drafts, Newport reviews", "Week 2-3", "Sales-ready document"],
-        ["Submit GEO Group + Trinity vendor applications", "SMC drafts, Newport submits", "Week 2-3", "In vendor pipeline"],
-        ["Schedule 5 school district meetings", "Newport salesperson", "Month 1-2", "First relationships started"],
-        ["Begin Sources Sought monitoring", "SMC (ongoing)", "Day 1", "Shaping future solicitations"],
-    ]
-    add_table(slide, Inches(0.5), Inches(1.9), Inches(12.3),
-              len(foundation_data), 4, foundation_data,
-              col_widths=[Inches(3.5), Inches(2.5), Inches(3), Inches(3.3)],
-              font_size=10)
-
-    # Phase 2: First Wins (Months 3-6)
-    shape2 = slide.shapes.add_shape(1, Inches(0.8), Inches(4.5), Inches(11.7), Inches(0.45))
-    shape2.fill.solid()
-    shape2.fill.fore_color.rgb = LIGHT_NAVY
-    shape2.line.fill.background()
-    add_textbox(slide, Inches(0.9), Inches(4.5), Inches(5), Inches(0.45),
-                "FIRST WINS  |  Months 3-6", font_size=16, font_color=WHITE, bold=True)
-
-    wins_data = [
-        ["Action", "Owner", "Target", "Why It Matters"],
-        ["Respond to 5+ school district ITBs", "SMC drafts, Newport reviews", "Win 1-2 category bids", "Lowest bid wins under FL law"],
-        ["Submit 4+ BOP quarterly subsistence bids", "SMC prepares, Newport prices", "Win 1-2 quarterly contracts", "Constant cycle = fast feedback"],
-        ["Contact Pinellas + Polk jail purchasing", "Newport salesperson", "Get on vendor list / bid", "Self-op = direct buyer (no FSMC)"],
-        ["Attend ACFSA or FSNA conference", "Newport salesperson", "10+ new agency relationships", "Face time with decision makers"],
-        ["Respond to 5+ Sources Sought notices", "SMC handles", "Shape future solicitations", "Get known before bids drop"],
-        ["Complete 5+ deliveries (any size)", "Newport operations", "5 written references", "Building the credibility portfolio"],
-    ]
-    add_table(slide, Inches(0.5), Inches(5.0), Inches(12.3),
-              len(wins_data), 4, wins_data,
-              col_widths=[Inches(3.5), Inches(2.5), Inches(3), Inches(3.3)],
-              font_size=10)
-
-    add_textbox(slide, Inches(0.8), Inches(7.1), Inches(11), Inches(0.3),
-                "Month 6 checkpoint: Are we winning bids? Building relationships? Getting known? If yes \u2192 scale. If not \u2192 adjust targeting, not abandon the channel.",
-                font_size=12, font_color=NAVY, bold=True)
-
-
-def slide_11_roadmap_long_term(prs):
-    """Slide 11: Long-Term Build (Years 2-5)"""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    set_slide_bg(slide, WHITE)
-
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Long-Term Build: From Channel to Division",
-                font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
-
-    add_textbox(slide, Inches(0.8), Inches(1.3), Inches(11), Inches(0.4),
-                "Year 1 builds the foundation. Years 2-5 turn government into a full business division.",
-                font_size=16, font_color=MED_GRAY)
-
-    # Timeline progression
-    data = [
-        ["Phase", "Timeline", "Revenue Target", "Key Milestones", "What Changes"],
-        ["Scale\nFlorida",
-         "Year 2\n(Months 7-18)",
-         "$5-8M/yr",
-         "5-10 active contracts\n15+ past perf. refs\nFSMC vendor approvals",
-         "Dedicated gov salesperson\nBid win rate: 25-35%\nRepeat BOP supplier"],
-        ["Regional\nExpansion",
-         "Year 3\n(Months 19-30)",
-         "$10-15M/yr",
-         "Expand to GA, AL, SC\nGPO membership (Foodbuy)\nUSDA AMS qualified bidder",
-         "Government division with\nP&L, dedicated ops\nMulti-state presence"],
-        ["National\nCapability",
-         "Years 4-5",
-         "$15-25M/yr",
-         "National bid capability\n30+ agency relationships\nSubcontracting on large IDIQs",
-         "Government = 20-30%\nof Newport revenue\nTransformed business profile"],
-    ]
-    add_table(slide, Inches(0.5), Inches(1.9), Inches(12.3),
-              len(data), 5, data,
-              col_widths=[Inches(1.5), Inches(1.5), Inches(1.5), Inches(3.8), Inches(3)],
-              font_size=11)
-
-    # The flywheel
-    add_textbox(slide, Inches(0.8), Inches(4.7), Inches(11), Inches(0.4),
-                "THE CREDIBILITY FLYWHEEL — Why Government Contracts Compound",
-                font_size=18, font_color=NAVY, bold=True, alignment=PP_ALIGN.CENTER)
-
-    flywheel_steps = [
-        "Win small\ncontracts",
-        "Deliver\nexcellently",
-        "Earn past\nperformance refs",
-        "Qualify for\nlarger bids",
-        "Win bigger\ncontracts",
-    ]
-    step_width = Inches(2)
-    start_x = Inches(0.8)
-    for i, step in enumerate(flywheel_steps):
-        x = start_x + i * (step_width + Inches(0.3))
-        shape = slide.shapes.add_shape(1, x, Inches(5.2), step_width, Inches(0.9))
+    x_row_start = Inches(0.8)
+    item_w = Inches(2.3)
+    for i, item in enumerate(no_items):
+        x = x_row_start + i * item_w
+        shape = slide.shapes.add_shape(1, x, Inches(5.1), item_w - Inches(0.1),
+                                       Inches(0.45))
         shape.fill.solid()
-        shape.fill.fore_color.rgb = NAVY if i % 2 == 0 else GOLD
+        shape.fill.fore_color.rgb = LIGHT_GRAY
         shape.line.fill.background()
-        fc = WHITE if i % 2 == 0 else NAVY
-        add_textbox(slide, x, Inches(5.25), step_width, Inches(0.85),
-                    step, font_size=13, font_color=fc, bold=True,
-                    alignment=PP_ALIGN.CENTER)
-        if i < len(flywheel_steps) - 1:
-            add_textbox(slide, x + step_width, Inches(5.4), Inches(0.3), Inches(0.5),
-                        "\u27A1", font_size=20, font_color=NAVY, alignment=PP_ALIGN.CENTER)
+        add_textbox(slide, x, Inches(5.1), item_w - Inches(0.1), Inches(0.45),
+                    f"\u2717 {item}", font_size=12, font_color=MED_GRAY,
+                    bold=True, alignment=PP_ALIGN.CENTER)
 
-    # Automation callout
-    shape = slide.shapes.add_shape(1, Inches(0.8), Inches(6.4), Inches(11.7), Inches(0.8))
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = RGBColor(0xFE, 0xF9, 0xE7)
-    shape.line.color.rgb = GOLD
-    shape.line.width = Pt(2)
-    add_textbox(slide, Inches(1.0), Inches(6.45), Inches(11.3), Inches(0.3),
-                "SCALABILITY: The scanning and analysis tools built for this pilot are automated.",
-                font_size=14, font_color=NAVY, bold=True)
-    add_textbox(slide, Inches(1.0), Inches(6.75), Inches(11.3), Inches(0.35),
-                "The same pipeline that finds FL opportunities today can scan all 50 states tomorrow. "
-                "1,600-3,000 food procurement postings/year nationwide, $400M-$1.25B in contract value — all filterable, scorable, trackable.",
-                font_size=11, font_color=DARK_GRAY)
+    # Bottom: The real ask — no retainers, just cover costs
+    callout = slide.shapes.add_shape(
+        1, Inches(0.8), Inches(5.8), Inches(11.7), Inches(1.2))
+    callout.fill.solid()
+    callout.fill.fore_color.rgb = GOLD_LIGHT
+    callout.line.color.rgb = GOLD
+    callout.line.width = Pt(2)
 
-
-def slide_12_success_metrics(prs):
-    """Slide 12: Success Metrics"""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    set_slide_bg(slide, WHITE)
-
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Success Metrics — Credibility Is the Currency",
-                font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
-
-    add_textbox(slide, Inches(0.8), Inches(1.3), Inches(11), Inches(0.6),
-                "Year 1 is not about revenue. It's about winning contracts — even small ones — to build a track record. "
-                "Every contract won is a receipt. Receipts compound into credibility. Credibility wins bigger contracts.",
-                font_size=15, font_color=DARK_GRAY)
-
-    data = [
-        ["Metric", "Year 1 Target", "Year 2 Target", "Why It Matters"],
-        ["Registrations Complete", "SAM, MFMP,\nDemandStar, VendorLink", "USDA AMS, GPO\nmembership", "Can't bid without them"],
-        ["Bids Submitted", "10-17", "28-43", "Each bid builds competency\nand gets your name known"],
-        ["Sources Sought Responses", "5-10", "10-15", "Gets Newport on agency radars\nbefore solicitations drop"],
-        ["Contracts Won", "1-4\n(any size)", "5-13", "THE primary metric — each win\n= past performance currency"],
-        ["Past Performance References", "3-5", "10-15", "This is what wins Year 2+ bids.\nThe real asset."],
-        ["Agency Relationships", "10+", "25+", "Do procurement officers know\nNewport by name?"],
-        ["Contractor Vendor Approvals", "1-2", "3-4", "GEO, Trinity, Aramark =\nvolume without bidding"],
-        ["Revenue", "$1-2.5M", "$5-8M", "Important but secondary to\ntrack record in Year 1"],
-    ]
-    add_table(slide, Inches(0.3), Inches(2.1), Inches(12.7),
-              len(data), 4, data,
-              col_widths=[Inches(2.5), Inches(2.2), Inches(2.2), Inches(3.8)],
-              font_size=10)
-
-    # Callout
-    shape = slide.shapes.add_shape(1, Inches(2), Inches(6.3), Inches(9), Inches(0.8))
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = RGBColor(0xFE, 0xF9, 0xE7)
-    shape.line.color.rgb = GOLD
-    shape.line.width = Pt(2)
-    add_textbox(slide, Inches(2), Inches(6.35), Inches(9), Inches(0.75),
-                '"A $10,000 micro-purchase contract that generates a stellar past performance reference\n'
-                'is worth more than $100,000 in revenue without documentation."',
-                font_size=14, font_color=NAVY, bold=True, alignment=PP_ALIGN.CENTER)
-
-
-def slide_13_investment(prs):
-    """Slide 13: Investment — Symbiotic Partnership Voice"""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    set_slide_bg(slide, WHITE)
-
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "The Investment — What It Takes to Get Started",
-                font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
-
-    add_textbox(slide, Inches(0.8), Inches(1.2), Inches(11), Inches(0.4),
-                "Newport brings the infrastructure and relationships. Still Mind Creative brings the procurement expertise. "
-                "Neither can do this alone — together, it works.",
-                font_size=14, font_color=MED_GRAY)
-
-    # LEFT: Newport costs
-    add_textbox(slide, Inches(0.5), Inches(1.7), Inches(5.5), Inches(0.4),
-                "Newport's Investment (Year 1)", font_size=18, font_color=NAVY, bold=True)
-
-    data1 = [
-        ["Item", "Cost", "When"],
-        ["SAM.gov registration", "Free", "Month 1"],
-        ["MFMP + VendorLink + DemandStar", "$0-$400", "Month 1"],
-        ["Industry memberships (ACFSA, FSNA)", "$225", "Month 2"],
-        ["Conference attendance (1 person, 2 events)", "$1,500-$3,000", "As scheduled"],
-        ["Capability statement + sales materials", "$300-$500", "Month 1"],
-        ["SQF/HACCP certification (if not held)", "$3,000-$8,000", "Month 1-2"],
-        ["Salesperson time (8-10 hrs/week)", "Existing staff", "Ongoing"],
-        ["TOTAL", "$5,000-$12,000", "Year 1"],
-    ]
-    add_table(slide, Inches(0.3), Inches(2.2), Inches(6),
-              len(data1), 3, data1,
-              col_widths=[Inches(3.3), Inches(1.3), Inches(1.4)],
-              font_size=11)
-
-    # RIGHT: SMC contribution
-    add_textbox(slide, Inches(6.8), Inches(1.7), Inches(5.5), Inches(0.4),
-                "Still Mind Creative's Contribution", font_size=18, font_color=NAVY, bold=True)
-
-    data2 = [
-        ["Service", "Frequency"],
-        ["Opportunity monitoring (SAM, MFMP, DemandStar)", "Daily"],
-        ["Pipeline scoring & prioritization", "Weekly"],
-        ["Sources Sought responses", "3-5/month"],
-        ["RFQ/RFP response drafts", "2-3/month"],
-        ["Contact intelligence & research", "Ongoing"],
-        ["Past performance documentation", "Per delivery"],
-        ["Pipeline dashboard reports", "Weekly"],
-        ["Registration & compliance tracking", "Ongoing"],
-    ]
-    add_table(slide, Inches(6.8), Inches(2.2), Inches(6),
-              len(data2), 2, data2,
-              col_widths=[Inches(4), Inches(2)],
-              font_size=11)
-
-    # ROI context
-    shape = slide.shapes.add_shape(1, Inches(0.8), Inches(6.0), Inches(11.7), Inches(1.2))
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = NAVY
-    shape.line.fill.background()
-
-    add_textbox(slide, Inches(1.0), Inches(6.05), Inches(11.3), Inches(0.35),
-                "THE MATH", font_size=18, font_color=GOLD, bold=True,
+    add_textbox(slide, Inches(1.0), Inches(5.85), Inches(11.3), Inches(0.4),
+                "No retainers. No consulting fees.",
+                font_size=18, font_color=NAVY, bold=True,
                 alignment=PP_ALIGN.CENTER)
-    add_textbox(slide, Inches(1.0), Inches(6.4), Inches(11.3), Inches(0.75),
-                "One school district category win: $2-10M/year.  One BOP quarterly contract: $200K-2.5M.  "
-                "One county jail supply contract: $1-3.5M/year.\n"
-                "A single win pays for the entire Year 1 investment many times over. "
-                "The question isn't whether government contracts are worth pursuing — it's whether you want to start now or let someone else take them.",
-                font_size=14, font_color=WHITE, alignment=PP_ALIGN.CENTER)
+    add_textbox(slide, Inches(1.0), Inches(6.3), Inches(11.3), Inches(0.6),
+                "Just cover the direct costs of trying it \u2014 registrations, "
+                "materials, and tools \u2014 and let me bring value to your business. "
+                "If it works, we both win.",
+                font_size=14, font_color=DARK_GRAY,
+                alignment=PP_ALIGN.CENTER)
 
 
-def slide_14_compounding(prs):
-    """Slide 14: The Compounding Effect — plant the 'selling' seed."""
+def slide_12_what_it_costs(prs):
+    """Slide 12: 'What It Actually Costs' — comprehensive, honest cost breakdown."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, WHITE)
 
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "The Compounding Effect", font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
-
-    # 3-year projection table
-    data = [
-        ["", "Year 1", "Year 2", "Year 3", "Year 5 (projected)"],
-        ["Contracts Won", "1-4", "5-13", "12-22", "30-50+"],
-        ["Revenue", "$1-2.5M", "$5-8M", "$10-15M", "$15-25M"],
-        ["Gross Margin (15-20%)", "$150K-$500K", "$750K-$1.6M", "$1.5-$3M", "$2.5-$5M"],
-        ["Past Performance Refs", "3-5", "10-15", "20-30", "50+"],
-        ["Bid Win Rate", "10-20%", "25-35%", "35-50%", "40-55%"],
-        ["States Active", "FL only", "FL + 1-2", "FL + 3-4", "Southeast region"],
-        ["% of Newport Revenue", "1-3%", "5-10%", "10-15%", "20-30%"],
-    ]
-    add_table(slide, Inches(0.5), Inches(1.4), Inches(12.3),
-              len(data), 5, data,
-              col_widths=[Inches(2.5), Inches(2.2), Inches(2.2), Inches(2.2), Inches(2.2)],
-              font_size=11)
-
-    # Why it compounds
-    add_textbox(slide, Inches(0.8), Inches(5.0), Inches(11), Inches(0.4),
-                "WHY GOVERNMENT CONTRACTS COMPOUND (AND PRIVATE SECTOR DOESN'T)",
-                font_size=16, font_color=NAVY, bold=True, alignment=PP_ALIGN.CENTER)
-
-    compound_data = [
-        ["Private Sector", "Government Contracting"],
-        ["Each sale is independent — start from zero", "Each contract creates documented past performance that helps win the next one"],
-        ["Relationships are informal", "Relationships are formalized in evaluation criteria"],
-        ["Competitors can undercut you anytime", "Incumbents with strong past performance are hard to displace"],
-        ["Revenue is revenue — it doesn't change what the business IS", "Government contracts transform the business's profile and value"],
-    ]
-    add_table(slide, Inches(1.5), Inches(5.5), Inches(10.3),
-              len(compound_data), 2, compound_data,
-              col_widths=[Inches(5.15), Inches(5.15)],
-              font_size=11, header_bg=MED_GRAY)
-
-    # The seed — subtle, not a headline
-    add_textbox(slide, Inches(0.8), Inches(7.05), Inches(11.5), Inches(0.35),
-                "A food distributor with government contracts, past performance documentation, and active agency relationships is a fundamentally different "
-                "business than one without — in capability, in recurring revenue, and in what it's worth.",
-                font_size=12, font_color=NAVY, bold=True, alignment=PP_ALIGN.CENTER)
-
-
-def slide_15_risks(prs):
-    """Slide 15: Risk Factors — Two types: operational + existential."""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    set_slide_bg(slide, WHITE)
-
-    add_textbox(slide, Inches(0.8), Inches(0.4), Inches(11), Inches(0.7),
-                "Risks — Both Sides of the Coin",
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "What It Actually Costs \u2014 Everything",
                 font_size=36, font_color=NAVY, bold=True)
-    add_divider(slide, Inches(0.8), Inches(1.1), Inches(3))
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
 
-    # LEFT: Operational risks (things that could go wrong on execution)
-    add_textbox(slide, Inches(0.5), Inches(1.3), Inches(6), Inches(0.4),
-                "Execution Risks (What Could Slow Us Down)",
-                font_size=16, font_color=AMBER, bold=True)
+    # LEFT: Fixed / Startup Costs
+    add_textbox(slide, Inches(0.3), Inches(1.15), Inches(6.5), Inches(0.35),
+                "Implementation Costs (Year 1)",
+                font_size=14, font_color=NAVY, bold=True)
 
-    ops_data = [
-        ["Risk", "Likelihood", "Mitigation"],
-        ["Lose early bids", "High\n(expected)",
-         "Start with micro + simplified acq.\nEvery loss teaches eval criteria"],
-        ["Slow relationship\nbuilding", "Medium",
-         "Conference attendance + consistent\nfollow-up + Sources Sought = radar"],
-        ["SAM.gov registration\ndelays (30-45 days)", "Medium",
-         "Start immediately. Pursue FL\nstate/local while waiting"],
-        ["Strong incumbent on\ntarget contracts", "Medium",
-         "Focus on set-asides, expiring\ncontracts, agencies with complaints"],
-        ["Certification gaps\n(SQF/HACCP)", "Low-Med",
-         "Identify requirements early.\nBudget for cert if not held"],
-        ["Salesperson bandwidth", "Medium",
-         "SMC handles all admin = salesperson\nfocuses 100% on relationships"],
+    fixed_data = [
+        ["Item", "Cost"],
+        ["SAM.gov registration (UEI number)", "Free"],
+        ["MFMP + VendorLink + DemandStar", "$0-$400/yr"],
+        ["Industry memberships (ACFSA, FSNA)", "$225/yr"],
+        ["Conference attendance (1 person, 1-2 events)", "$1,500-$3,000"],
+        ["Capability statement + sales materials", "$300-$500"],
+        ["SQF/HACCP certification (if not held)", "$3,000-$8,000"],
+        ["Tech tools (scanning, automation, AI)", "$2,400-$6,000/yr"],
+        ["Insurance endorsements (gov contract rider)", "$500-$2,000/yr"],
+        ["Legal review (contract templates, first bids)", "$1,000-$3,000"],
+        ["Compliance documentation (gov-specific SOPs)", "$500-$1,500"],
+        ["TOTAL YEAR 1 FIXED", "$10,000-$25,000"],
     ]
-    add_table(slide, Inches(0.3), Inches(1.8), Inches(6.2),
-              len(ops_data), 3, ops_data,
-              col_widths=[Inches(1.8), Inches(1), Inches(3.4)],
+    add_table(slide, Inches(0.2), Inches(1.5), Inches(6.4),
+              len(fixed_data), 2, fixed_data,
+              col_widths=[Inches(4.2), Inches(2.2)],
               font_size=10)
 
-    # RIGHT: Strategic/existential risk — decision tree framing
-    add_textbox(slide, Inches(6.8), Inches(1.3), Inches(5.5), Inches(0.4),
-                "Strategic Risk (The Bigger Question)",
-                font_size=16, font_color=NAVY, bold=True)
+    # RIGHT: Variable / Per-Contract Costs
+    add_textbox(slide, Inches(6.8), Inches(1.15), Inches(5.8), Inches(0.35),
+                "Per-Contract Costs (As You Win)",
+                font_size=14, font_color=NAVY, bold=True)
 
-    # Decision tree as a table
-    tree_data = [
-        ["If Newport...", "Then..."],
-        ["Enters government contracting\nand it takes longer than expected",
-         "You've built registrations, relationships,\nand capabilities that compound.\nThe investment was modest."],
-        ["Enters government contracting\nand wins early contracts",
-         "You've opened a new channel that\ncould reach $10-15M/yr by Year 3.\nThe business is fundamentally stronger."],
-        ["Does nothing",
-         "The fraud crackdown window closes.\nCompetitors register first.\nThe opportunity doesn't wait."],
+    variable_data = [
+        ["Item", "Cost"],
+        ["Bid/performance bonds (>$35K contracts)", "1-3% of contract value"],
+        ["Background checks (BOP/military access)", "$50-$100/person"],
+        ["Proposal prep (printing, binding, shipping)", "$100-$300/bid"],
+        ["Delivery compliance (temp logs, documentation)", "Operational cost"],
     ]
-    add_table(slide, Inches(6.8), Inches(1.8), Inches(6.2),
-              len(tree_data), 2, tree_data,
-              col_widths=[Inches(3), Inches(3.2)],
-              font_size=11, header_bg=NAVY)
+    add_table(slide, Inches(6.8), Inches(1.5), Inches(6.2),
+              len(variable_data), 2, variable_data,
+              col_widths=[Inches(3.8), Inches(2.4)],
+              font_size=10)
 
-    # Bottom framing
-    add_textbox(slide, Inches(6.8), Inches(4.7), Inches(5.5), Inches(0.8),
-                "The execution risks are real and manageable — "
-                "they're the normal cost of entering a new market. We mitigate "
-                "them by starting small, learning fast, and adjusting.\n\n"
-                "The strategic risk is the one that matters: this window won't stay open forever.",
-                font_size=12, font_color=DARK_GRAY)
+    # What one win returns
+    add_textbox(slide, Inches(6.8), Inches(3.5), Inches(5.8), Inches(0.35),
+                "What One Win Returns",
+                font_size=14, font_color=GREEN, bold=True)
 
-    # Full-width callout at bottom
-    add_callout_bar(slide, Inches(0.8), Inches(6.2), Inches(11.7), Inches(1),
-                    '"Newport has been doing the hard part for 30 years — building real infrastructure.\n'
-                    'The only question is whether to put that infrastructure to work in a market\n'
-                    'that desperately needs what you already have."',
-                    font_size=14)
+    return_data = [
+        ["Contract Type", "Value"],
+        ["Micro-purchase contract", "$5K-$15K"],
+        ["Simplified acquisition", "$15K-$350K"],
+        ["School district category bid", "$100K-$350K/year"],
+        ["BOP quarterly subsistence", "$75K-$2.5M/quarter"],
+        ["Gross margin (all types)", "15-20%"],
+    ]
+    add_table(slide, Inches(6.8), Inches(3.9), Inches(6.2),
+              len(return_data), 2, return_data,
+              col_widths=[Inches(3.8), Inches(2.4)],
+              font_size=10, header_bg=GREEN)
+
+    # ROI ratio — positioned below tables, no overlap
+    ratio_y = Inches(5.7)
+    cost_box = slide.shapes.add_shape(
+        5, Inches(1.0), ratio_y, Inches(3.5), Inches(0.8))
+    cost_box.fill.solid()
+    cost_box.fill.fore_color.rgb = LIGHT_GRAY
+    cost_box.line.color.rgb = NAVY
+    cost_box.line.width = Pt(2)
+    add_textbox(slide, Inches(1.0), ratio_y + Inches(0.05),
+                Inches(3.5), Inches(0.3),
+                "Year 1 All-In Cost", font_size=11, font_color=MED_GRAY,
+                alignment=PP_ALIGN.CENTER)
+    add_textbox(slide, Inches(1.0), ratio_y + Inches(0.3),
+                Inches(3.5), Inches(0.4),
+                "$10K-$25K", font_size=22, font_color=NAVY, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    add_textbox(slide, Inches(4.7), ratio_y + Inches(0.1),
+                Inches(0.5), Inches(0.6),
+                "vs", font_size=14, font_color=MED_GRAY, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    ret_box = slide.shapes.add_shape(
+        5, Inches(5.4), ratio_y, Inches(6.5), Inches(0.8))
+    ret_box.fill.solid()
+    ret_box.fill.fore_color.rgb = GOLD_LIGHT
+    ret_box.line.color.rgb = GREEN
+    ret_box.line.width = Pt(2)
+    add_textbox(slide, Inches(5.4), ratio_y + Inches(0.05),
+                Inches(6.5), Inches(0.3),
+                "One Simplified Acquisition Win", font_size=11, font_color=MED_GRAY,
+                alignment=PP_ALIGN.CENTER)
+    add_textbox(slide, Inches(5.4), ratio_y + Inches(0.3),
+                Inches(6.5), Inches(0.4),
+                "$50K-$200K", font_size=22, font_color=GREEN, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    # Bottom note
+    add_textbox(slide, Inches(0.8), Inches(6.8), Inches(11.5), Inches(0.5),
+                "No retainers. No consulting fees. Cover the costs of trying it. "
+                "Payback: 1 contract.",
+                font_size=14, font_color=NAVY, bold=True,
+                alignment=PP_ALIGN.CENTER)
 
 
-def slide_16_the_ask(prs):
-    """Slide 16: The Ask — Compelling Close"""
+def slide_13_what_could_go_wrong(prs):
+    """Slide 13: 'What Could Go Wrong' — genuine risk analysis, agile mindset."""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_slide_bg(slide, WHITE)
+
+    add_textbox(slide, Inches(0.8), Inches(0.3), Inches(11), Inches(0.7),
+                "What Could Go Wrong \u2014 And How We Mitigate It",
+                font_size=32, font_color=NAVY, bold=True)
+    add_divider(slide, Inches(0.8), Inches(1.0), Inches(3))
+
+    # Risk table — 6 real business risks, centered
+    risk_data = [
+        ["Risk", "What Happens", "How Bad?", "Mitigation"],
+        [
+            "Take on a contract\nwe can't deliver",
+            "Negative past performance\nrating in CPARS. Damages\nfuture bids for years.",
+            "SERIOUS\n#1 risk \u2014 one bad\nrating follows\nyou 3+ years",
+            "Start with micro-purchases and small\ncontracts ONLY. Never bid on anything\nNewport can't deliver with current\ninfrastructure. Scale up only after proven.",
+        ],
+        [
+            "Learning curve \u2014\ntakes time to win\nfirst contracts",
+            "~$10-25K invested, salesperson\ntime allocated, revenue\ntakes time to materialize.",
+            "MANAGEABLE\nNewport doesn't\nneed this to\nsurvive",
+            "We research, assess often, test, learn,\nadjust. Everything is measured, methodical,\nintentional. 6-month checkpoints. It's not\nif \u2014 it's how long until we find the way.",
+        ],
+        [
+            "Underprice a\ncontract and lose\nmoney on delivery",
+            "Negative margin on a\ncontract Newport must\nfulfill.",
+            "MODERATE\nBounded to the\ncontract size.\n$50K at -5% = $2.5K",
+            "Build pricing templates with full cost\nmodeling. Never bid without complete cost\nanalysis. Small contracts first = cheap\nlessons before the stakes get larger.",
+        ],
+        [
+            "Government\npayment delays\ndespite Net-30",
+            "Cash flow strain if large\ncontract payments are late.",
+            "LOW\nFederal agencies\nare generally\nreliable",
+            "Start with federal contracts (strongest\npayment enforcement). Don't take contract\nsizes that would strain cash flow if\npayment runs 60 days instead of 30.",
+        ],
+        [
+            "Compliance failure\n(food safety, docs)",
+            "Contract termination,\npotential debarment.",
+            "SEVERE if it\nhappens \u2014 but\nNewport already\nhas infrastructure",
+            "Ensure HACCP/SQF certs current. Create\ncompliance checklist for every delivery.\nSame discipline Newport already applies\nfor private sector with government wrapper.",
+        ],
+        [
+            "Opportunity cost \u2014\nsalesperson time\ndiverted",
+            "8-10 hrs/week not spent\non existing customers.",
+            "REAL but\nBOUNDED\nRedirect back\nafter 6-12mo",
+            "Use existing salesperson capacity, not a\nnew hire. All admin work is handled. 6-month\ncheckpoint evaluates if time is well spent.\nThis is additive, not a bet-the-farm move.",
+        ],
+    ]
+    add_table(slide, Inches(0.5), Inches(1.2), Inches(12.3),
+              len(risk_data), 4, risk_data,
+              col_widths=[Inches(2.1), Inches(2.6), Inches(2.1), Inches(3.8)],
+              font_size=9)
+
+    # Bottom callout
+    add_callout_bar(slide, Inches(0.8), Inches(6.0), Inches(11.7), Inches(1.2),
+                    "The biggest risk is taking on a contract you can't deliver. "
+                    "The mitigation is simple: start small, deliver perfectly, "
+                    "scale only when proven.\n"
+                    "Every other risk is bounded and manageable. Newport doesn\u2019t "
+                    "need government contracts to survive \u2014 which is itself a "
+                    "major advantage.\nWe can be patient, methodical, and selective "
+                    "about which opportunities to pursue.",
+                    font_size=13)
+
+
+def slide_14_what_happens_next(prs):
+    """Slide 14: 'What I'd Suggest as Next Steps' — soft close, value-first."""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_slide_bg(slide, NAVY)
 
-    add_textbox(slide, Inches(1.5), Inches(0.3), Inches(10), Inches(0.7),
-                "What Happens Next", font_size=40, font_color=WHITE, bold=True,
+    add_textbox(slide, Inches(1.5), Inches(0.2), Inches(10), Inches(0.6),
+                "What I\u2019d Suggest as Next Steps",
+                font_size=36, font_color=WHITE, bold=True,
                 alignment=PP_ALIGN.CENTER)
-    add_divider(slide, Inches(4), Inches(1.0), Inches(5), color=GOLD)
+    add_divider(slide, Inches(4), Inches(0.85), Inches(5), color=GOLD)
 
-    # The first 30 days — action table
-    add_textbox(slide, Inches(0.8), Inches(1.2), Inches(11), Inches(0.4),
-                "The First 30 Days:", font_size=22, font_color=GOLD, bold=True,
-                alignment=PP_ALIGN.CENTER)
+    # Section 1: "If You're Open to It"
+    add_textbox(slide, Inches(0.8), Inches(1.0), Inches(11), Inches(0.4),
+                "If You\u2019re Open to Exploring This, Here\u2019s What I\u2019d Build:",
+                font_size=18, font_color=GOLD, bold=True)
 
-    data = [
-        ["Week", "Action", "Owner", "Result"],
-        ["Week 1", "Start SAM.gov registration\nRegister on MFMP + VendorLink",
-         "Newport + SMC", "In the system — clock starts on 30-45 day SAM approval"],
-        ["Week 1-2", "Submit vendor applications to\nGEO Group + Trinity + Aramark",
-         "SMC drafts,\nNewport submits", "In the pipeline for private contractor supply"],
-        ["Week 2-3", "Create capability statement\nand government sales materials",
-         "SMC creates,\nNewport reviews", "Professional materials ready for agency meetings"],
-        ["Week 2-4", "Schedule first 5 FL school\ndistrict procurement meetings",
-         "Newport\nsalesperson", "Face-to-face relationships with decision makers"],
-        ["Ongoing", "Begin daily opportunity monitoring\n+ Sources Sought responses",
-         "Still Mind\nCreative", "Pipeline building starts immediately"],
+    build_items = [
+        "Complete opportunity tracking system (scanning SAM.gov, MFMP, "
+        "DemandStar \u2014 dashboard demo included with this presentation)",
+        "Capability statement and compliance package",
+        "Pricing templates for micro-purchase and simplified acquisition bids",
+        "Pipeline with scoring, deadlines, and status tracking",
+        "Regular monitoring and progress reports \u2014 what\u2019s working, "
+        "what we adjust",
     ]
-    add_table(slide, Inches(0.5), Inches(1.7), Inches(12.3),
-              len(data), 4, data,
-              col_widths=[Inches(1), Inches(3.5), Inches(2), Inches(4.8)],
-              header_bg=GOLD, header_fg=NAVY, font_size=11)
-
-    # What Newport commits
-    add_textbox(slide, Inches(0.8), Inches(5.0), Inches(5.5), Inches(0.4),
-                "What Newport Commits:", font_size=18, font_color=GOLD, bold=True)
-    commit_items = [
-        "Authorize ~$5-12K for registrations + materials",
-        "Assign 1 salesperson (8-10 hrs/week)",
-        "Attend 1-2 industry conferences in Year 1",
-        "12-month pilot commitment",
-    ]
-    txBox = slide.shapes.add_textbox(Inches(0.8), Inches(5.4), Inches(5.5), Inches(1.5))
+    txBox = slide.shapes.add_textbox(
+        Inches(0.8), Inches(1.4), Inches(11.5), Inches(1.8))
     tf = txBox.text_frame
     tf.word_wrap = True
-    for i, item in enumerate(commit_items):
+    for i, item in enumerate(build_items):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.text = f"\u2713  {item}"
-        p.font.size = Pt(14)
+        p.font.size = Pt(13)
         p.font.color.rgb = WHITE
         p.font.name = "Calibri"
-        p.space_after = Pt(6)
+        p.space_after = Pt(4)
 
-    # What SMC commits
-    add_textbox(slide, Inches(6.8), Inches(5.0), Inches(5.5), Inches(0.4),
-                "What Still Mind Creative Commits:", font_size=18, font_color=GOLD, bold=True)
-    smc_items = [
-        "Daily opportunity monitoring across all portals",
-        "All proposal and response drafting",
-        "Pipeline scoring, tracking, and reporting",
-        "Full procurement compliance management",
+    # Section 2: Year 1 Targets — left side
+    sec2_y = Inches(3.3)
+    add_textbox(slide, Inches(0.8), sec2_y, Inches(5.5), Inches(0.35),
+                "Year 1 Target:", font_size=18, font_color=GOLD, bold=True)
+
+    targets = [
+        "15-25 contracts won (micro + simplified)",
+        "$500K-$2M revenue",
+        "5+ documented past performance references",
+        "Active pipeline in FL + nationwide",
     ]
-    txBox2 = slide.shapes.add_textbox(Inches(6.8), Inches(5.4), Inches(5.5), Inches(1.5))
+    txBox2 = slide.shapes.add_textbox(
+        Inches(0.8), sec2_y + Inches(0.35), Inches(5.5), Inches(1.5))
     tf2 = txBox2.text_frame
     tf2.word_wrap = True
-    for i, item in enumerate(smc_items):
+    for i, item in enumerate(targets):
         p = tf2.paragraphs[0] if i == 0 else tf2.add_paragraph()
-        p.text = f"\u2713  {item}"
-        p.font.size = Pt(14)
+        p.text = f"\u2022  {item}"
+        p.font.size = Pt(13)
         p.font.color.rgb = WHITE
         p.font.name = "Calibri"
-        p.space_after = Pt(6)
+        p.space_after = Pt(4)
 
-    # Closing line
+    # Section 3: Realistic Cost — right side
+    add_textbox(slide, Inches(6.8), sec2_y, Inches(5.5), Inches(0.35),
+                "Realistic Year 1 Cost:", font_size=18, font_color=GOLD, bold=True)
+
+    costs = [
+        "$10,000-$25,000 (registrations, materials, insurance,",
+        "    legal, tools, conferences)",
+        "1 salesperson, 8-10 hours/week (existing staff)",
+        "6-month checkpoints to assess and adjust",
+    ]
+    txBox3 = slide.shapes.add_textbox(
+        Inches(6.8), sec2_y + Inches(0.35), Inches(5.5), Inches(1.3))
+    tf3 = txBox3.text_frame
+    tf3.word_wrap = True
+    for i, item in enumerate(costs):
+        p = tf3.paragraphs[0] if i == 0 else tf3.add_paragraph()
+        p.text = f"\u2022  {item}" if not item.startswith("    ") else f"   {item.strip()}"
+        p.font.size = Pt(13)
+        p.font.color.rgb = WHITE
+        p.font.name = "Calibri"
+        p.space_after = Pt(3)
+
+    # Divider before closing
+    add_divider(slide, Inches(2), Inches(5.3), Inches(9), color=GOLD)
+
+    # Closing — soft, genuine
+    add_textbox(slide, Inches(1.0), Inches(5.5), Inches(11.3), Inches(0.5),
+                "No retainers. No fees. Just cover the costs of trying it and "
+                "let me bring value to your business.",
+                font_size=16, font_color=GOLD, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    add_textbox(slide, Inches(1.0), Inches(6.1), Inches(11.3), Inches(0.6),
+                "The dashboard is ready. The research is done. "
+                "I\u2019m ready when you are.",
+                font_size=22, font_color=WHITE, bold=True,
+                alignment=PP_ALIGN.CENTER)
+
+    # Footer
     add_textbox(slide, Inches(0.8), Inches(7.0), Inches(11.5), Inches(0.4),
-                "Still Mind Creative LLC  |  " + datetime.now().strftime("%B %Y"),
+                "Still Mind Creative LLC  |  " + datetime.now().strftime("%B %Y")
+                + "  |  Confidential",
                 font_size=11, font_color=MED_GRAY, alignment=PP_ALIGN.CENTER)
 
+
+# ========== MAIN ==========
 
 def main():
     prs = Presentation()
     prs.slide_width = SLIDE_WIDTH
     prs.slide_height = SLIDE_HEIGHT
 
-    print("Building pitchbook v2 slides...")
+    print("Building pitchbook v3 slides...")
     slides = [
-        ("Slide 1: Cover", slide_01_cover),
-        ("Slide 2: Executive Summary", slide_02_exec_summary),
-        ("Slide 3: Market Opportunity (Realistic FL)", slide_03_market_opportunity),
-        ("Slide 4: Why Now — Fraud Crisis", slide_04_fraud_crisis),
-        ("Slide 5: Competitive Moat", slide_05_competitive_moat),
-        ("Slide 6: Competitive Landscape (Fight Here)", slide_06_competitive_landscape),
-        ("Slide 7: Pipeline (FL Specifics)", slide_07_pipeline),
-        ("Slide 8: Decision Makers + Champions", slide_08_decision_makers),
-        ("Slide 9: Operating Model", slide_09_operating_model),
-        ("Slide 10: Quick Wins Roadmap (Months 1-6)", slide_10_roadmap_quick_wins),
-        ("Slide 11: Long-Term Build (Years 2-5)", slide_11_roadmap_long_term),
-        ("Slide 12: Success Metrics", slide_12_success_metrics),
-        ("Slide 13: Investment", slide_13_investment),
-        ("Slide 14: The Compounding Effect", slide_14_compounding),
-        ("Slide 15: Risk Factors (Both Sides)", slide_15_risks),
-        ("Slide 16: The Ask", slide_16_the_ask),
+        ("Slide 1:  Cover", slide_01_cover),
+        ("Slide 2:  You Built Something Real", slide_02_you_built_something_real),
+        ("Slide 3:  Why Government Customers Are Different", slide_03_why_government_customers),
+        ("Slide 4:  Why Now \u2014 The Fraud Crisis", slide_04_fraud_crisis),
+        ("Slide 5:  Newport's Competitive Moat", slide_05_competitive_moat),
+        ("Slide 6:  The Targets Are Already Identified", slide_06_targets_identified),
+        ("Slide 7:  How the Door Opens", slide_07_how_door_opens),
+        ("Slide 8:  The Realistic Path (Year 1-5)", slide_08_realistic_path),
+        ("Slide 9:  Year 1: Build the Machine", slide_09_year_one_machine),
+        ("Slide 10: How Small Wins Compound", slide_10_small_wins_compound),
+        ("Slide 11: You Sell. We Handle the Bureaucracy.", slide_11_division_of_labor),
+        ("Slide 12: What It Actually Costs", slide_12_what_it_costs),
+        ("Slide 13: What Could Go Wrong", slide_13_what_could_go_wrong),
+        ("Slide 14: What Happens Next (Close)", slide_14_what_happens_next),
     ]
 
     for name, builder in slides:
