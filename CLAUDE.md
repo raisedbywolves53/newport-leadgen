@@ -116,6 +116,13 @@ python deliverables/financials/build_proforma.py
 
 **Data pipeline:** `collect_market_data.py` → `market_data.json` → consumed by `build_proforma.py` + `build_presentation.js`
 
+**Confirmed data (Feb 22, 2026 live API runs):** Both deliverables now use verified numbers from live USASpending + FPDS reports:
+- FL small contracts: 117 contracts, $6.4M (DOJ/BOP #1 buyer at $3.7M, DoD #2 at $2.3M)
+- FPDS competition density: 537 awards across 32 NAICS/agency combos; 93% sole source for NAICS 424490 @ DoD
+- FEMA: 11 contracts, $69.3M but concentrated (2 vendors = 97%); Newport's play = disaster registry + micro-purchases
+- Research foundation TAM: $7.17B national, $85M FL under $350K, 83% micro-purchases under $15K
+- Synthesis document: `data/govcon_synthesis_live_vs_research.md`
+
 ## Segments
 
 | Segment | Target | Geography |

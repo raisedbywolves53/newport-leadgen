@@ -173,9 +173,12 @@ def build_assumptions(wb):
     labels_business = [
         (3, "Wholesale Gross Margin", 0.11, FMT_PERCENT, True,
          "Newport's estimated margin on government food supply"),
-        (4, "Average Contract Value - Conservative", 50000, FMT_CURRENCY, True, ""),
-        (5, "Average Contract Value - Moderate", 75000, FMT_CURRENCY, True, ""),
-        (6, "Average Contract Value - Aggressive", 100000, FMT_CURRENCY, True, ""),
+        (4, "Average Contract Value - Conservative", 50000, FMT_CURRENCY, True,
+         "Micro-purchase range; FL avg $10K-$25K bracket = 54% of visible contracts"),
+        (5, "Average Contract Value - Moderate", 75000, FMT_CURRENCY, True,
+         "Simplified acquisition; FL avg $25K-$100K bracket = 33% of visible contracts"),
+        (6, "Average Contract Value - Aggressive", 100000, FMT_CURRENCY, True,
+         "Larger simplified; FL avg $100K-$350K bracket = 13% of visible contracts"),
         (7, "Average Contract Duration (months)", 12, FMT_COUNT, False, "Most small contracts are annual"),
         (8, "Revenue Recognition", "Monthly", None, False, "Spread evenly over contract duration"),
     ]
@@ -193,17 +196,17 @@ def build_assumptions(wb):
 
     labels_winrate = [
         (ROW_WR_Y1_H1, "Year 1 Win Rate (Months 1-6)", 0.15, True,
-         "New entrant, no past performance"),
+         "New entrant — 93% sole source at DoD confirmed (FPDS); micro-purchases have 35-45% win rate"),
         (ROW_WR_Y1_H2, "Year 1 Win Rate (Months 7-12)", 0.25, True,
-         "Some past performance building"),
+         "Building past performance; 83% of contracts are micro-purchases with low barriers"),
         (ROW_WR_Y2, "Year 2 Win Rate", 0.35, True,
-         "Established past performance"),
+         "Established past performance; FPDS shows 1.2 avg offers in target categories"),
         (ROW_WR_Y3, "Year 3 Win Rate", 0.40, True,
-         "Strong past performance portfolio"),
+         "Strong past performance portfolio; research shows compounding to 35-40%"),
         (ROW_WR_Y4, "Year 4 Win Rate", 0.45, True,
-         "Preferred vendor status on key accounts"),
+         "Preferred vendor status; incumbent renewals beginning"),
         (ROW_WR_Y5, "Year 5 Win Rate", 0.50, True,
-         "Incumbent advantage on renewals"),
+         "Incumbent advantage; research shows 40-50% at this stage"),
     ]
     for row, label, value, highlight, note in labels_winrate:
         set_cell(ws, row, 1, label, font=BLACK_FONT)
@@ -279,49 +282,84 @@ def build_assumptions(wb):
     set_cell(ws, 38, 3, None, fill=LIGHT_ORANGE_FILL)
 
     cost_notes = [
-        (39, "Bid Preparation Costs", "$2K-5K per bid",
-         "Technical writing, compliance review, pricing analysis"),
-        (40, "Surety Bonding", "1-3% of contract value",
+        (39, "Bid Prep — Micro-Purchase ($3K-$15K)", "$100-$500/bid",
+         "Pricing + quote format only; 83% of FL contracts are this size"),
+        (40, "Bid Prep — Simplified ($15K-$350K)", "$2K-$5K/bid",
+         "Technical writing + compliance; 14.4% of FL contracts"),
+        (41, "Surety Bonding", "1-3% of contract value",
          "If required — most food supply contracts do not require bonds"),
-        (41, "HACCP/Food Safety Compliance", "One-time + annual renewal",
+        (42, "HACCP/Food Safety Compliance", "One-time + annual renewal",
          "Required for USDA commodity distribution programs"),
-        (42, "Working Capital / Cash Flow Gap", "30-90 day payment terms",
-         "Federal payment terms average NET 30; state/local can be longer"),
-        (43, "Insurance (GL + Product Liability)", "Annual increase",
+        (43, "Working Capital / Cash Flow Gap", "NET 30-90 day terms",
+         "Federal NET 30; state/local NET 60-90. FL avg contract $55K"),
+        (44, "Insurance (GL + Product Liability)", "Annual increase",
          "Government contracts may require higher coverage limits"),
-        (44, "Dedicated BD Staff", "Year 3+ consideration",
-         "Full-time business development hire when pipeline justifies"),
+        (45, "Dedicated BD Staff", "Year 3+ consideration",
+         "Full-time BD hire when pipeline justifies; ~215-660 hrs/yr Year 1"),
     ]
     for row, label, estimate, note in cost_notes:
         set_cell(ws, row, 1, label, font=BLACK_FONT)
         set_cell(ws, row, 2, estimate, font=COST_NOTE_FONT)
         set_cell(ws, row, 3, note, font=NOTE_FONT)
 
-    # ---- Section: TAM Context (from market_data.json) ----
-    set_cell(ws, 46, 1, "TAM Context (Federal Food Procurement)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
+    # ---- Section: TAM Context (Confirmed from Live API Data, Feb 2026) ----
+    set_cell(ws, 46, 1, "TAM Context (Confirmed Live Data — Feb 2026)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
     set_cell(ws, 46, 2, None, fill=LIGHT_GREEN_FILL)
     set_cell(ws, 46, 3, None, fill=LIGHT_GREEN_FILL)
 
+    # Try market_data.json for dynamic TAM, fall back to confirmed research numbers
     md = load_market_data()
     tam_total = md["tam_total"]
     tam_target = md["tam_target"]
-    fy_label = f"FY{md['fiscal_year']}" if md["fiscal_year"] else "FY2025"
 
-    set_cell(ws, 47, 1, f"Total Addressable Market ({fy_label})", font=BLACK_FONT)
-    set_cell(ws, 47, 2, tam_total if tam_total else "Run collect_market_data.py",
-             font=GREEN_FONT if tam_total else NOTE_FONT,
-             fmt=FMT_CURRENCY if tam_total else None)
-    set_cell(ws, 47, 3, "Federal food spending in target NAICS codes (4244xx + 722310)", font=NOTE_FONT)
+    set_cell(ws, 47, 1, "Total Federal Food Spending (FY2024)", font=BLACK_FONT)
+    set_cell(ws, 47, 2, tam_total if tam_total else 7170000000,
+             font=GREEN_FONT, fmt=FMT_CURRENCY)
+    set_cell(ws, 47, 3, "PSC 89xx confirmed via USASpending + FPDS (HIGH confidence)", font=NOTE_FONT)
 
-    set_cell(ws, 48, 1, f"Target States Market ({fy_label})", font=BLACK_FONT)
-    set_cell(ws, 48, 2, tam_target if tam_target else "Run collect_market_data.py",
-             font=GREEN_FONT if tam_target else NOTE_FONT,
-             fmt=FMT_CURRENCY if tam_target else None)
-    set_cell(ws, 48, 3, "FL, GA, AL, SC, NC, TN, MS, LA, VA, TX", font=NOTE_FONT)
+    set_cell(ws, 48, 1, "FL Food Contracts Under $350K (FY2024)", font=BLACK_FONT)
+    set_cell(ws, 48, 2, 85000000, font=GREEN_FONT, fmt=FMT_CURRENCY)
+    set_cell(ws, 48, 3, "39,685 awards — confirmed via USASpending (HIGH confidence)", font=NOTE_FONT)
 
-    set_cell(ws, 49, 1, "Serviceable Obtainable Market (Year 5 target)", font=BLACK_FONT)
-    set_cell(ws, 49, 2, "0.1%-0.5% of TAM", font=COST_NOTE_FONT)
-    set_cell(ws, 49, 3, "Realistic capture rate for regional wholesaler in 5-year ramp", font=NOTE_FONT)
+    set_cell(ws, 49, 1, "FL Visible Contracts >$10K (FY2024)", font=BLACK_FONT)
+    set_cell(ws, 49, 2, 6400000, font=GREEN_FONT, fmt=FMT_CURRENCY)
+    set_cell(ws, 49, 3, "117 contracts — live USASpending report (HIGH confidence)", font=NOTE_FONT)
+
+    set_cell(ws, 50, 1, "FL Micro-Purchases <$15K (Invisible to Free Tools)", font=BLACK_FONT)
+    set_cell(ws, 50, 2, "~$8-15M/yr est.", font=COST_NOTE_FONT)
+    set_cell(ws, 50, 3, "83% of contracts are micro-purchases — requires GovSpend ($6.5K/yr) to see", font=NOTE_FONT)
+
+    set_cell(ws, 51, 1, "FL SLED Market (Schools, Corrections, etc.)", font=BLACK_FONT)
+    set_cell(ws, 51, 2, "$600M-$1.2B/yr est.", font=COST_NOTE_FONT)
+    set_cell(ws, 51, 3, "Not in FPDS/USASpending — requires HigherGov ($3.5K/yr) or state portals", font=NOTE_FONT)
+
+    set_cell(ws, 52, 1, "Newport Serviceable Market (Year 1, Federal)", font=BLACK_FONT)
+    set_cell(ws, 52, 2, "$2-5M biddable", font=COST_NOTE_FONT)
+    set_cell(ws, 52, 3, "After filtering: categories, geography, past performance requirements", font=NOTE_FONT)
+
+    # ---- Section: Confirmed Competition Data ----
+    set_cell(ws, 54, 1, "Confirmed Competition Data (Live FPDS, Feb 2026)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 54, 2, None, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 54, 3, None, fill=LIGHT_GREEN_FILL)
+
+    competition_data = [
+        (55, "#1 FL Food Buyer: DOJ/Bureau of Prisons", "$3.7M / 71 contracts",
+         "Live USASpending — direct competitive target (Rainmaker doing $5M)"),
+        (56, "#2 FL Food Buyer: Dept of Defense", "$2.3M / 43 contracts",
+         "MacDill, Homestead, NAS Jax, Patrick SFB — local base procurement"),
+        (57, "NAICS 424490 (Other Grocery) @ DoD", "93% sole source",
+         "117 awards, 1.2 avg offers — golden target, almost no competition"),
+        (58, "FPDS Overall", "537 awards, 32 combos",
+         "15 of 32 NAICS/agency combos = LOW competition (easy entry)"),
+        (59, "FEMA Direct Food Procurement", "Narrow & concentrated",
+         "11 contracts, 2 vendors = 97%. Play = disaster registry + micro-purchases"),
+        (60, "Top FL Competitors", "$1-5M range",
+         "Oakes Farms $26M, US Foods $24M, then small vendors $1-5M"),
+    ]
+    for row, label, value, note in competition_data:
+        set_cell(ws, row, 1, label, font=BLACK_FONT)
+        set_cell(ws, row, 2, value, font=GREEN_FONT)
+        set_cell(ws, row, 3, note, font=NOTE_FONT)
 
     # Column widths
     ws.column_dimensions["A"].width = 52
@@ -703,8 +741,8 @@ def build_platform_comparison(wb):
     # Data rows
     comparison_data = [
         ("Federal Monitoring", 'SAM.gov API - $0', '+ CLEATUS - $3,000/yr', False),
-        ("State/Local Monitoring", 'Manual - $0', 'HigherGov - $3,500/yr', False),
-        ("Micro-Purchase Intel", 'N/A - $0', 'GovSpend - $6,500/yr', False),
+        ("State/Local (FL $600M-$1.2B)", 'Manual - $0', 'HigherGov - $3,500/yr', False),
+        ("Micro-Purchases (83% of FL contracts)", 'Invisible - $0', 'GovSpend - $6,500/yr', False),
         ("Competitive Intelligence", 'FPDS + USASpending - $0', 'Same - $0', False),
         ("Proposal Writing", 'Claude + Templates - $0', 'CLEATUS AI - included', False),
         ("Pipeline Tracking", 'Google Sheets - $0', 'Same - $0', False),

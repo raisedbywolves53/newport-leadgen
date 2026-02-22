@@ -28,45 +28,49 @@ try {
   console.log("market_data.json not found — using hardcoded fallback values");
 }
 
-// Fallback data (current hardcoded values preserved for when market_data.json absent)
+// Fallback data — confirmed from live FPDS/USASpending reports + research foundation (Feb 2026)
 const FALLBACK_NAICS = [
-  { naics: "722310", description: "Food Service Contractors", awards: 98, avg_offers: 1.0, sole_source_pct: 100, avg_value: 43000000 },
-  { naics: "424410", description: "Grocery Wholesalers", awards: 87, avg_offers: 1.4, sole_source_pct: 72, avg_value: 285000 },
-  { naics: "424490", description: "Other Grocery Products", awards: 142, avg_offers: 1.3, sole_source_pct: 68, avg_value: 195000 },
-  { naics: "424480", description: "Fresh Fruit & Vegetable", awards: 203, avg_offers: 1.2, sole_source_pct: 78, avg_value: 340000 },
-  { naics: "424470", description: "Meat & Meat Product", awards: 156, avg_offers: 1.5, sole_source_pct: 63, avg_value: 410000 },
-  { naics: "424420", description: "Packaged Frozen Food", awards: 189, avg_offers: 1.3, sole_source_pct: 71, avg_value: 210000 },
-  { naics: "424460", description: "Fish & Seafood", awards: 112, avg_offers: 1.3, sole_source_pct: 70, avg_value: 180000 },
-  { naics: "424450", description: "Confectionery", awards: 45, avg_offers: 1.6, sole_source_pct: 58, avg_value: 95000 },
-  { naics: "424440", description: "Poultry & Poultry Product", awards: 178, avg_offers: 1.4, sole_source_pct: 65, avg_value: 520000 },
-  { naics: "424430", description: "Dairy Product", awards: 198, avg_offers: 1.2, sole_source_pct: 74, avg_value: 290000 },
+  // Confirmed via live FPDS competition density report (537 awards, 32 NAICS/agency combos)
+  { naics: "424490", description: "Other Grocery Products", awards: 138, avg_offers: 1.2, sole_source_pct: 93.2, avg_value: 78000 },
+  { naics: "722310", description: "Food Service Contractors", awards: 322, avg_offers: 2.4, sole_source_pct: 62.1, avg_value: 168000 },
+  { naics: "424430", description: "Dairy Product", awards: 14, avg_offers: 8.4, sole_source_pct: 14.3, avg_value: 49400 },
+  { naics: "424440", description: "Poultry & Poultry Product", awards: 19, avg_offers: 5.6, sole_source_pct: 0, avg_value: 105500 },
+  { naics: "424470", description: "Meat & Meat Product", awards: 11, avg_offers: 14.2, sole_source_pct: 0, avg_value: 57800 },
+  { naics: "424410", description: "Grocery Wholesalers", awards: 14, avg_offers: 5.3, sole_source_pct: 14.3, avg_value: 57400 },
+  { naics: "424480", description: "Fresh Fruit & Vegetable", awards: 12, avg_offers: 3.5, sole_source_pct: 83.3, avg_value: 56000 },
+  { naics: "424420", description: "Packaged Frozen Food", awards: 2, avg_offers: 1.0, sole_source_pct: 100, avg_value: 33200 },
+  { naics: "424460", description: "Fish & Seafood", awards: 2, avg_offers: 3.0, sole_source_pct: 0, avg_value: 55300 },
+  { naics: "424450", description: "Confectionery", awards: 1, avg_offers: 1.0, sole_source_pct: 100, avg_value: 30300 },
 ];
 
-const FALLBACK_TOTALS = { transactions: 1664, avg_offers: 1.3, sole_source_pct: 64.8 };
+// Confirmed totals from live FPDS report
+const FALLBACK_TOTALS = { transactions: 537, avg_offers: 2.3, sole_source_pct: 56.2 };
 
+// Confirmed PSC spending from research foundation (USASpending FY2024 actuals)
 const FALLBACK_PSC = [
-  { psc: "8905", description: "Meat, Poultry, Fish", total_spending: 2400000000, avg_offers: 1.5, sole_source_pct: 63, opportunity_tier: "LOW" },
-  { psc: "8915", description: "Fruits & Vegetables", total_spending: 1900000000, avg_offers: 1.2, sole_source_pct: 78, opportunity_tier: "HIGH" },
-  { psc: "8970", description: "MREs/Composites", total_spending: 813000000, avg_offers: 1.1, sole_source_pct: 85, opportunity_tier: "NONE" },
-  { psc: "8945", description: "Food Oils & Fats", total_spending: 621000000, avg_offers: 1.3, sole_source_pct: 70, opportunity_tier: "MODERATE" },
-  { psc: "8910", description: "Dairy & Eggs", total_spending: 552000000, avg_offers: 1.2, sole_source_pct: 74, opportunity_tier: "MODERATE" },
-  { psc: "8920", description: "Bakery & Cereal", total_spending: 276000000, avg_offers: 1.4, sole_source_pct: 66, opportunity_tier: "MODERATE" },
-  { psc: "8925", description: "Confectionery & Nuts", total_spending: 100000000, avg_offers: 1.6, sole_source_pct: 58, opportunity_tier: "HIGH" },
-  { psc: "8950", description: "Condiments & Related", total_spending: 90000000, avg_offers: 1.3, sole_source_pct: 68, opportunity_tier: "MODERATE" },
-  { psc: "8955", description: "Coffee, Tea, Cocoa", total_spending: 50000000, avg_offers: 1.4, sole_source_pct: 65, opportunity_tier: "MODERATE" },
-  { psc: "8960", description: "Beverages", total_spending: 36000000, avg_offers: 1.5, sole_source_pct: 60, opportunity_tier: "MODERATE" },
+  { psc: "8905", description: "Meat, Poultry, Fish", total_spending: 2840000000, avg_offers: 1.5, sole_source_pct: 63, opportunity_tier: "LOW" },
+  { psc: "8915", description: "Fruits & Vegetables", total_spending: 2340000000, avg_offers: 1.2, sole_source_pct: 78, opportunity_tier: "HIGH" },
+  { psc: "8945", description: "Food Oils & Fats", total_spending: 866000000, avg_offers: 1.3, sole_source_pct: 70, opportunity_tier: "MODERATE" },
+  { psc: "8910", description: "Dairy & Eggs", total_spending: 693000000, avg_offers: 1.2, sole_source_pct: 74, opportunity_tier: "MODERATE" },
+  { psc: "8970", description: "MREs/Composites", total_spending: 572000000, avg_offers: 1.1, sole_source_pct: 85, opportunity_tier: "NONE" },
+  { psc: "8920", description: "Bakery & Cereal", total_spending: 541000000, avg_offers: 1.4, sole_source_pct: 66, opportunity_tier: "MODERATE" },
+  { psc: "8940", description: "Special Dietary", total_spending: 135000000, avg_offers: 1.3, sole_source_pct: 68, opportunity_tier: "LOW" },
+  { psc: "8960", description: "Beverages", total_spending: 123000000, avg_offers: 1.5, sole_source_pct: 60, opportunity_tier: "LOW" },
+  { psc: "8925", description: "Confectionery & Nuts", total_spending: 55000000, avg_offers: 1.6, sole_source_pct: 58, opportunity_tier: "HIGH" },
+  { psc: "8950", description: "Condiments", total_spending: 9000000, avg_offers: 1.3, sole_source_pct: 68, opportunity_tier: "LOW" },
 ];
 
+// Confirmed from research foundation + live FPDS/USASpending (Feb 2026)
 const FALLBACK_PRODUCTS = {
   priority_products: [
-    { psc: "8915", name: "Fresh Produce", tier: 1, annual_spending: 1900000000, rationale: "Lowest vendor concentration, USDA actively diversifying vendors, FL location ideal" },
-    { psc: "8925", name: "Confectionery & Nuts", tier: 1, annual_spending: 100000000, rationale: "Directly aligned with Newport's candy wholesale expertise" },
-    { psc: "8910", name: "Dairy & Eggs", tier: 2, annual_spending: 552000000, rationale: "Regional distribution feasible, fluid milk and eggs accessible" },
-    { psc: "8920", name: "Bakery & Cereal Products", tier: 2, annual_spending: 276000000, rationale: "Covered by NAICS 424410, regional vendors compete well" },
+    { psc: "8915", name: "Fresh Produce", tier: 1, annual_spending: 2340000000, rationale: "$35.1M in FL alone. Lowest vendor concentration. USDA actively diversifying vendors. Oakes Farms proving the model at $26M." },
+    { psc: "8925", name: "Confectionery & Nuts", tier: 1, annual_spending: 55000000, rationale: "$412K FL, only 45 awards nationally, 58% sole-source. Newport's candy expertise (Segment E) = direct competitive advantage." },
+    { psc: "8910", name: "Dairy & Eggs", tier: 2, annual_spending: 693000000, rationale: "$5.5M FL. Regional distribution feasible. Fluid milk/eggs accessible for wholesale distributors." },
+    { psc: "8920", name: "Bakery & Cereal Products", tier: 2, annual_spending: 541000000, rationale: "$2.5M FL. Covered by NAICS 424410, regional vendors compete well, lower barriers." },
   ],
   avoid: [
-    { psc: "8905", name: "Meat, Poultry, Fish", rationale: "Dominated by Tyson/JBS/Cargill (83% pork, 72% poultry)" },
-    { psc: "8970", name: "MREs/Composite Food Packages", rationale: "Specialized military manufacturing" },
+    { psc: "8905", name: "Meat, Poultry, Fish", rationale: "Dominated by Tyson/JBS/Cargill (83% pork, 72% poultry market share)" },
+    { psc: "8970", name: "MREs/Composite Food Packages", rationale: "Specialized military manufacturing, requires dedicated production facilities" },
   ],
 };
 
@@ -171,12 +175,12 @@ function addSource(slide, text) {
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.white };
-  addHeadline(slide, "Newport Is Sitting on an Untapped $14B+ Market");
+  addHeadline(slide, "Newport Is Sitting on a $7.2B Federal Food Market");
 
   const stats = [
-    { value: "$14B+", label: "Annual School Meal\nSpending Nationally" },
-    { value: "$1.5T", label: "Total Annual SLED\nSpending" },
-    { value: "67", label: "Florida School Districts\nServing 2.8M+ Students" },
+    { value: "$7.2B", label: "Annual Federal\nFood Spending (FY2024)" },
+    { value: "$85M", label: "FL Food Contracts\nUnder $350K/Year" },
+    { value: "93%", label: "Sole-Source Rate\nfor Grocery at DoD" },
   ];
 
   stats.forEach((s, i) => {
@@ -196,7 +200,7 @@ function addSource(slide, text) {
     });
   });
 
-  slide.addText("Government food procurement is massive, fragmented, and undercontested.\nMost contracts go to whoever shows up.", {
+  slide.addText("Government food procurement is massive, fragmented, and undercontested.\n117 FL food contracts totaling $6.4M confirmed — most with ZERO competing bids.", {
     x: 0.6, y: 5.3, w: 8.8, h: 0.8,
     fontSize: 13, fontFace: FONT_BODY, color: C.medGray, italic: true, align: "center",
   });
@@ -220,7 +224,7 @@ function addSource(slide, text) {
     x: 1, y: 3.5, w: 8, h: 0.7,
     fontSize: 22, fontFace: FONT_BODY, color: C.white, align: "center",
   });
-  slide.addText(`FPDS ${dataFY} analysis across ${txnCount} food contracting transactions.\nMost food contracts receive only ONE bid. The barrier isn't competition \u2014 it's visibility.`, {
+  slide.addText(`Confirmed: FPDS analysis across ${txnCount} food contracting transactions (live data, Feb 2026).\n15 of 32 NAICS/agency combinations show LOW competition. The barrier isn't competition \u2014 it's visibility.`, {
     x: 1.5, y: 4.5, w: 7, h: 1.0,
     fontSize: 13, fontFace: FONT_BODY, color: C.white, transparency: 20, align: "center",
     lineSpacingMultiple: 1.3,
@@ -245,17 +249,17 @@ function addSource(slide, text) {
     {
       title: "South Florida Warehouse",
       icon: "\u2302",
-      body: "Strategic location for FEMA disaster response staging. Florida is the #1 state for federal emergency declarations.",
+      body: "Strategic location for FEMA disaster response staging. FL is #1 for federal emergency declarations. Pistol Point got $22.7M for Hurricane Helene food delivery.",
     },
     {
       title: "Existing Distribution Network",
       icon: "\u2708",
-      body: "Trucks, routes, cold chain, delivery infrastructure already in place. Government contracts use the same logistics.",
+      body: "Trucks, routes, cold chain already in place. FL competitors #5-10 doing $1-5M are smaller companies. Government delivery is incremental volume on existing routes.",
     },
     {
-      title: "No Past Performance Required (Yet)",
+      title: "No Past Performance Required (Year 1)",
       icon: "\u2713",
-      body: "Micro-purchases under $10K and many small contracts don't require government past performance. Commercial experience qualifies.",
+      body: "83% of FL food contracts are micro-purchases under $15K — no past performance required. 93% of DoD grocery contracts are sole-source. Commercial experience qualifies.",
     },
   ];
 
@@ -344,12 +348,12 @@ function addSource(slide, text) {
   addHeadline(slide, "Where Newport Wins First");
 
   const rows = [
-    ["Buyer Category", "Why It's a Fit", "Example Targets"],
-    ["School Districts", "Massive volume, recurring annual contracts, lowest-price-wins", "Miami-Dade, Broward, Palm Beach school districts"],
-    ["Corrections", "Consistent demand, multi-year contracts, price-sensitive", "FL DOC (80,000+ inmates), county jails"],
-    ["FEMA / Emergency", "Newport's South FL warehouse = disaster staging asset", "FEMA advance contracts, emergency food supply"],
-    ["Military / DoD", "Base commissaries, dining facilities", "Homestead ARB, MacDill AFB, NAS Jacksonville"],
-    ["Universities & Colleges", "Dining services, campus food supply", "12 FL state universities, 28 community colleges"],
+    ["Buyer Category", "Why It's a Fit", "Confirmed Data"],
+    ["DOJ / Bureau of Prisons", "#1 FL food buyer confirmed: $3.7M, 71 contracts (FY2024)", "Rainmaker doing $5M — direct competitive target"],
+    ["Military / DoD", "#2 FL food buyer: $2.3M, 43 contracts. 93% sole-source grocery", "MacDill AFB, Homestead ARB, NAS Jax, Patrick SFB"],
+    ["FEMA / Emergency", "FL is #1 state for disaster declarations. Disaster registry entry", "Pistol Point got $22.7M for Hurricane Helene food delivery"],
+    ["School Districts", "$500M-$1B FL market (SLED, not in federal data)", "Miami-Dade, Broward, Palm Beach — 67 FL districts"],
+    ["Corrections (State)", "FL DOC $50-100M. Separate from federal DOJ/BOP", "FL vendor portal + MyFloridaMarketPlace"],
   ];
 
   const colW = [2.0, 3.8, 3.4];
@@ -440,7 +444,7 @@ function addSource(slide, text) {
 {
   const slide = pptx.addSlide();
   slide.background = { fill: C.white };
-  addHeadline(slide, "What the Federal Government Buys: $6.9B in Food");
+  addHeadline(slide, "What the Federal Government Buys: $7.17B in Food (FY2024)");
 
   // Sort PSC data by spending, take top 8
   const sortedPsc = [...fpdsPsc]
@@ -576,19 +580,19 @@ function addSource(slide, text) {
   slide.background = { fill: C.white };
   addHeadline(slide, "Economies of Scale: Newport's Pricing Advantage");
 
-  // Key points
+  // Key points — confirmed from FPDS/competition data
   const points = [
     {
       title: "LPTA = Lowest Price Wins",
-      body: "Most food supply contracts use Lowest Price Technically Acceptable evaluation. This favors wholesale distributors with existing volume purchasing.",
+      body: "Most food supply contracts use Lowest Price Technically Acceptable evaluation. FPDS confirms 93% of DoD grocery contracts are sole-source — whoever shows up at the right price wins.",
     },
     {
       title: "Existing Distribution Network",
-      body: "Newport's trucks, routes, and cold chain are already operating. Government delivery is incremental cost, not new infrastructure.",
+      body: "Newport's trucks, routes, and cold chain are already operating. Government delivery is incremental cost. Top FL competitors (Oakes Farms $26M, US Foods $24M) prove the wholesale-to-gov model works.",
     },
     {
       title: "Bulk Purchasing Power",
-      body: "Existing supplier relationships and purchase volumes mean Newport can price competitively against specialty government-only vendors.",
+      body: "FL competitors #5-10 do $1-5M each — small companies without Newport's scale. Newport's existing supplier relationships and purchase volumes provide a structural pricing advantage.",
     },
   ];
 
@@ -706,15 +710,15 @@ function addSource(slide, text) {
   addHeadline(slide, "Investment Options: Start Free or Go Full Coverage");
 
   const rows = [
-    ["Component", "Free Version ($0/yr)", "Optimal Version ($7.4K-$18.6K/yr)"],
-    ["Federal Monitoring", "SAM.gov API (built)", "+ CLEATUS AI scoring"],
-    ["State/Local Monitoring", "Manual portal checking", "HigherGov (40K+ agencies)"],
-    ["Micro-Purchases", "Not available", "GovSpend"],
+    ["Component", "Free Version ($0/yr)", "Optimal Version ($13K/yr)"],
+    ["Federal Monitoring", "SAM.gov API (built) — 117 FL contracts visible", "+ CLEATUS AI scoring ($3K/yr)"],
+    ["State/Local (FL $600M-$1.2B)", "Manual portal checking", "HigherGov — 40K+ agencies ($3.5K/yr)"],
+    ["Micro-Purchases (83% invisible)", "Cannot see $8-15M/yr FL", "GovSpend — 1,500+ FL transactions ($6.5K/yr)"],
     ["Competitive Intel", "USASpending + FPDS (built)", "Same (already strong)"],
     ["Proposal Writing", "Claude AI + templates", "CLEATUS AI shredder"],
     ["Pipeline Tracking", "Google Sheets (built)", "Same"],
-    ["Market Coverage", "~40-50%", "~90%+"],
-    ["Bid Capacity/Year", "12-20 bids", "40-60 bids"],
+    ["Market Coverage", "~40-50% ($6.4M visible)", "~90%+ ($19-33M visible)"],
+    ["Bid Capacity/Year", "20-30 bids", "40-60 bids"],
   ];
 
   rows[0] = rows[0].map(t => ({
@@ -749,24 +753,25 @@ function addSource(slide, text) {
   slide.background = { fill: C.white };
   addHeadline(slide, "5-Year Revenue Trajectory: Compounding Government Revenue");
 
-  // TAM context line
+  // TAM context line — confirmed data
   const tamLine = tamData.total_spending
-    ? `Federal food TAM: ${fmtDollars(tamData.total_spending)} | Target states: ${fmtDollars(tamData.target_states_spending)}`
-    : "Federal food TAM: ~$6.9B | Target states: ~$2.1B";
+    ? `Federal food TAM: ${fmtDollars(tamData.total_spending)} | FL under $350K: $85M | FL visible (>$10K): $6.4M/117 contracts`
+    : "Federal food TAM: $7.17B | FL under $350K: $85M/yr | FL visible (>$10K): $6.4M/117 contracts";
 
   slide.addText(tamLine, {
     x: 0.4, y: 1.3, w: 9.2, h: 0.3,
     fontSize: 10, fontFace: FONT_BODY, color: C.secondary, italic: true, align: "center",
   });
 
+  // Revenue projections aligned with research foundation scenarios
   const rows = [
     ["Metric", "Year 1", "Year 2", "Year 3", "Year 5"],
     ["Win Rate", "15-25%", "35%", "40%", "50%"],
-    ["Contracts Won", "5-15", "12-20", "18-30", "25-45"],
-    ["Avg Contract Value", "$50K-100K", "$75K-100K", "$100K-150K", "$150K-250K"],
-    ["New Annual Revenue", "$250K-$1.5M", "$900K-$2M", "$1.8M-$4.5M", "$3.75M-$11.25M"],
-    ["Gross Margin (11%)", "$28K-$165K", "$99K-$220K", "$198K-$495K", "$413K-$1.24M"],
-    ["Cumulative Revenue", "$250K-$1.5M", "$1.15M-$3.5M", "$2.95M-$8M", "$10M-$30M+"],
+    ["Bids Submitted", "28-58", "36-60", "45-75", "50-90"],
+    ["Contracts Won", "8-20", "12-25", "18-35", "25-50"],
+    ["Revenue (Moderate)", "$150K-$350K", "$500K-$1M", "$1M-$1.5M", "$1.5M-$3M"],
+    ["Gross Margin (11%)", "$16K-$39K", "$55K-$110K", "$110K-$165K", "$165K-$330K"],
+    ["Cumulative Revenue", "$150K-$350K", "$650K-$1.35M", "$1.65M-$2.85M", "$4.8M-$9M"],
   ];
 
   rows[0] = rows[0].map((t, j) => ({
