@@ -97,6 +97,12 @@
       "retry_backoff_max": 30,
       "results_per_page": 100,
       "note": "Free, no API key, no daily limit. Source of truth for all contract award data (FPDS)."
+    },
+    "fpds": {
+      "feed_url": "https://www.fpds.gov/ezsearch/FEEDS/ATOM",
+      "thread_count": 5,
+      "min_obligated_amount": 25000,
+      "note": "Free, no API key, no daily limit. Raw contract transactions with offers-received data for competition density."
     }
   },
   "simplified_acquisition": {

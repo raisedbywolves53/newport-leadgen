@@ -1,6 +1,6 @@
 """Government contract intelligence pipeline for federal food procurement.
 
-Produces nine reports from free federal APIs:
+Produces ten reports from free federal APIs:
   - Expiring contracts (USASpending.gov — no key needed)
   - Incumbent analysis (USASpending.gov — no key needed)
   - Small contracts $10K-$350K (USASpending.gov — no key needed)
@@ -10,10 +10,12 @@ Produces nine reports from free federal APIs:
   - Competitor registry (SAM.gov Entity API — needs SAM_API_KEY)
   - Computed analytics (USASpending.gov — no key needed)
   - Grants pipeline (Grants.gov — no key needed)
+  - Competition density (FPDS ATOM feed — no key needed)
 
 SAM.gov: 1,000 requests/day, key required (free at sam.gov).
 USASpending: unlimited, no API key needed.
 Grants.gov: unlimited, no API key needed.
+FPDS: unlimited, no API key needed.
 
 Usage:
     python scrapers/contract_scanner.py --report small-contracts --state FL --fiscal-years 2024,2025
@@ -25,6 +27,7 @@ Usage:
     python scrapers/contract_scanner.py --report competitors --states FL,GA,AL
     python scrapers/contract_scanner.py --report analytics --fiscal-years 2023,2024,2025
     python scrapers/contract_scanner.py --report grants
+    python scrapers/contract_scanner.py --report competition-density --fiscal-years 2024,2025
     python scrapers/contract_scanner.py --report all --dry-run
 """
 
@@ -1049,6 +1052,176 @@ def report_grants_pipeline(
 
 
 # =============================================================================
+# Report: Competition Density (FPDS ATOM Feed)
+# =============================================================================
+
+def report_competition_density(
+    config: dict,
+    naics_scope: str = "primary",
+    fiscal_years: list[int] | None = None,
+    state: str = "",
+    min_value: float = 25000,
+    use_cache: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Analyze competition density using FPDS number-of-offers-received data.
+
+    No API key needed. Uses the fpds Python library for ATOM feed queries.
+    Returns two DataFrames:
+      1. Raw contract transactions with offers_received field
+      2. Competition density summary by NAICS/agency (avg offers per award)
+
+    The key insight: NAICS/agency combos with low avg offers (2-3) = easy entry.
+    Those with 8+ avg offers = crowded. This metric is unique to FPDS.
+    """
+    from enrichment.fpds_client import FPDSClient
+
+    if fiscal_years is None:
+        fiscal_years = config["analysis"]["fiscal_years"]
+
+    naics_codes = get_naics_codes(config, naics_scope)
+
+    print(f"\nCompetition Density Report (FPDS)")
+    print(f"  Source: FPDS ATOM Feed (no key required)")
+    print(f"  NAICS codes: {len(naics_codes)} ({naics_scope} scope)")
+    print(f"  Fiscal years: {fiscal_years}")
+    print(f"  Min obligated amount: ${min_value:,.0f}")
+    if state:
+        print(f"  Vendor state filter: {state}")
+
+    client = FPDSClient()
+    all_records = []
+
+    for fy in fiscal_years:
+        # FPDS uses calendar-style date ranges
+        fy_start = f"{fy - 1}/10/01"  # FY starts Oct 1 of prior year
+        fy_end = f"{fy}/09/30"
+        date_range = f"[{fy_start}, {fy_end}]"
+        amount_range = f"[{int(min_value)}, 999999999]"
+
+        print(f"\n  FY{fy} ({fy_start} to {fy_end})...")
+
+        # Check cache
+        ck = cache_key({
+            "report": "competition_density",
+            "naics": naics_codes,
+            "fy": fy,
+            "min_value": min_value,
+            "state": state,
+        })
+
+        cached = read_cache(ck, config["cache"]["ttl_hours"]) if use_cache else None
+        if cached is not None:
+            print(f"  Using cached data ({len(cached)} records)")
+            fy_records = cached
+        else:
+            raw = client.search_contracts_multi_naics(
+                naics_codes=naics_codes,
+                date_range=date_range,
+                amount_range=amount_range,
+                vendor_state=state,
+            )
+            fy_records = [FPDSClient.flatten_contract(r) for r in raw]
+            if use_cache and fy_records:
+                write_cache(ck, fy_records)
+
+        for rec in fy_records:
+            rec["fiscal_year"] = f"FY{fy}"
+        all_records.extend(fy_records)
+
+    print(f"\n  FPDS stats: {client.stats}")
+
+    if not all_records:
+        print("  No FPDS records found.")
+        return pd.DataFrame(), pd.DataFrame()
+
+    df = pd.DataFrame(all_records)
+
+    # Filter to base awards only (mod_number 0 or empty) for clean competition counts
+    df_base = df[df["mod_number"].isin(["0", "", "00000"])].copy()
+    print(f"\n  Total transactions: {len(df)}")
+    print(f"  Base awards (mod=0): {len(df_base)}")
+
+    # Filter to records with offers data
+    df_with_offers = df_base[df_base["offers_received"].notna()].copy()
+    print(f"  Awards with offers data: {len(df_with_offers)}")
+
+    if df_with_offers.empty:
+        print("  No offers-received data available for density analysis.")
+        return df, pd.DataFrame()
+
+    # --- Competition Density Summary ---
+    # Group by NAICS + agency to find avg offers per award
+    density_records = []
+
+    for (naics, agency), group in df_with_offers.groupby(["naics_code", "agency_name"]):
+        offers = group["offers_received"]
+        amounts = group["obligated_amount"]
+
+        avg_offers = offers.mean()
+        median_offers = offers.median()
+        total_awards = len(group)
+        total_value = amounts.sum()
+
+        # Competition level classification
+        if avg_offers <= 2:
+            level = "LOW (easy entry)"
+        elif avg_offers <= 5:
+            level = "MODERATE"
+        elif avg_offers <= 10:
+            level = "HIGH"
+        else:
+            level = "VERY HIGH (crowded)"
+
+        density_records.append({
+            "naics_code": naics,
+            "agency_name": agency,
+            "total_awards": total_awards,
+            "total_value": total_value,
+            "avg_offers_per_award": round(avg_offers, 1),
+            "median_offers": round(median_offers, 1),
+            "min_offers": int(offers.min()),
+            "max_offers": int(offers.max()),
+            "competition_level": level,
+            "pct_sole_source": round((offers == 1).sum() / total_awards * 100, 1),
+        })
+
+    df_density = pd.DataFrame(density_records)
+    df_density = df_density.sort_values("avg_offers_per_award", ascending=True)
+
+    # Print summary
+    print(f"\n  Competition Density Summary ({len(df_density)} NAICS/agency combos):")
+    print(f"  {'-' * 70}")
+
+    low = df_density[df_density["avg_offers_per_award"] <= 2]
+    mod = df_density[(df_density["avg_offers_per_award"] > 2) & (df_density["avg_offers_per_award"] <= 5)]
+    high = df_density[df_density["avg_offers_per_award"] > 5]
+
+    print(f"    LOW competition (avg <=2 offers):  {len(low)} combos — BEST ENTRY POINTS")
+    print(f"    MODERATE (avg 3-5 offers):         {len(mod)} combos")
+    print(f"    HIGH (avg >5 offers):              {len(high)} combos — crowded")
+
+    if not low.empty:
+        print(f"\n  Top 10 easiest entry points (lowest competition):")
+        for _, row in low.head(10).iterrows():
+            print(
+                f"    {row['naics_code']} | {row['agency_name'][:45]:45s} | "
+                f"avg {row['avg_offers_per_award']:.1f} offers | "
+                f"{row['total_awards']} awards | ${row['total_value']:,.0f}"
+            )
+
+    # Overall stats
+    overall_avg = df_with_offers["offers_received"].mean()
+    overall_median = df_with_offers["offers_received"].median()
+    sole_source_pct = (df_with_offers["offers_received"] == 1).sum() / len(df_with_offers) * 100
+    print(f"\n  Overall competition metrics:")
+    print(f"    Average offers per award: {overall_avg:.1f}")
+    print(f"    Median offers per award: {overall_median:.1f}")
+    print(f"    Sole-source rate: {sole_source_pct:.1f}%")
+
+    return df, df_density
+
+
+# =============================================================================
 # Dry Run
 # =============================================================================
 
@@ -1163,12 +1336,26 @@ def dry_run(config: dict, args) -> None:
         print(f"    Funding category: AR (Agriculture)")
         print(f"    Est. Grants.gov calls: ~17")
 
+    fpds_calls = 0
+    if "competition-density" in reports:
+        fiscal_years = [int(y) for y in args.fiscal_years.split(",")] if args.fiscal_years else config["analysis"]["fiscal_years"]
+        print(f"\n  COMPETITION DENSITY (FPDS ATOM Feed — no key needed)")
+        print(f"    Fiscal years: {fiscal_years}")
+        print(f"    NAICS codes: {len(naics_codes)}")
+        print(f"    Min obligated amount: ${args.min_value if args.min_value > 0 else 25000:,.0f}")
+        print(f"    State: {args.state or 'all'}")
+        fpds_est = len(naics_codes) * len(fiscal_years)
+        print(f"    Est. FPDS queries: {fpds_est} (1 per NAICS per FY, auto-paginated)")
+        fpds_calls = fpds_est
+
     print(f"\n  RATE LIMIT ESTIMATE")
     print(f"    SAM.gov calls: ~{sam_calls} (limit: 1,000/day, needs SAM_API_KEY)")
     print(f"    USASpending calls: ~{usa_calls} (unlimited, no key needed)")
+    if fpds_calls:
+        print(f"    FPDS calls: ~{fpds_calls} (unlimited, no key needed)")
     print(f"    Cache: {'disabled' if args.no_cache else 'enabled (24hr TTL)'}")
     if sam_calls > 0:
-        print(f"    Note: Only the 'opportunities' report needs a SAM API key")
+        print(f"    Note: Only the 'opportunities' and 'competitors' reports need a SAM API key")
 
 
 # =============================================================================
@@ -1183,7 +1370,7 @@ def main():
     )
     parser.add_argument(
         "--report", required=True,
-        choices=["expiring", "incumbents", "opportunities", "market-size", "small-contracts", "fema", "competitors", "analytics", "grants", "all"],
+        choices=["expiring", "incumbents", "opportunities", "market-size", "small-contracts", "fema", "competitors", "analytics", "grants", "competition-density", "all"],
         help="Report to generate",
     )
     parser.add_argument(
@@ -1251,7 +1438,7 @@ def main():
         dry_run(config, args)
         return
 
-    all_reports = ["expiring", "incumbents", "opportunities", "market-size", "small-contracts", "fema"]
+    all_reports = ["expiring", "incumbents", "opportunities", "market-size", "small-contracts", "fema", "competitors", "analytics", "grants", "competition-density"]
     reports = [args.report] if args.report != "all" else all_reports
 
     fiscal_years = (
@@ -1411,6 +1598,22 @@ def main():
                 path = save_results(df, "grants_pipeline")
                 print(f"\n  Saved {len(df)} records to {path}")
                 print_summary(df, "Grants Pipeline")
+
+        elif report == "competition-density":
+            df_transactions, df_density = report_competition_density(
+                config,
+                naics_scope=args.naics_scope,
+                fiscal_years=fiscal_years,
+                state=args.state,
+                min_value=args.min_value if args.min_value > 0 else 25000,
+                use_cache=use_cache,
+            )
+            if not df_transactions.empty:
+                path = save_results(df_transactions, "fpds_transactions")
+                print(f"\n  Saved {len(df_transactions)} transaction records to {path}")
+            if not df_density.empty:
+                path = save_results(df_density, "competition_density")
+                print(f"  Saved {len(df_density)} density records to {path}")
 
 
 if __name__ == "__main__":

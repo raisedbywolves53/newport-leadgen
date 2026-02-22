@@ -8,7 +8,7 @@ Automated lead generation and competitive intelligence pipeline for Newport Whol
 
 ```
 config/              # JSON configs: ICP definitions, exclusions, government contracts
-enrichment/          # API clients: Apollo.io, SAM.gov (Opps + Entity), USASpending.gov, Grants.gov
+enrichment/          # API clients: Apollo.io, SAM.gov (Opps + Entity), USASpending.gov, Grants.gov, FPDS
 scrapers/            # CLI tools: apollo_prospector.py, contract_scanner.py
 crm/                 # Google Sheets CRM integration
 orchestrator/        # Campaign runner
@@ -28,7 +28,7 @@ python scrapers/apollo_prospector.py --segment all --reveal-emails --max-reveals
 ```
 
 ### Government Contract Scanner (`scrapers/contract_scanner.py`)
-Federal food procurement intelligence from SAM.gov + USASpending.gov + Grants.gov. 9 reports.
+Federal food procurement intelligence from SAM.gov + USASpending.gov + Grants.gov + FPDS. 10 reports.
 ```
 python scrapers/contract_scanner.py --report all --dry-run
 python scrapers/contract_scanner.py --report market-size --fiscal-years 2024,2025
@@ -38,6 +38,7 @@ python scrapers/contract_scanner.py --report incumbents --max-pages 5
 python scrapers/contract_scanner.py --report competitors --states FL,GA,AL
 python scrapers/contract_scanner.py --report analytics --fiscal-years 2023,2024,2025
 python scrapers/contract_scanner.py --report grants
+python scrapers/contract_scanner.py --report competition-density --fiscal-years 2024,2025
 ```
 
 ## Segments
@@ -56,6 +57,7 @@ python scrapers/contract_scanner.py --report grants
 - `SAM_API_KEY` — SAM.gov for opportunities + entity data (free, 1,000 req/day)
 - USASpending.gov — no key needed
 - Grants.gov — no key needed
+- FPDS — no key needed
 
 ## Config Files
 
@@ -74,17 +76,18 @@ python scrapers/contract_scanner.py --report grants
 
 ### Completed
 - Full Apollo prospector pipeline (segments A-E) with enterprise people search, email reveal, exclusion filters, geographic filtering
-- Government contract intelligence pipeline with 9 reports:
+- Government contract intelligence pipeline with 10 reports:
   - **Expiring contracts** — USASpending awards expiring in N months
   - **Incumbent analysis** — vendor aggregation (contracts, value, competition %)
   - **Small contracts** — $10K-$350K simplified acquisition range
   - **FEMA procurement** — disaster food contracts
   - **Opportunity pipeline** — active solicitations/pre-sols/sources sought (7 ptypes)
   - **Market sizing** — USASpending spending by NAICS + agency per FY
-  - **Competitor registry** — SAM.gov registered vendors by NAICS/state (NEW)
-  - **Computed analytics** — trends, geography heatmap, recipient concentration (NEW)
-  - **Grants pipeline** — Grants.gov USDA food grants (NEW)
-- API clients: `sam_client.py` (opportunities), `sam_entity_client.py` (entity registry), `usaspending_client.py` (awards + enhanced endpoints), `grants_client.py` (grants)
+  - **Competitor registry** — SAM.gov registered vendors by NAICS/state
+  - **Computed analytics** — trends, geography heatmap, recipient concentration
+  - **Grants pipeline** — Grants.gov USDA food grants
+  - **Competition density** — FPDS avg offers per award by NAICS/agency (NEW)
+- API clients: `sam_client.py` (opportunities), `sam_entity_client.py` (entity registry), `usaspending_client.py` (awards + enhanced endpoints), `grants_client.py` (grants), `fpds_client.py` (competition density)
 - USASpending enhanced endpoints: `spending_by_recipient`, `spending_by_county`, `spending_by_geography`, `recipient_profile`, `new_awards_over_time`, `search_subawards`
 - Cache layer for SAM.gov rate limit management (24hr TTL, `data/cache/`)
 - 10 primary NAICS codes (food wholesale 4244xx + food service 722310), 42 secondary (food manufacturing 311xxx)
@@ -93,6 +96,7 @@ python scrapers/contract_scanner.py --report grants
 ### Verified Against Live APIs
 - USASpending endpoints: market-size, small-contracts, fema, spending_by_recipient, spending_by_geography, new_awards_over_time — all confirmed working
 - Grants.gov: search_grants confirmed working (136 food-related results)
+- FPDS: fpds library confirmed working (111 records for NAICS 424410, 2-month window)
 - SAM.gov Opportunities: requires SAM_API_KEY (key is set in .env)
 - SAM.gov Entity API: requires SAM_API_KEY (same key, shares 1,000/day limit)
 
