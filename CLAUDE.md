@@ -68,7 +68,6 @@ newport-leadgen/
 ├── data/                                  # Gitignored runtime data (raw/enriched/final/cache)
 ├── assets/                                # Images (newport_background.jpg)
 ├── archive/                               # Superseded files (reference only)
-│   ├── goldmans/                          # Goldman's project (separate repo — not Newport)
 │   ├── pitchbook/                         # Old pitchbook (superseded by deliverables/)
 │   ├── dashboard/                         # Old dashboard (superseded)
 │   └── old-docs/                          # Pre-consolidation research/strategy docs
@@ -187,7 +186,7 @@ All verified from live USASpending + FPDS API runs:
 
 ### Commercial — Remaining
 - [ ] Outreach automation (email via Instantly, SMS via Twilio, voice via Retell AI)
-  - Code exists in `archive/goldmans/` but was built for Goldman's (different project)
+  - Goldman's code extracted to separate repo (`goldmans-leadgen/`)
   - Needs to be rebuilt/adapted for Newport's segments
 - [ ] Campaign orchestrator for Newport SDR workflow
 - [ ] CRM integration for commercial leads
