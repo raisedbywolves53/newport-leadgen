@@ -9,6 +9,11 @@ Generates a professional Excel workbook with 4 sheets:
   4. Platform Comparison - Free vs Optimal side-by-side
 
 ALL calculations use Excel formulas, NOT Python math.
+
+Investment tiers:
+  - Conservative = Free tools only ($0 platform, manual bid prep effort)
+  - Moderate     = Optimal platforms ($13K/yr replaces manual effort, 2x bid volume)
+  - Aggressive   = Optimal platforms + dedicated effort (3x bid volume)
 """
 
 import json
@@ -153,6 +158,10 @@ ROW_CONSULTING = 32  # B32: Consulting Fee
 ROW_RAMP_BID = 35    # B35: Months to First Bid
 ROW_RAMP_WIN = 36    # B36: Months to First Win
 
+# Bid Prep Effort Assumptions (investment-dependent)
+ROW_BIDPREP_FREE = 39   # B39: Per-Bid Cost — Free Path (manual effort)
+ROW_BIDPREP_OPT = 40    # B40: Per-Bid Cost — Optimal Path (absorbed by platforms)
+
 
 # ---------------------------------------------------------------------------
 # Sheet 1: Assumptions
@@ -276,25 +285,39 @@ def build_assumptions(wb):
         if note:
             set_cell(ws, row, 3, note, font=NOTE_FONT)
 
-    # ---- Section: Cost Notations (informational, not computed) ----
-    set_cell(ws, 38, 1, "Cost Notations (Not Modeled — For Planning Reference)", font=SECTION_FONT, fill=LIGHT_ORANGE_FILL)
+    # ---- Section: Bid Prep Effort (Investment-Dependent) ----
+    set_cell(ws, 38, 1, "Bid Prep Effort (Investment-Dependent)", font=SECTION_FONT, fill=LIGHT_ORANGE_FILL)
     set_cell(ws, 38, 2, None, fill=LIGHT_ORANGE_FILL)
     set_cell(ws, 38, 3, None, fill=LIGHT_ORANGE_FILL)
 
+    labels_bidprep = [
+        (ROW_BIDPREP_FREE, "Per-Bid Cost — Free Path (manual effort)", 500, FMT_CURRENCY, True,
+         "Research, writing, compliance review without platform tools; ~8-12 hrs @ $50-75/hr"),
+        (ROW_BIDPREP_OPT, "Per-Bid Cost — Optimal Path (platform-assisted)", 0, FMT_CURRENCY, True,
+         "Platforms absorb research + compliance; bid prep effort included in platform investment"),
+    ]
+    for row, label, value, fmt, highlight, note in labels_bidprep:
+        set_cell(ws, row, 1, label, font=BLACK_FONT)
+        set_cell(ws, row, 2, value, font=BLUE_FONT, fmt=fmt,
+                 fill=YELLOW_FILL if highlight else None)
+        if note:
+            set_cell(ws, row, 3, note, font=NOTE_FONT)
+
+    # ---- Section: Cost Notations (informational, not computed) ----
+    set_cell(ws, 42, 1, "Cost Notations (Not Modeled — For Planning Reference)", font=SECTION_FONT, fill=LIGHT_ORANGE_FILL)
+    set_cell(ws, 42, 2, None, fill=LIGHT_ORANGE_FILL)
+    set_cell(ws, 42, 3, None, fill=LIGHT_ORANGE_FILL)
+
     cost_notes = [
-        (39, "Bid Prep — Micro-Purchase ($3K-$15K)", "$100-$500/bid",
-         "Pricing + quote format only; 83% of FL contracts are this size"),
-        (40, "Bid Prep — Simplified ($15K-$350K)", "$2K-$5K/bid",
-         "Technical writing + compliance; 14.4% of FL contracts"),
-        (41, "Surety Bonding", "1-3% of contract value",
+        (43, "Surety Bonding", "1-3% of contract value",
          "If required — most food supply contracts do not require bonds"),
-        (42, "HACCP/Food Safety Compliance", "One-time + annual renewal",
+        (44, "HACCP/Food Safety Compliance", "One-time + annual renewal",
          "Required for USDA commodity distribution programs"),
-        (43, "Working Capital / Cash Flow Gap", "NET 30-90 day terms",
+        (45, "Working Capital / Cash Flow Gap", "NET 30-90 day terms",
          "Federal NET 30; state/local NET 60-90. FL avg contract $55K"),
-        (44, "Insurance (GL + Product Liability)", "Annual increase",
+        (46, "Insurance (GL + Product Liability)", "Annual increase",
          "Government contracts may require higher coverage limits"),
-        (45, "Dedicated BD Staff", "Year 3+ consideration",
+        (47, "Dedicated BD Staff", "Year 3+ consideration",
          "Full-time BD hire when pipeline justifies; ~215-660 hrs/yr Year 1"),
     ]
     for row, label, estimate, note in cost_notes:
@@ -303,57 +326,57 @@ def build_assumptions(wb):
         set_cell(ws, row, 3, note, font=NOTE_FONT)
 
     # ---- Section: TAM Context (Confirmed from Live API Data, Feb 2026) ----
-    set_cell(ws, 46, 1, "TAM Context (Confirmed Live Data — Feb 2026)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
-    set_cell(ws, 46, 2, None, fill=LIGHT_GREEN_FILL)
-    set_cell(ws, 46, 3, None, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 49, 1, "TAM Context (Confirmed Live Data — Feb 2026)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 49, 2, None, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 49, 3, None, fill=LIGHT_GREEN_FILL)
 
     # Try market_data.json for dynamic TAM, fall back to confirmed research numbers
     md = load_market_data()
     tam_total = md["tam_total"]
     tam_target = md["tam_target"]
 
-    set_cell(ws, 47, 1, "Total Federal Food Spending (FY2024)", font=BLACK_FONT)
-    set_cell(ws, 47, 2, tam_total if tam_total else 7170000000,
+    set_cell(ws, 50, 1, "Total Federal Food Spending (FY2024)", font=BLACK_FONT)
+    set_cell(ws, 50, 2, tam_total if tam_total else 7170000000,
              font=GREEN_FONT, fmt=FMT_CURRENCY)
-    set_cell(ws, 47, 3, "PSC 89xx confirmed via USASpending + FPDS (HIGH confidence)", font=NOTE_FONT)
+    set_cell(ws, 50, 3, "PSC 89xx confirmed via USASpending + FPDS (HIGH confidence)", font=NOTE_FONT)
 
-    set_cell(ws, 48, 1, "FL Food Contracts Under $350K (FY2024)", font=BLACK_FONT)
-    set_cell(ws, 48, 2, 85000000, font=GREEN_FONT, fmt=FMT_CURRENCY)
-    set_cell(ws, 48, 3, "39,685 awards — confirmed via USASpending (HIGH confidence)", font=NOTE_FONT)
+    set_cell(ws, 51, 1, "FL Food Contracts Under $350K (FY2024)", font=BLACK_FONT)
+    set_cell(ws, 51, 2, 85000000, font=GREEN_FONT, fmt=FMT_CURRENCY)
+    set_cell(ws, 51, 3, "39,685 awards — confirmed via USASpending (HIGH confidence)", font=NOTE_FONT)
 
-    set_cell(ws, 49, 1, "FL Visible Contracts >$10K (FY2024)", font=BLACK_FONT)
-    set_cell(ws, 49, 2, 6400000, font=GREEN_FONT, fmt=FMT_CURRENCY)
-    set_cell(ws, 49, 3, "117 contracts — live USASpending report (HIGH confidence)", font=NOTE_FONT)
+    set_cell(ws, 52, 1, "FL Visible Contracts >$10K (FY2024)", font=BLACK_FONT)
+    set_cell(ws, 52, 2, 6400000, font=GREEN_FONT, fmt=FMT_CURRENCY)
+    set_cell(ws, 52, 3, "117 contracts — live USASpending report (HIGH confidence)", font=NOTE_FONT)
 
-    set_cell(ws, 50, 1, "FL Micro-Purchases <$15K (Invisible to Free Tools)", font=BLACK_FONT)
-    set_cell(ws, 50, 2, "~$8-15M/yr est.", font=COST_NOTE_FONT)
-    set_cell(ws, 50, 3, "83% of contracts are micro-purchases — requires GovSpend ($6.5K/yr) to see", font=NOTE_FONT)
+    set_cell(ws, 53, 1, "FL Micro-Purchases <$15K (Invisible to Free Tools)", font=BLACK_FONT)
+    set_cell(ws, 53, 2, "~$8-15M/yr est.", font=COST_NOTE_FONT)
+    set_cell(ws, 53, 3, "83% of contracts are micro-purchases — requires GovSpend ($6.5K/yr) to see", font=NOTE_FONT)
 
-    set_cell(ws, 51, 1, "FL SLED Market (Schools, Corrections, etc.)", font=BLACK_FONT)
-    set_cell(ws, 51, 2, "$600M-$1.2B/yr est.", font=COST_NOTE_FONT)
-    set_cell(ws, 51, 3, "Not in FPDS/USASpending — requires HigherGov ($3.5K/yr) or state portals", font=NOTE_FONT)
+    set_cell(ws, 54, 1, "FL SLED Market (Schools, Corrections, etc.)", font=BLACK_FONT)
+    set_cell(ws, 54, 2, "$600M-$1.2B/yr est.", font=COST_NOTE_FONT)
+    set_cell(ws, 54, 3, "Not in FPDS/USASpending — requires HigherGov ($3.5K/yr) or state portals", font=NOTE_FONT)
 
-    set_cell(ws, 52, 1, "Newport Serviceable Market (Year 1, Federal)", font=BLACK_FONT)
-    set_cell(ws, 52, 2, "$2-5M biddable", font=COST_NOTE_FONT)
-    set_cell(ws, 52, 3, "After filtering: categories, geography, past performance requirements", font=NOTE_FONT)
+    set_cell(ws, 55, 1, "Newport Serviceable Market (Year 1, Federal)", font=BLACK_FONT)
+    set_cell(ws, 55, 2, "$2-5M biddable", font=COST_NOTE_FONT)
+    set_cell(ws, 55, 3, "After filtering: categories, geography, past performance requirements", font=NOTE_FONT)
 
     # ---- Section: Confirmed Competition Data ----
-    set_cell(ws, 54, 1, "Confirmed Competition Data (Live FPDS, Feb 2026)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
-    set_cell(ws, 54, 2, None, fill=LIGHT_GREEN_FILL)
-    set_cell(ws, 54, 3, None, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 57, 1, "Confirmed Competition Data (Live FPDS, Feb 2026)", font=SECTION_FONT, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 57, 2, None, fill=LIGHT_GREEN_FILL)
+    set_cell(ws, 57, 3, None, fill=LIGHT_GREEN_FILL)
 
     competition_data = [
-        (55, "#1 FL Food Buyer: DOJ/Bureau of Prisons", "$3.7M / 71 contracts",
+        (58, "#1 FL Food Buyer: DOJ/Bureau of Prisons", "$3.7M / 71 contracts",
          "Live USASpending — direct competitive target (Rainmaker doing $5M)"),
-        (56, "#2 FL Food Buyer: Dept of Defense", "$2.3M / 43 contracts",
+        (59, "#2 FL Food Buyer: Dept of Defense", "$2.3M / 43 contracts",
          "MacDill, Homestead, NAS Jax, Patrick SFB — local base procurement"),
-        (57, "NAICS 424490 (Other Grocery) @ DoD", "93% sole source",
+        (60, "NAICS 424490 (Other Grocery) @ DoD", "93% sole source",
          "117 awards, 1.2 avg offers — golden target, almost no competition"),
-        (58, "FPDS Overall", "537 awards, 32 combos",
+        (61, "FPDS Overall", "537 awards, 32 combos",
          "15 of 32 NAICS/agency combos = LOW competition (easy entry)"),
-        (59, "FEMA Direct Food Procurement", "Narrow & concentrated",
+        (62, "FEMA Direct Food Procurement", "Narrow & concentrated",
          "11 contracts, 2 vendors = 97%. Play = disaster registry + micro-purchases"),
-        (60, "Top FL Competitors", "$1-5M range",
+        (63, "Top FL Competitors", "$1-5M range",
          "Oakes Farms $26M, US Foods $24M, then small vendors $1-5M"),
     ]
     for row, label, value, note in competition_data:
@@ -364,7 +387,7 @@ def build_assumptions(wb):
     # Column widths
     ws.column_dimensions["A"].width = 52
     ws.column_dimensions["B"].width = 22
-    ws.column_dimensions["C"].width = 58
+    ws.column_dimensions["C"].width = 72
 
     return ws
 
@@ -398,13 +421,21 @@ def build_revenue_model(wb):
                  alignment=Alignment(horizontal="center"))
 
     # -------------------------------------------------------------------
-    # Scenario definitions
-    # Layout: Conservative rows 5-16, Moderate rows 18-29, Aggressive rows 31-42
+    # Scenario definitions (13 metrics each)
+    # Conservative = Free path: $0 platform, manual bid prep cost
+    # Moderate     = Optimal path: platform investment replaces bid prep
+    # Aggressive   = Optimal path: platform investment + dedicated effort
     # -------------------------------------------------------------------
     scenarios = [
-        ("CONSERVATIVE SCENARIO",  4,  5, f"B{ROW_BID_CON}", f"B{ROW_CV_CON}", f"=Assumptions!$B${ROW_PLAT_FREE}/12"),
-        ("MODERATE SCENARIO",     17, 18, f"B{ROW_BID_MOD}", f"B{ROW_CV_MOD}", f"=Assumptions!$B${ROW_PLAT_OPT}/12"),
-        ("AGGRESSIVE SCENARIO",   30, 31, f"B{ROW_BID_AGG}", f"B{ROW_CV_AGG}", f"=Assumptions!$B${ROW_PLAT_OPT}/12"),
+        ("CONSERVATIVE SCENARIO (Free Tools — $0 Platform Investment)",
+         4, 5, f"B{ROW_BID_CON}", f"B{ROW_CV_CON}",
+         f"=Assumptions!$B${ROW_PLAT_FREE}/12", f"Assumptions!$B${ROW_BIDPREP_FREE}"),
+        ("MODERATE SCENARIO (Optimal Platforms — $13K/yr Investment)",
+         18, 19, f"B{ROW_BID_MOD}", f"B{ROW_CV_MOD}",
+         f"=Assumptions!$B${ROW_PLAT_OPT}/12", f"Assumptions!$B${ROW_BIDPREP_OPT}"),
+        ("AGGRESSIVE SCENARIO (Optimal Platforms + Dedicated BD Effort)",
+         32, 33, f"B{ROW_BID_AGG}", f"B{ROW_CV_AGG}",
+         f"=Assumptions!$B${ROW_PLAT_OPT}/12", f"Assumptions!$B${ROW_BIDPREP_OPT}"),
     ]
 
     metric_labels = [
@@ -418,6 +449,7 @@ def build_revenue_model(wb):
         "Monthly Gross Profit",
         "Cumulative Gross Profit",
         "Monthly Platform Cost",
+        "Monthly Bid Prep Cost",
         "Monthly Net Contribution",
         "Cumulative Net Contribution",
     ]
@@ -433,11 +465,12 @@ def build_revenue_model(wb):
         FMT_CURRENCY,  # Monthly Gross Profit
         FMT_CURRENCY,  # Cumulative Gross Profit
         FMT_CURRENCY,  # Monthly Platform Cost
+        FMT_CURRENCY,  # Monthly Bid Prep Cost
         FMT_CURRENCY,  # Monthly Net Contribution
         FMT_CURRENCY,  # Cumulative Net Contribution
     ]
 
-    for scenario_title, hdr_row, sr, bid_ref, cv_ref, plat_formula in scenarios:
+    for scenario_title, hdr_row, sr, bid_ref, cv_ref, plat_formula, bidprep_ref in scenarios:
         # Scenario header row
         set_cell(ws, hdr_row, 1, scenario_title, font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
         for m in range(NUM_MONTHS):
@@ -459,16 +492,15 @@ def build_revenue_model(wb):
         r_gp      = sr + 7
         r_cumgp   = sr + 8
         r_plat    = sr + 9
-        r_net     = sr + 10
-        r_cumnet  = sr + 11
+        r_bidprep = sr + 10
+        r_net     = sr + 11
+        r_cumnet  = sr + 12
 
         for m in range(NUM_MONTHS):
             col = m + 2
             col_letter = get_column_letter(col)
 
             # ----- Bids Submitted -----
-            # Base bid volume * multiplier for Years 3-5
-            # =IF(month<first_bid, 0, base_bids * IF(month>48,Y5_mult, IF(month>36,Y4_mult, IF(month>24,Y3_mult, 1))))
             f_bids = (
                 f'=IF({col_letter}$2<Assumptions!$B${ROW_RAMP_BID},0,'
                 f'Assumptions!${bid_ref[0]}${bid_ref[1:]}'
@@ -479,7 +511,6 @@ def build_revenue_model(wb):
             set_cell(ws, r_bids, col, f_bids, font=BLACK_FONT, fmt=metric_fmts[0])
 
             # ----- Win Rate -----
-            # 6-tier: Y1H1, Y1H2, Y2, Y3, Y4, Y5
             f_wr = (
                 f'=IF({col_letter}$2<Assumptions!$B${ROW_RAMP_WIN},0,'
                 f'IF({col_letter}$2<=6,Assumptions!$B${ROW_WR_Y1_H1},'
@@ -541,9 +572,13 @@ def build_revenue_model(wb):
             # ----- Monthly Platform Cost -----
             set_cell(ws, r_plat, col, plat_formula, font=GREEN_FONT, fmt=metric_fmts[9])
 
+            # ----- Monthly Bid Prep Cost -----
+            f_bidprep = f'={col_letter}{r_bids}*{bidprep_ref}'
+            set_cell(ws, r_bidprep, col, f_bidprep, font=GREEN_FONT, fmt=metric_fmts[10])
+
             # ----- Monthly Net Contribution -----
-            f_net = f'={col_letter}{r_gp}-{col_letter}{r_plat}'
-            set_cell(ws, r_net, col, f_net, font=BLACK_FONT, fmt=metric_fmts[10])
+            f_net = f'={col_letter}{r_gp}-{col_letter}{r_plat}-{col_letter}{r_bidprep}'
+            set_cell(ws, r_net, col, f_net, font=BLACK_FONT, fmt=metric_fmts[11])
 
             # ----- Cumulative Net Contribution -----
             if m == 0:
@@ -551,7 +586,7 @@ def build_revenue_model(wb):
             else:
                 prev_col = get_column_letter(col - 1)
                 f_cumnet = f'={prev_col}{r_cumnet}+{col_letter}{r_net}'
-            set_cell(ws, r_cumnet, col, f_cumnet, font=BLACK_FONT, fmt=metric_fmts[11])
+            set_cell(ws, r_cumnet, col, f_cumnet, font=BLACK_FONT, fmt=metric_fmts[12])
 
     # Freeze panes
     ws.freeze_panes = "B4"
@@ -580,16 +615,11 @@ def build_summary(wb):
         set_cell(ws, 3, i + 1, h, font=HEADER_FONT, fill=LIGHT_GRAY_FILL,
                  alignment=Alignment(horizontal="center"))
 
-    # Scenario first-metric rows on Revenue Model (unchanged layout)
-    srs = [5, 18, 31]
+    # Scenario first-metric rows on Revenue Model (13 metrics per scenario)
+    srs = [5, 19, 33]
 
-    # Year definitions: (label, start_month, end_month, start_col_letter, end_col_letter, end_col_letter_for_point)
+    # Year definitions
     # Columns: month N is in column N+1 (B=month1, C=month2, ...)
-    # Year 1: months 1-12  → cols B(2) to M(13)
-    # Year 2: months 13-24 → cols N(14) to Y(25)
-    # Year 3: months 25-36 → cols Z(26) to AK(37)
-    # Year 4: months 37-48 → cols AL(38) to AW(49)
-    # Year 5: months 49-60 → cols AX(50) to BI(61)
     years = [
         ("YEAR 1 RESULTS (Months 1-12)",  2,  13),   # col B to M
         ("YEAR 2 RESULTS (Months 13-24)", 14, 25),    # col N to Y
@@ -618,7 +648,8 @@ def build_summary(wb):
                 ("Total Revenue", 6, FMT_CURRENCY, "point"),
                 ("Gross Profit", 8, FMT_CURRENCY, "point"),
                 ("Platform Investment", 9, FMT_CURRENCY, "sum"),
-                ("Net Contribution", 11, FMT_CURRENCY, "point"),
+                ("Bid Prep Cost", 10, FMT_CURRENCY, "sum"),
+                ("Net Contribution", 12, FMT_CURRENCY, "point"),
             ]
             for label, offset, fmt, agg in year_metrics:
                 fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
@@ -639,7 +670,8 @@ def build_summary(wb):
                 ("Total Revenue", 5, FMT_CURRENCY),
                 ("Gross Profit", 7, FMT_CURRENCY),
                 ("Platform Investment", 9, FMT_CURRENCY),
-                ("Net Contribution", 10, FMT_CURRENCY),
+                ("Bid Prep Cost", 10, FMT_CURRENCY),
+                ("Net Contribution", 11, FMT_CURRENCY),
             ]
             for label, offset, fmt in year_metrics:
                 fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
@@ -650,14 +682,19 @@ def build_summary(wb):
                     set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
                 row_cursor += 1
 
-        # ROI row
+        # ROI row (Net / (Platform + Bid Prep))
         fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
         set_cell(ws, row_cursor, 1, "ROI", font=BLACK_FONT_BOLD, fill=fill)
         for s_idx in range(3):
             col_letter = get_column_letter(s_idx + 2)
             net_row = row_cursor - 1
-            plat_row = row_cursor - 2
-            formula = f'=IF({col_letter}{plat_row}=0,"N/A (Free)",{col_letter}{net_row}/{col_letter}{plat_row})'
+            bidprep_row = row_cursor - 2
+            plat_row = row_cursor - 3
+            formula = (
+                f'=IF(({col_letter}{plat_row}+{col_letter}{bidprep_row})=0,'
+                f'"N/A (No Cost)",'
+                f'{col_letter}{net_row}/({col_letter}{plat_row}+{col_letter}{bidprep_row}))'
+            )
             set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_PERCENT, fill=fill)
         row_cursor += 2
 
@@ -677,7 +714,8 @@ def build_summary(wb):
         ("Total Revenue", 6, FMT_CURRENCY, "point"),
         ("Total Gross Profit", 8, FMT_CURRENCY, "point"),
         ("Total Platform Investment", 9, FMT_CURRENCY, "sum"),
-        ("Total Net Contribution", 11, FMT_CURRENCY, "point"),
+        ("Total Bid Prep Cost", 10, FMT_CURRENCY, "sum"),
+        ("Total Net Contribution", 12, FMT_CURRENCY, "point"),
     ]
 
     for label, offset, fmt, agg in total_metrics:
@@ -692,14 +730,19 @@ def build_summary(wb):
             set_cell(ws, row_cursor, s_idx + 2, formula, font=GREEN_FONT, fmt=fmt, fill=fill)
         row_cursor += 1
 
-    # 5-Year ROI
+    # 5-Year ROI (Net / (Platform + Bid Prep))
     fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
     set_cell(ws, row_cursor, 1, "5-Year ROI", font=BLACK_FONT_BOLD, fill=fill)
     for s_idx in range(3):
         col_letter = get_column_letter(s_idx + 2)
         net_row = row_cursor - 1
-        plat_row = row_cursor - 2
-        formula = f'=IF({col_letter}{plat_row}=0,"N/A (Free)",{col_letter}{net_row}/{col_letter}{plat_row})'
+        bidprep_row = row_cursor - 2
+        plat_row = row_cursor - 3
+        formula = (
+            f'=IF(({col_letter}{plat_row}+{col_letter}{bidprep_row})=0,'
+            f'"N/A (No Cost)",'
+            f'{col_letter}{net_row}/({col_letter}{plat_row}+{col_letter}{bidprep_row}))'
+        )
         set_cell(ws, row_cursor, s_idx + 2, formula, font=BLACK_FONT_BOLD, fmt=FMT_PERCENT, fill=fill)
     row_cursor += 1
 
@@ -707,7 +750,7 @@ def build_summary(wb):
     fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
     set_cell(ws, row_cursor, 1, "Breakeven Month", font=BLACK_FONT_BOLD, fill=fill)
     for s_idx, sr in enumerate(srs):
-        cum_net_row = sr + 11
+        cum_net_row = sr + 12
         formula = (
             f'=IFERROR(MATCH(TRUE,INDEX(\'Revenue Model\'!B{cum_net_row}:{last_col_letter}{cum_net_row}>0,),0),"Not in 60mo")'
         )
@@ -740,16 +783,16 @@ def build_platform_comparison(wb):
 
     # Data rows
     comparison_data = [
-        ("Federal Monitoring", 'SAM.gov API - $0', '+ CLEATUS - $3,000/yr', False),
-        ("State/Local (FL $600M-$1.2B)", 'Manual - $0', 'HigherGov - $3,500/yr', False),
-        ("Micro-Purchases (83% of FL contracts)", 'Invisible - $0', 'GovSpend - $6,500/yr', False),
-        ("Competitive Intelligence", 'FPDS + USASpending - $0', 'Same - $0', False),
-        ("Proposal Writing", 'Claude + Templates - $0', 'CLEATUS AI - included', False),
-        ("Pipeline Tracking", 'Google Sheets - $0', 'Same - $0', False),
+        ("Federal Monitoring", 'SAM.gov API - $0', '+ CLEATUS - $3,000/yr'),
+        ("State/Local (FL $600M-$1.2B)", 'Manual - $0', 'HigherGov - $3,500/yr'),
+        ("Micro-Purchases (83% of FL contracts)", 'Invisible - $0', 'GovSpend - $6,500/yr'),
+        ("Competitive Intelligence", 'FPDS + USASpending - $0', 'Same - $0'),
+        ("Proposal Writing", 'Claude + Templates - $0', 'CLEATUS AI - included'),
+        ("Pipeline Tracking", 'Google Sheets - $0', 'Same - $0'),
     ]
 
     row_cursor = 4
-    for label, free_val, optimal_val, is_total in comparison_data:
+    for label, free_val, optimal_val in comparison_data:
         fill = ALT_ROW_FILL if (row_cursor % 2 == 0) else WHITE_FILL
         set_cell(ws, row_cursor, 1, label, font=BLACK_FONT, fill=fill)
         set_cell(ws, row_cursor, 2, free_val, font=BLACK_FONT, fill=fill,
@@ -761,33 +804,98 @@ def build_platform_comparison(wb):
     # Separator
     row_cursor += 1
 
-    # Totals row
-    set_cell(ws, row_cursor, 1, "Total Annual Cost", font=BLACK_FONT_BOLD, fill=LIGHT_BLUE_FILL)
-    set_cell(ws, row_cursor, 2, f"=Assumptions!B{ROW_PLAT_FREE}", font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
-             fill=LIGHT_BLUE_FILL, alignment=Alignment(horizontal="center"))
-    set_cell(ws, row_cursor, 3, f"=Assumptions!B{ROW_PLAT_OPT}", font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
-             fill=LIGHT_BLUE_FILL, alignment=Alignment(horizontal="center"))
+    # ---- True Cost Comparison (the key story) ----
+    set_cell(ws, row_cursor, 1, "TRUE COST COMPARISON", font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
+    set_cell(ws, row_cursor, 2, None, fill=LIGHT_BLUE_FILL)
+    set_cell(ws, row_cursor, 3, None, fill=LIGHT_BLUE_FILL)
     row_cursor += 1
 
-    # Additional comparison rows
-    set_cell(ws, row_cursor, 1, "Market Coverage", font=BLACK_FONT_BOLD)
+    set_cell(ws, row_cursor, 1, "Annual Platform Cost", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2, f"=Assumptions!B{ROW_PLAT_FREE}", font=GREEN_FONT, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3, f"=Assumptions!B{ROW_PLAT_OPT}", font=GREEN_FONT, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
+    set_cell(ws, row_cursor, 1, "Per-Bid Prep Cost", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2, f"=Assumptions!B{ROW_BIDPREP_FREE}", font=GREEN_FONT, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3, f"=Assumptions!B{ROW_BIDPREP_OPT}", font=GREEN_FONT, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
+    set_cell(ws, row_cursor, 1, "Bids/Year (Year 1)", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2, f"=Assumptions!B{ROW_BID_CON}*12", font=GREEN_FONT, fmt=FMT_COUNT,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3, f"=Assumptions!B{ROW_BID_MOD}*12", font=GREEN_FONT, fmt=FMT_COUNT,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
+    # Annual bid prep cost = per-bid * bids/year
+    bidprep_yr_free_row = row_cursor
+    set_cell(ws, row_cursor, 1, "Annual Bid Prep Cost", font=BLACK_FONT_BOLD)
+    set_cell(ws, row_cursor, 2,
+             f"=Assumptions!B{ROW_BIDPREP_FREE}*Assumptions!B{ROW_BID_CON}*12",
+             font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3,
+             f"=Assumptions!B{ROW_BIDPREP_OPT}*Assumptions!B{ROW_BID_MOD}*12",
+             font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
+    # True All-In Cost = Platform + Bid Prep
+    set_cell(ws, row_cursor, 1, "TRUE ALL-IN ANNUAL COST", font=BLACK_FONT_BOLD, fill=YELLOW_FILL)
+    plat_row = bidprep_yr_free_row - 3
+    bidprep_row = bidprep_yr_free_row
+    set_cell(ws, row_cursor, 2,
+             f"=B{plat_row}+B{bidprep_row}",
+             font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
+             fill=YELLOW_FILL, alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3,
+             f"=C{plat_row}+C{bidprep_row}",
+             font=GREEN_FONT_BOLD, fmt=FMT_CURRENCY,
+             fill=YELLOW_FILL, alignment=Alignment(horizontal="center"))
+    row_cursor += 2
+
+    # ---- Outcome Comparison ----
+    set_cell(ws, row_cursor, 1, "OUTCOME COMPARISON", font=HEADER_FONT, fill=LIGHT_BLUE_FILL)
+    set_cell(ws, row_cursor, 2, None, fill=LIGHT_BLUE_FILL)
+    set_cell(ws, row_cursor, 3, None, fill=LIGHT_BLUE_FILL)
+    row_cursor += 1
+
+    set_cell(ws, row_cursor, 1, "Market Coverage", font=BLACK_FONT)
     set_cell(ws, row_cursor, 2, "~40-50%", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
     set_cell(ws, row_cursor, 3, "~90%+", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
     row_cursor += 1
 
-    set_cell(ws, row_cursor, 1, "Bid Capacity/Year", font=BLACK_FONT_BOLD)
+    set_cell(ws, row_cursor, 1, "Bid Capacity/Year", font=BLACK_FONT)
     set_cell(ws, row_cursor, 2, "12-20", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
     set_cell(ws, row_cursor, 3, "40-60", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
     row_cursor += 1
 
-    set_cell(ws, row_cursor, 1, "Estimated Win Rate Uplift", font=BLACK_FONT_BOLD)
-    set_cell(ws, row_cursor, 2, "Baseline", font=BLACK_FONT,
+    set_cell(ws, row_cursor, 1, "Micro-Purchase Visibility", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2, "None (83% of FL market hidden)", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
-    set_cell(ws, row_cursor, 3, "+30-50% more bids = more wins", font=BLACK_FONT,
+    set_cell(ws, row_cursor, 3, "Full visibility via GovSpend", font=BLACK_FONT,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
+    set_cell(ws, row_cursor, 1, "SLED Market Access", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2, "Manual state portal searches", font=BLACK_FONT,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3, "Automated via HigherGov", font=BLACK_FONT,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
+    set_cell(ws, row_cursor, 1, "Bid Prep Effort Per Bid", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2, "8-12 hrs manual research + writing", font=BLACK_FONT,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3, "Absorbed by platform tools", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
     row_cursor += 2
 
@@ -804,6 +912,17 @@ def build_platform_comparison(wb):
              alignment=Alignment(horizontal="center"))
     row_cursor += 1
 
+    set_cell(ws, row_cursor, 1, "Monthly Bid Prep Cost", font=BLACK_FONT)
+    set_cell(ws, row_cursor, 2,
+             f"=Assumptions!B{ROW_BIDPREP_FREE}*Assumptions!B{ROW_BID_CON}",
+             font=GREEN_FONT, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    set_cell(ws, row_cursor, 3,
+             f"=Assumptions!B{ROW_BIDPREP_OPT}*Assumptions!B{ROW_BID_MOD}",
+             font=GREEN_FONT, fmt=FMT_CURRENCY,
+             alignment=Alignment(horizontal="center"))
+    row_cursor += 1
+
     set_cell(ws, row_cursor, 1, "Consulting Retainer", font=BLACK_FONT)
     set_cell(ws, row_cursor, 2, "N/A", font=BLACK_FONT,
              alignment=Alignment(horizontal="center"))
@@ -811,8 +930,8 @@ def build_platform_comparison(wb):
              font=GREEN_FONT, fmt=FMT_CURRENCY, alignment=Alignment(horizontal="center"))
 
     # Column widths
-    ws.column_dimensions["A"].width = 30
-    ws.column_dimensions["B"].width = 30
+    ws.column_dimensions["A"].width = 40
+    ws.column_dimensions["B"].width = 35
     ws.column_dimensions["C"].width = 35
 
     return ws
@@ -831,7 +950,7 @@ def main():
 
     wb = Workbook()
 
-    print("[1/4] Building Assumptions sheet (5-year win rates, cost notations, TAM)...")
+    print("[1/4] Building Assumptions sheet (5-year win rates, bid prep effort, TAM)...")
     build_assumptions(wb)
 
     print("[2/4] Building Revenue Model sheet (60 months x 3 scenarios)...")
@@ -861,7 +980,7 @@ def main():
     print("All calculations use Excel formulas (=SUM, =IF, =ROUND, =OFFSET, etc.)")
     print("Blue text = editable inputs | Black text = formulas | Green text = cross-sheet refs")
     print("Yellow background = key assumptions to review")
-    print("Orange background = cost notations (informational)")
+    print("Orange background = bid prep effort + cost notations (informational)")
     print("Green background = TAM context (from market_data.json)")
     print()
     print("Done.")
