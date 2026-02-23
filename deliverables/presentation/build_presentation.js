@@ -121,18 +121,14 @@ const FONT_BODY = "Calibri";
 
 function addHeadline(slide, text) {
   slide.addText(text, {
-    x: 0.6, y: 0.3, w: 8.8, h: 0.7,
-    fontSize: 24, fontFace: FONT_HEADER, color: C.accent, bold: true,
-  });
-  slide.addShape(pptx.shapes.RECTANGLE, {
-    x: 0.6, y: 0.95, w: 1.2, h: 0.05,
-    fill: { color: C.secondary },
+    x: 0.6, y: 0.25, w: 8.8, h: 0.9,
+    fontSize: 36, fontFace: FONT_HEADER, color: C.accent, bold: true,
   });
 }
 
 function addSource(slide, text) {
   slide.addText(text, {
-    x: 0.6, y: 7.0, w: 8.8, h: 0.3,
+    x: 0.6, y: 5.25, w: 8.8, h: 0.3,
     fontSize: 9, fontFace: FONT_BODY, color: C.medGray, italic: true,
   });
 }
@@ -142,7 +138,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.primary };
+  slide.background = { color: C.primary };
 
   slide.addShape(pptx.shapes.RECTANGLE, {
     x: -0.5, y: 5.5, w: 4, h: 4, rotate: 45,
@@ -155,7 +151,7 @@ function addSource(slide, text) {
 
   slide.addText("Unlocking Government Revenue\nfor Newport Wholesalers", {
     x: 0.8, y: 1.8, w: 8.4, h: 2.0,
-    fontSize: 34, fontFace: FONT_HEADER, color: C.white, bold: true,
+    fontSize: 36, fontFace: FONT_HEADER, color: C.white, bold: true,
     lineSpacingMultiple: 1.2,
   });
   slide.addText("A Turnkey System for Finding, Bidding, and Winning\nGovernment Food Supply Contracts", {
@@ -174,7 +170,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Newport Is Sitting on a $7.2B Federal Food Market");
 
   const stats = [
@@ -211,7 +207,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.accent };
+  slide.background = { color: C.accent };
 
   const solePct = fpdsTotals.sole_source_pct.toFixed(1);
   const txnCount = fpdsTotals.transactions.toLocaleString();
@@ -237,7 +233,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Newport's Competitive Advantages");
 
   const blocks = [
@@ -294,7 +290,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "From Registration to Revenue: The Path Forward");
 
   const steps = [
@@ -344,7 +340,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Where Newport Wins First");
 
   const rows = [
@@ -385,7 +381,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Federal Food Contracting: Less Competition Than You Think");
 
   // Build table from dynamic data (top 6 NAICS by awards)
@@ -443,7 +439,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "What the Federal Government Buys: $7.17B in Food (FY2024)");
 
   // Sort PSC data by spending, take top 8
@@ -508,7 +504,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Where Newport Wins: Priority Product Categories");
 
   const priorities = productOpp.priority_products || FALLBACK_PRODUCTS.priority_products;
@@ -577,7 +573,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Economies of Scale: Newport's Pricing Advantage");
 
   // Key points — confirmed from FPDS/competition data
@@ -653,7 +649,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Your Government Contracting Command Center");
 
   const components = [
@@ -706,7 +702,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Investment Options: Start Free or Go Full Coverage");
 
   const rows = [
@@ -750,7 +746,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "5-Year Revenue Trajectory: Compounding Government Revenue");
 
   // TAM context line — confirmed data
@@ -812,7 +808,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "90-Day Launch Plan");
 
   const milestones = [
@@ -852,7 +848,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Your Government Revenue Partner");
 
   const deliverables = [
@@ -888,7 +884,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.primary };
+  slide.background = { color: C.primary };
 
   slide.addShape(pptx.shapes.RECTANGLE, {
     x: 7, y: 5, w: 4, h: 4, rotate: 45,
@@ -897,12 +893,7 @@ function addSource(slide, text) {
 
   slide.addText("Next Steps", {
     x: 0.8, y: 0.8, w: 8.4, h: 0.8,
-    fontSize: 30, fontFace: FONT_HEADER, color: C.white, bold: true,
-  });
-
-  slide.addShape(pptx.shapes.RECTANGLE, {
-    x: 0.8, y: 1.6, w: 1.2, h: 0.05,
-    fill: { color: C.white, transparency: 40 },
+    fontSize: 36, fontFace: FONT_HEADER, color: C.white, bold: true,
   });
 
   const phases = [
@@ -940,7 +931,7 @@ function addSource(slide, text) {
 // ============================================================================
 {
   const slide = pptx.addSlide();
-  slide.background = { fill: C.white };
+  slide.background = { color: C.white };
   addHeadline(slide, "Federal Food Procurement Data \u2014 Full Breakdown");
 
   // Build from dynamic data
