@@ -1,212 +1,207 @@
-# Newport Wholesalers Lead Generation
+# Newport Wholesalers — Lead Generation Platform
 
-## Project Overview
+## Company
+Newport Wholesalers is a 30-year grocery wholesaler based in South Florida (Plantation, FL). NAICS 424410/424450/424490. Core products: confectionery, snacks, shelf-stable food, dry goods. Two growth channels managed from this repo.
 
-Master project for Newport Wholesalers — a food wholesale distributor. Two channels:
+## Two Channels
 
-1. **Government Contracting** — Federal/state food procurement intelligence, bid scoring, pipeline tracking, daily monitoring
-2. **SDR AI Agent** — Commercial lead generation targeting enterprise grocery buyers, food suppliers/manufacturers, and candy wholesalers
+### Channel 1: Government Contracting (`govcon/`)
+Federal, state, and local food procurement intelligence. Target: $10K-$350K contracts. Geographic focus: FL + Southeast US (GA, AL, SC, NC, TN, MS, LA, VA, TX). Buyer categories: military/DoD, BOP prisons, school districts, state corrections, FEMA, VA hospitals, county/city agencies.
+
+### Channel 2: Commercial SDR (`commercial/`)
+Outbound prospecting targeting enterprise grocery buyers, food suppliers/manufacturers, and candy wholesalers via Apollo.io. Five segments (A-E) with geographic and firmographic filters.
 
 ## Architecture
 
 ```
-config/              # JSON configs: ICP definitions, exclusions, government contracts
-enrichment/          # API clients: Apollo.io, SAM.gov (Opps + Entity), USASpending.gov, Grants.gov, FPDS
-scoring/             # Bid/no-bid scoring: bid_scorer.py (procedural), bid_no_bid.py (OOP)
-scrapers/            # CLI tools: apollo_prospector.py, contract_scanner.py, daily_monitor.py
-notifications/       # Slack + email notification dispatchers (rich digest)
-crm/                 # Google Sheets CRM integration (Goldman's)
-tracking/            # GovCon Pipeline Tracker: sheets_crm.py (v1), sheets_pipeline.py (v2)
-deliverables/        # Proposal outputs: PowerPoint deck (Node.js), Excel pro forma (Python)
-orchestrator/        # Campaign runner
-outreach/            # Email (Instantly), SMS (Twilio), Voice (Retell AI)
-docs/govcon/         # Government contracting phase docs and strategy references
-data/                # Gitignored: raw/, enriched/, final/, cache/
-.github/workflows/   # GitHub Actions: daily-scan.yml
+newport-leadgen/
+├── CLAUDE.md                              # This file — master context
+├── config/                                # Shared config (both channels)
+│   ├── icp_definitions.json               # Segment definitions + Apollo search params
+│   ├── exclusions.json                    # Company/title exclusion lists
+│   └── government_contracts.json          # NAICS/PSC codes, API settings, scoring params
+│
+├── govcon/                                # CHANNEL 1: Government Contracting
+│   ├── enrichment/                        # API clients
+│   │   ├── sam_client.py                  # SAM.gov Opportunities (needs SAM_API_KEY)
+│   │   ├── sam_entity_client.py           # SAM.gov Entity Registry (needs SAM_API_KEY)
+│   │   ├── usaspending_client.py          # USASpending.gov (no key)
+│   │   ├── fpds_client.py                 # FPDS competition density (no key)
+│   │   └── grants_client.py              # Grants.gov USDA grants (no key)
+│   ├── scrapers/
+│   │   ├── contract_scanner.py            # 10-report intelligence pipeline
+│   │   └── daily_monitor.py               # Daily SAM.gov monitor + notifications
+│   ├── scoring/
+│   │   ├── bid_scorer.py                  # Procedural 9-factor scorer (used by scanner)
+│   │   └── bid_no_bid.py                  # OOP BidNoBidScorer (used by monitor + tracker)
+│   ├── tracking/
+│   │   └── sheets_pipeline.py             # Google Sheets pipeline tracker (v2, 3 tabs)
+│   ├── notifications/
+│   │   └── notify.py                      # Slack + email dispatchers
+│   ├── deliverables/                      # Client-facing outputs
+│   │   ├── collect_market_data.py         # FPDS + USASpending → market_data.json
+│   │   ├── financials/
+│   │   │   └── build_proforma.py          # Excel pro forma model (openpyxl)
+│   │   └── presentation/
+│   │       └── build_presentation.js      # PowerPoint proposal deck (pptxgenjs)
+│   ├── templates/
+│   │   ├── generate_templates.py          # Capability statement + sources sought (python-docx)
+│   │   └── *.docx                         # Generated Word templates
+│   └── docs/                              # Consolidated reference docs
+│       ├── strategy.md                    # Buyer universe, platform stack, entry strategy
+│       ├── research.md                    # TAM, competition, data sources, live validation
+│       ├── requirements.md                # Command Center build spec (authoritative)
+│       └── phases/                        # Phase execution specs
+│
+├── commercial/                            # CHANNEL 2: SDR / Outbound Prospecting
+│   ├── enrichment/
+│   │   ├── apollo_client.py               # Apollo.io API wrapper (free search + paid reveal)
+│   │   ├── enricher.py                    # Bulk enrichment pipeline
+│   │   └── re_enrich.py                   # Re-enrich revealed prospects (no extra credits)
+│   ├── scrapers/
+│   │   └── apollo_prospector.py           # Enterprise people search by segment
+│   └── docs/
+│       ├── icp_segments.md                # 5 segment definitions with Apollo filters
+│       ├── candy_latam_assessment.md      # LATAM candy import viability
+│       └── candy_wholesaler_research.md   # Candy distributor market research
+│
+├── data/                                  # Gitignored runtime data (raw/enriched/final/cache)
+├── assets/                                # Images (newport_background.jpg)
+├── archive/                               # Superseded files (reference only)
+│   ├── goldmans/                          # Goldman's project (separate repo — not Newport)
+│   ├── pitchbook/                         # Old pitchbook (superseded by deliverables/)
+│   ├── dashboard/                         # Old dashboard (superseded)
+│   └── old-docs/                          # Pre-consolidation research/strategy docs
+└── .github/workflows/daily-scan.yml       # GitHub Actions: daily SAM.gov monitor at 6 AM ET
 ```
 
-## Key Tools
+## Key Commands
 
-### Apollo Prospector (`scrapers/apollo_prospector.py`)
-Enterprise people search via Apollo.io. Free search, 1 credit per email reveal.
-```
-python scrapers/apollo_prospector.py --segment segment_a_buyers --dry-run
-python scrapers/apollo_prospector.py --segment all --region united_states --max-pages 10
-python scrapers/apollo_prospector.py --segment all --reveal-emails --max-reveals 100
-```
+### GovCon — Contract Intelligence
+```bash
+# 10-report scanner
+python govcon/scrapers/contract_scanner.py --report all --dry-run
+python govcon/scrapers/contract_scanner.py --report opportunities --max-pages 2 --score
+python govcon/scrapers/contract_scanner.py --report small-contracts --state FL --fiscal-years 2024,2025
+python govcon/scrapers/contract_scanner.py --report expiring --months-ahead 12
+python govcon/scrapers/contract_scanner.py --report competition-density --fiscal-years 2024,2025
 
-### Government Contract Scanner (`scrapers/contract_scanner.py`)
-Federal food procurement intelligence from SAM.gov + USASpending.gov + Grants.gov + FPDS. 10 reports.
-```
-python scrapers/contract_scanner.py --report all --dry-run
-python scrapers/contract_scanner.py --report market-size --fiscal-years 2024,2025
-python scrapers/contract_scanner.py --report expiring --months-ahead 12 --max-pages 3
-python scrapers/contract_scanner.py --report opportunities --max-pages 2
-python scrapers/contract_scanner.py --report opportunities --max-pages 2 --score
-python scrapers/contract_scanner.py --report incumbents --max-pages 5
-python scrapers/contract_scanner.py --report competitors --states FL,GA,AL
-python scrapers/contract_scanner.py --report analytics --fiscal-years 2023,2024,2025
-python scrapers/contract_scanner.py --report grants
-python scrapers/contract_scanner.py --report competition-density --fiscal-years 2024,2025
-```
+# Daily monitor
+python govcon/scrapers/daily_monitor.py --dry-run
+python govcon/scrapers/daily_monitor.py --score --push-to-sheet --max-pages 3
 
-### Bid/No-Bid Scorer — Procedural (`scoring/bid_scorer.py`)
-9-factor weighted scoring (0-100) → Strong Bid / Bid / Review / No-Bid decisions. Used by `contract_scanner.py`.
-```
-python scoring/bid_scorer.py --csv data/final/govt_opportunity_pipeline_*.csv
-python scoring/bid_scorer.py --csv FILE --overrides '{"past_performance": 1}'
-python scoring/bid_scorer.py --csv FILE --top 10
+# Bid scoring
+python govcon/scoring/bid_no_bid.py --csv data/final/govt_opportunity_pipeline_*.csv --top 10
+python govcon/scoring/bid_scorer.py --csv data/final/govt_opportunity_pipeline_*.csv
+
+# Pipeline tracker
+python govcon/tracking/sheets_pipeline.py --dry-run --init
+python govcon/tracking/sheets_pipeline.py --dry-run --import-csv data/final/govt_opportunity_pipeline_*.csv
+python govcon/tracking/sheets_pipeline.py --dry-run --dashboard
+
+# Deliverables
+python govcon/deliverables/collect_market_data.py
+python govcon/deliverables/financials/build_proforma.py
+cd govcon/deliverables/presentation && npm install && node build_presentation.js
 ```
 
-### Bid/No-Bid Scorer — OOP (`scoring/bid_no_bid.py`)
-Complete OOP rewrite (BidNoBidScorer class). Used by `daily_monitor.py` and `sheets_pipeline.py`.
-```
-python scoring/bid_no_bid.py --help
-python scoring/bid_no_bid.py --csv data/final/govt_opportunity_pipeline_*.csv --top 10
-```
-
-### Daily SAM.gov Monitor (`scrapers/daily_monitor.py`)
-Automated change detection with Slack/email notifications. Runs via GitHub Actions at 6 AM ET.
-```
-python scrapers/daily_monitor.py --dry-run
-python scrapers/daily_monitor.py --score --dry-run
-python scrapers/daily_monitor.py --score --push-to-sheet --dry-run
-python scrapers/daily_monitor.py --max-pages 3
+### Commercial — Apollo Prospecting
+```bash
+python commercial/scrapers/apollo_prospector.py --segment segment_a_buyers --dry-run
+python commercial/scrapers/apollo_prospector.py --segment all --region united_states --max-pages 10
+python commercial/scrapers/apollo_prospector.py --segment all --reveal-emails --max-reveals 100
 ```
 
-### GovCon Pipeline Tracker v1 (`tracking/sheets_crm.py`)
-Google Sheets pipeline tracker (legacy): 12 stages, 11 buyer categories, 4 tabs. Used by `contract_scanner.py`.
-```
-python tracking/sheets_crm.py --dry-run --init
-python tracking/sheets_crm.py --dry-run --add-opp --solicitation W51YHZ-24-R-0001 --title "Fresh Produce" --agency "DEPT OF DEFENSE" --state FL --naics 424480 --category military_dla --tier federal
-python tracking/sheets_crm.py --dry-run --import-csv data/final/govt_opportunity_pipeline_*.csv
-python tracking/sheets_crm.py --dry-run --dashboard
-```
+## API Keys
 
-### GovCon Pipeline Tracker v2 (`tracking/sheets_pipeline.py`)
-Phase 2 pipeline tracker: 3 tabs (Pipeline 23 cols, Agencies 13 cols, Dashboard), bid scoring integration, agency sync. Used by `daily_monitor.py`.
-```
-python tracking/sheets_pipeline.py --dry-run --init
-python tracking/sheets_pipeline.py --dry-run --add-opp --title "Fresh Produce" --agency "DEPT OF DEFENSE" --state FL --naics 424480 --category "Military/DoD" --tier Federal
-python tracking/sheets_pipeline.py --dry-run --update-stage OPP_ID "Qualifying"
-python tracking/sheets_pipeline.py --dry-run --import-csv data/final/govt_opportunity_pipeline_*.csv
-python tracking/sheets_pipeline.py --dry-run --dashboard
-python tracking/sheets_pipeline.py --dry-run --deadlines --days-ahead 14
-python tracking/sheets_pipeline.py --dry-run --score OPP_ID
-```
+| Key | Service | Channel | Notes |
+|-----|---------|---------|-------|
+| `SAM_API_KEY` | SAM.gov Opportunities + Entity | GovCon | Free, 1,000 req/day |
+| `APOLLO_API_KEY` | Apollo.io people search | Commercial | Free search, 1 credit/reveal |
+| `SLACK_WEBHOOK_URL` | Slack notifications | GovCon | Daily monitor alerts |
+| `RESEND_API_KEY` | Resend email API | GovCon | Optional email notifications |
+| `NOTIFICATION_EMAIL` | Email recipient | GovCon | Required if using Resend |
+| `GOOGLE_SHEETS_CREDENTIALS_PATH` | Google Sheets API | GovCon | Pipeline tracker |
+| `GOOGLE_SHEETS_ID` | Target spreadsheet | GovCon | Pipeline tracker |
 
-### Market Data Collector (`deliverables/collect_market_data.py`)
-Pulls live FPDS + USASpending data into `deliverables/market_data.json` (gitignored). Consumed by both `build_proforma.py` and `build_presentation.js`.
-```
-python deliverables/collect_market_data.py
-python deliverables/collect_market_data.py --fiscal-year 2025
-```
+USASpending, FPDS, and Grants.gov require no API keys.
 
-### Proposal PowerPoint Builder (`deliverables/presentation/build_presentation.js`)
-17-slide capability deck using pptxgenjs (Node.js). Ocean Gradient palette. Reads `market_data.json` for live FPDS/USASpending data (falls back to hardcoded values if absent).
-```
-cd deliverables/presentation && npm install && node build_presentation.js
-```
+## Segments (Commercial)
 
-### Pro Forma Financial Model (`deliverables/financials/build_proforma.py`)
-4-sheet Excel workbook (Assumptions, Revenue Model, Summary, Platform Comparison) with 60-month × 3 scenarios (5-year GovCon plan). Reads `market_data.json` for TAM context.
-```
-python deliverables/financials/build_proforma.py
-```
-
-**Data pipeline:** `collect_market_data.py` → `market_data.json` → consumed by `build_proforma.py` + `build_presentation.js`
-
-**Confirmed data (Feb 22, 2026 live API runs):** Both deliverables now use verified numbers from live USASpending + FPDS reports:
-- FL small contracts: 117 contracts, $6.4M (DOJ/BOP #1 buyer at $3.7M, DoD #2 at $2.3M)
-- FPDS competition density: 537 awards across 32 NAICS/agency combos; 93% sole source for NAICS 424490 @ DoD
-- FEMA: 11 contracts, $69.3M but concentrated (2 vendors = 97%); Newport's play = disaster registry + micro-purchases
-- Research foundation TAM: $7.17B national, $85M FL under $350K, 83% micro-purchases under $15K
-- Synthesis document: `data/govcon_synthesis_live_vs_research.md`
-
-## Segments
-
-| Segment | Target | Geography |
-|---------|--------|-----------|
-| A — Buyers | Enterprise grocery/retail chains (200+ emp, $50M+ rev) | US, UK, EU |
-| B — Suppliers | Food manufacturers/distributors (100+ emp, $25M+ rev) | US, UK, EU |
-| C — Government | Federal/state food procurement agencies | US only |
-| D — Corrections | Prison food service & commissary | US only |
-| E — Candy | Candy wholesalers & distributors (11+ emp, $5M+ rev) | US + LATAM |
-
-## API Keys Required
-
-- `APOLLO_API_KEY` — Apollo.io for people search and enrichment
-- `SAM_API_KEY` — SAM.gov for opportunities + entity data (free, 1,000 req/day)
-- `SLACK_WEBHOOK_URL` — Slack incoming webhook for daily monitor alerts
-- `RESEND_API_KEY` + `NOTIFICATION_EMAIL` — Resend for email notifications (optional)
-- `GOOGLE_SHEETS_CREDENTIALS_PATH` + `GOOGLE_SHEETS_ID` — Google Sheets pipeline tracker (optional)
-- USASpending.gov — no key needed
-- Grants.gov — no key needed
-- FPDS — no key needed
-
-## Config Files
-
-- `config/icp_definitions.json` — Segment definitions, Apollo search params, geography
-- `config/exclusions.json` — Company/title exclusion lists per segment
-- `config/government_contracts.json` — NAICS/PSC codes, API settings, analysis params, cache config
+| Segment | Target | Filters | Geography |
+|---------|--------|---------|-----------|
+| A — Buyers | Enterprise grocery/retail chains | 200+ emp, $50M+ rev | US, UK, EU |
+| B — Suppliers | Food manufacturers/distributors | 100+ emp, $25M+ rev | US, UK, EU |
+| C — Government | Federal/state food procurement | 100+ emp | US only |
+| D — Corrections | Prison food service & commissary | 51+ emp, $10M+ rev | US only |
+| E — Candy | Candy wholesalers & distributors | 11+ emp, $5M+ rev | US + LATAM |
 
 ## Code Patterns
 
-- **API clients** (`enrichment/`): `__init__` with key from env, `requests.Session`, `_request()` with 429 retry + exponential backoff, `stats` property for usage tracking
-- **CLI scrapers** (`scrapers/`): argparse, `load_config()`, `--dry-run` mode, `save_results()` to CSV with timestamp (`YYYYMMDD_HHMM`), `print_summary()` with breakdowns
+- **Path resolution**: Scripts use `_project_root = Path(__file__).resolve().parent.parent.parent` to find repo root, then `sys.path.insert(0, str(_project_root / "govcon"))` (or `"commercial"`) to resolve internal package imports
+- **API clients** (`enrichment/`): `__init__` with key from env, `requests.Session`, `_request()` with 429 retry + exponential backoff, `stats` property
+- **CLI scrapers** (`scrapers/`): argparse, `load_config()`, `--dry-run` mode, `save_results()` to timestamped CSV in `data/final/`
+- **Config loading**: `_project_root / "config" / "government_contracts.json"` — config stays at repo root, shared by both channels
 - **Data flow**: Config → API client → flat dicts → `pd.DataFrame` → dedup → filter → CSV to `data/final/`
 - **Output naming**: `{prefix}_{report}_{YYYYMMDD_HHMM}.csv`
+- **Deliverables pipeline**: `collect_market_data.py` → `market_data.json` → consumed by `build_proforma.py` + `build_presentation.js`
 
-## Current State (Feb 2026)
+## Confirmed Live Data (Feb 22, 2026)
 
-### Completed
-- Full Apollo prospector pipeline (segments A-E) with enterprise people search, email reveal, exclusion filters, geographic filtering
-- Government contract intelligence pipeline with 10 reports:
-  - **Expiring contracts** — USASpending awards expiring in N months
-  - **Incumbent analysis** — vendor aggregation (contracts, value, competition %)
-  - **Small contracts** — $10K-$350K simplified acquisition range
-  - **FEMA procurement** — disaster food contracts
-  - **Opportunity pipeline** — active solicitations/pre-sols/sources sought (7 ptypes)
-  - **Market sizing** — USASpending spending by NAICS + agency per FY
-  - **Competitor registry** — SAM.gov registered vendors by NAICS/state
-  - **Computed analytics** — trends, geography heatmap, recipient concentration
-  - **Grants pipeline** — Grants.gov USDA food grants
-  - **Competition density** — FPDS avg offers per award by NAICS/agency (NEW)
-- API clients: `sam_client.py` (opportunities), `sam_entity_client.py` (entity registry), `usaspending_client.py` (awards + enhanced endpoints), `grants_client.py` (grants), `fpds_client.py` (competition density)
-- USASpending enhanced endpoints: `spending_by_recipient`, `spending_by_county`, `spending_by_geography`, `recipient_profile`, `new_awards_over_time`, `search_subawards`
-- Cache layer for SAM.gov rate limit management (24hr TTL, `data/cache/`)
-- 10 primary NAICS codes (food wholesale 4244xx + food service 722310), 42 secondary (food manufacturing 311xxx)
-- 10 target states: FL, GA, AL, SC, NC, TN, MS, LA, VA, TX
-- **Bid/No-Bid Scoring Framework**:
-  - `scoring/bid_scorer.py` (procedural) — used by contract_scanner.py
-  - `scoring/bid_no_bid.py` (OOP, BidNoBidScorer class) — used by daily_monitor.py and sheets_pipeline.py
-  - 9-factor weighted model (NAICS 15%, Geography 15%, Size 10%, Competition 10%, Past Performance 15%, Eval Criteria 10%, Relationship 10%, Timeline 10%, Strategic 5%)
-  - Decision thresholds: 80=Strong Bid, 65=Bid, 50=Review, <50=No-Bid
-- **Daily SAM.gov Monitor** (`scrapers/daily_monitor.py`):
-  - State persistence via `data/cache/last_opportunities.json`
-  - Change detection (new/removed notice_ids across runs)
-  - Optional bid scoring of new opportunities
-  - Slack (Block Kit) + email (Resend API) notifications
-  - GitHub Actions workflow (daily at 6 AM ET) with artifact upload
-- **GovCon Pipeline Tracker**:
-  - `tracking/sheets_crm.py` (v1) — 4 tabs, 29 cols, used by contract_scanner
-  - `tracking/sheets_pipeline.py` (v2) — 3 tabs (Pipeline 23 cols, Agencies 13 cols, Dashboard), bid scoring integration, agency sync, used by daily_monitor
-  - 12 pipeline stages: Identified → Qualifying → Bid Decision → Capture → Drafting Proposal → Internal Review → Submitted → Under Evaluation → Awarded/Lost/No-Bid/Cancelled
-  - 10 buyer categories, deadline reports, pipeline analytics, CSV export
-- **Deliverables**:
-  - `deliverables/collect_market_data.py` — FPDS + USASpending data collector → `market_data.json`
-  - `deliverables/presentation/build_presentation.js` — 17-slide PowerPoint proposal deck with dynamic FPDS data + product opportunity slides (Node.js, pptxgenjs)
-  - `deliverables/financials/build_proforma.py` — 4-sheet Excel pro forma model, 60-month/5-year projection with TAM context (openpyxl)
-- **Integration chain**: daily_monitor → bid_no_bid scorer → sheets_pipeline tracker → Slack/email notifications
+All verified from live USASpending + FPDS API runs:
+- **FL small contracts**: 117 contracts, $6.4M (DOJ/BOP #1 at $3.7M, DoD #2 at $2.3M)
+- **FPDS competition density**: 537 awards, 32 NAICS/agency combos; 93% sole source for NAICS 424490 @ DoD
+- **FEMA**: 11 contracts, $69.3M but 2 vendors = 97%; play = disaster registry + micro-purchases
+- **TAM**: $7.17B national, $85M FL under $350K, 83% micro-purchases under $15K
 
-### Verified Against Live APIs
-- USASpending endpoints: market-size, small-contracts, fema, spending_by_recipient, spending_by_geography, new_awards_over_time — all confirmed working
-- Grants.gov: search_grants confirmed working (136 food-related results)
-- FPDS: fpds library confirmed working (111 records for NAICS 424410, 2-month window)
-- SAM.gov Opportunities: requires SAM_API_KEY (key is set in .env)
-- SAM.gov Entity API: requires SAM_API_KEY (same key, shares 1,000/day limit)
+## What's Done
 
-### Remaining Backlog
-- Outreach automation (Instantly email, Twilio SMS, Retell voice)
-- Campaign orchestrator
-- Pitchbook generator update to pull live data from API outputs
+### GovCon (Fully Built)
+- 5 API clients: SAM.gov Opps, SAM.gov Entity, USASpending (enhanced), FPDS, Grants.gov
+- 10-report contract scanner (expiring, incumbents, small-contracts, fema, opportunities, market-size, competitors, analytics, grants, competition-density)
+- Bid/no-bid scoring: procedural (`bid_scorer.py`) + OOP (`bid_no_bid.py`), 9-factor weighted model (NAICS 15%, Geography 15%, Size 10%, Competition 10%, Past Performance 15%, Eval 10%, Relationship 10%, Timeline 10%, Strategic 5%)
+- Decision thresholds: 80=Strong Bid, 65=Bid, 50=Review, <50=No-Bid
+- Daily SAM.gov monitor with change detection, scoring, Slack/email notifications
+- Google Sheets pipeline tracker v2 (3 tabs, 12 stages, 10 buyer categories)
+- Deliverables: 17-slide PowerPoint deck, 4-sheet Excel pro forma, market data collector
+- Templates: capability statement, sources sought response, legitimacy checklist
+- GitHub Actions: daily monitor at 6 AM ET
+- Integration chain: daily_monitor → bid_no_bid → sheets_pipeline → Slack/email
+
+### Commercial (Partial)
+- Apollo.io API client with people search, enrichment, bulk operations
+- Apollo prospector for 5 segments (A-E) with enterprise filters
+- Enrichment pipeline (enricher + re_enrich)
+- ICP definitions + exclusion lists configured
+
+## What's NOT Done
+
+### GovCon — Remaining
+- [ ] Rebuild pro forma to match v3 planning tool (`data/newport-govcon-planning-tool-v3.xlsx`)
+  - 5 sheets: Executive Summary, Inputs (Free/Paid toggle), Revenue Model (3 tiers + retention), Example Contracts, Market Data
+  - Charts, data validation dropdown, conditional formatting
+- [ ] Monthly reporting template (automated from pipeline data)
+- [ ] Notion pipeline tracker (master CRM across all sources)
+- [ ] Direct portal registration tracking
+- [ ] Cooperative purchasing vehicle applications
+
+### Commercial — Remaining
+- [ ] Outreach automation (email via Instantly, SMS via Twilio, voice via Retell AI)
+  - Code exists in `archive/goldmans/` but was built for Goldman's (different project)
+  - Needs to be rebuilt/adapted for Newport's segments
+- [ ] Campaign orchestrator for Newport SDR workflow
+- [ ] CRM integration for commercial leads
+
+## Reference Documents
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| v3 Planning Tool | `data/newport-govcon-planning-tool-v3.xlsx` | Target for pro forma rebuild |
+| GovCon Strategy | `govcon/docs/strategy.md` | Buyer universe, platforms, entry strategy |
+| GovCon Research | `govcon/docs/research.md` | TAM, competition, data validation |
+| Build Specs | `govcon/docs/requirements.md` | Command Center technical spec |
+| Phase Docs | `govcon/docs/phases/` | Phase 2-4 execution specs |
+| ICP Segments | `commercial/docs/icp_segments.md` | 5 segment definitions |
+| Candy Research | `commercial/docs/candy_wholesaler_research.md` | Market research |
+| LATAM Assessment | `commercial/docs/candy_latam_assessment.md` | Import viability |
+| Archived Docs | `archive/old-docs/` | Pre-consolidation source material |

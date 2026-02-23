@@ -29,7 +29,7 @@ jobs:
           restore-keys: sam-state-
 
       - name: Run daily monitor
-        run: python scrapers/daily_monitor.py --score --push-to-sheet --max-pages 3
+        run: python govcon/scrapers/daily_monitor.py --score --push-to-sheet --max-pages 3
         env:
           SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
           GOOGLE_SHEETS_CREDENTIALS_PATH: config/google_credentials.json

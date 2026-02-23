@@ -34,12 +34,10 @@ logs/
 Thumbs.db
 desktop.ini
 
-# Generated outputs
-pitchbook/*.pptx
-dashboard/*.xlsx
-deliverables/**/*.pptx
-deliverables/**/*.xlsx
-deliverables/market_data.json
+# Generated outputs (GovCon deliverables)
+govcon/deliverables/**/*.pptx
+govcon/deliverables/**/*.xlsx
+govcon/deliverables/market_data.json
 
 # Node
 node_modules/
