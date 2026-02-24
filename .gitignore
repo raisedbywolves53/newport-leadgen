@@ -41,7 +41,10 @@ govcon/deliverables/**/*.xlsx
 govcon/deliverables/market_data.json
 
 # Root-level generated outputs (regenerable)
-deliverables/
+/deliverables/
+
+# Generated outputs (Commercial deliverables)
+commercial/deliverables/**/*.xlsx
 
 # Node
 node_modules/
