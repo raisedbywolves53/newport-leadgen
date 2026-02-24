@@ -1,6 +1,6 @@
 # Newport Wholesalers — Glossary
 
-> **Last Updated**: February 23, 2026
+> **Last Updated**: February 24, 2026
 > **Status**: Draft
 > **Depends On**: None
 
@@ -14,17 +14,19 @@ Project-specific terms, abbreviations, and jargon used throughout the specificat
 
 | Term | Definition | Used In |
 |------|-----------|---------|
-| **BOP** | Bureau of Prisons (DOJ). Manages 122 federal institutions. One of Newport's top target agencies in FL ($3.7M/71 contracts). | VISION, REQUIREMENTS, research.md, strategy.md |
+| **8(a) Program** | SBA's Business Development Program certifying socially and economically disadvantaged small businesses. In Jan 2026, SBA suspended 1,091 of 4,300 participants (25%) for failing to produce financial records during a fraud audit. DoW, Treasury, and GSA launched parallel audits. This creates a vendor vacuum that Newport can fill. | VISION, USER-STORIES |
+| **BOP** | Bureau of Prisons (DOJ). Manages 122 federal institutions. One of Newport's top target agencies in FL ($5–7M/yr in food across 6 facilities). Uses Unison Marketplace for food procurement reverse auctions. | VISION, REQUIREMENTS, USER-STORIES, research.md |
 | **Capability Statement** | A 1–2 page document that summarizes a company's qualifications, past performance, and differentiators for government buyers. Required for most government introductions. | REQUIREMENTS, requirements.md |
 | **CLEATUS** | An AI-powered government contracting platform ($2,400–$3,600/yr) that provides solicitation parsing, compliance checking, proposal drafting, and CRM. Recommended as part of the "paid route." | REQUIREMENTS, ARCHITECTURE, requirements.md |
 | **COGS** | Cost of Goods Sold. For Newport, this is the wholesale cost of food products before markup. Government contract margins are typically 18–25% depending on tier. | REQUIREMENTS (FR-003, FR-008) |
-| **Competition Density** | FPDS-derived metric measuring how many vendors typically bid on contracts in a specific NAICS/agency combination. Low density = easier entry. | REQUIREMENTS (FR-006), research.md |
+| **Competition Density** | FPDS-derived metric measuring how many vendors typically bid on contracts in a specific NAICS/agency combination. 537 awards across 32 combos analyzed. **15 combos rated LOW** (233 awards, $64.8M) — nearly half the biddable universe. LOW means agencies post requirements and get 0–2 bids. This is the primary basis for Newport's win rate projections. | REQUIREMENTS (FR-003, FR-006), research.md |
 | **DeCA** | Defense Commissary Agency. Operates 236 military commissary stores ($4B+ resale). A Year 2+ opportunity for Newport as a supplier/distributor partner. | strategy.md |
 | **DLA Troop Support** | Defense Logistics Agency division managing military food supply through 55 Prime Vendor contracts ($3.79B). Newport's entry path is subcontracting to existing prime vendors. | strategy.md |
-| **DOGE** | Department of Government Efficiency. Referenced in context of increased scrutiny on government vendors and contracting fraud. Newport's clean history is positioned as an advantage in this environment. | VISION |
+| **DOGE** | Department of Government Efficiency. Coordinating government-wide audits of small business contracting. DoW must report all set-aside contract reviews to DOGE lead by Feb 28, 2026. Newport's clean history is positioned as an advantage in this environment. | VISION, DEVELOPMENT-PLAN |
+| **DoW** | Department of War (renamed from Department of Defense under Trump administration). Secretary Hegseth ordered line-by-line review of all small business set-aside contracts >$20M on Jan 16, 2026. DoW has $18B in 8(a) spending and $80B+ in total small business spending — nearly 10x any other agency. | VISION, USER-STORIES |
 | **FAR** | Federal Acquisition Regulation. The rules governing all federal procurement. Newport needs attorney review for first bids but does NOT need most complex FAR compliance (no DCAA, no CMMC, no CAS). | requirements.md, strategy.md |
 | **FEMA** | Federal Emergency Management Agency. Relevant because Newport's FL warehouse is in a hurricane zone — disaster food supply contracts are event-driven but high-value. | REQUIREMENTS (FR-005), research.md |
-| **FPDS** | Federal Procurement Data System. Contains award-level data for federal contracts. Used for competition density analysis (537 awards, 32 NAICS/agency combos analyzed). Free, no auth required. | ARCHITECTURE, research.md |
+| **FPDS** | Federal Procurement Data System. Contains award-level data for federal contracts. Used for competition density analysis (537 awards, 32 NAICS/agency combos analyzed). Free, no auth required. ⚠️ ezSearch decommissioned Feb 24, 2026; ATOM feed sunsetting later FY2026 — migration to SAM.gov contract awards search required. | ARCHITECTURE, INTEGRATIONS, research.md |
 | **FSMC** | Food Service Management Company. Companies like Aramark, Compass, Sodexo that manage institutional food service. Newport could subcontract to FSMCs as a food supplier. | strategy.md |
 | **GovSpend** | Paid platform ($3,000–$10,000/yr) providing micro-purchase and P-card spending data not available through free APIs. Covers the "invisible" sub-$15K market. | REQUIREMENTS, ARCHITECTURE, requirements.md |
 | **HigherGov** | Paid platform ($2,000–$5,000/yr) providing SLED (state/local/education) opportunity data across 40,000+ agencies with NAICS-mapped alerts. | REQUIREMENTS, ARCHITECTURE, requirements.md |
@@ -44,13 +46,14 @@ Project-specific terms, abbreviations, and jargon used throughout the specificat
 | **SDR** | Sales Development Representative. In the commercial channel, "SDR Agent" refers to the AI-powered system that sources prospects, enriches data, and automates outreach — replacing a human SDR role. | VISION, REQUIREMENTS (FR-009 through FR-011) |
 | **Set-Aside** | Government contracts reserved for specific business categories (small business, SDB, HUBZone, SDVOSBC, WOSB). Limited competition = higher win rates. | REQUIREMENTS, financial models, strategy.md |
 | **Simplified Acquisition** | Federal contracts between $15,000 and $350,000 (threshold effective Oct 1, 2025). Requires small business set-aside if 2+ qualified vendors exist. Less paperwork than full & open competition. Newport's Year 2–3 growth target. | All spec files, financial models |
-| **SLED** | State, Local, and Education government agencies. A $600M–$1.2B annual food procurement market in FL alone. Requires different procurement portals than federal (MFMP, VendorLink, BidNet, DemandStar). | REQUIREMENTS (FR-002), research.md |
-| **Sole Source** | A contract awarded without competition to a single vendor. 93% sole source rate for NAICS 424490 at DoD = extremely low barrier to entry. | REQUIREMENTS (FR-006), research.md |
+| **SLED** | State, Local, and Education government agencies. FL school districts: **$1.04B/yr** (MEDIUM confidence — $358/student × 2.9M students, USDA NSLP data). FL county/municipal: **$45M/yr**. FL DOC: **$86.7M/yr but NOT biddable** (Aramark through April 2027). Requires different procurement portals than federal (MFMP, VendorLink, BidNet, DemandStar). | REQUIREMENTS (FR-002), USER-STORIES, research.md |
+| **Sole Source** | A contract awarded without competition to a single vendor. Key stats: 93% sole source for NAICS 424490 at DoD (117 awards, $9.1M — bases literally can't find vendors), 100% sole source for Forest Service NAICS 722310 ($43.1M), 58% sole source for confectionery NAICS 424450 (with only 1 registered federal contractor nationally). These rates are the empirical foundation for Newport's win rate projections — we're not guessing, we're targeting categories where nobody else shows up. | REQUIREMENTS (FR-003, FR-006), research.md |
 | **Sources Sought** | A government notice asking vendors to express interest in an upcoming contract. Not a solicitation — it's market research. Low-effort way for Newport to signal capability to contracting officers. | requirements.md, templates/ |
 | **Still Mind Creative LLC** | The consulting entity (owned by the project lead) providing strategic and operational support to Newport at no consulting fee. Handling monitoring, bid prep, compliance, and admin. | VISION |
-| **TAM** | Total Addressable Market. National federal food: $7.17B. FL federal under $350K: $85M. FL + SLED combined: ~$135M. Southeast regional: $179M. | REQUIREMENTS (FR-002), research.md |
+| **TAM** | Total Addressable Market. National federal food: $7.17B. FL federal under $350K: **$87M** (39,857 awards, re-confirmed Feb 24, 2026). Newport's SAM after filtering: $17–20M. FL SLED: school districts **$1.04B/yr** (MEDIUM confidence, USDA-derived), county/municipal $45M/yr, FL DOC excluded (Aramark through 2027). | REQUIREMENTS (FR-002), research.md |
 | **Two Routes** | The central decision framework presented to Newport: Free Route (DIY, limited market access) vs. Paid Route (platform investment, full competitive capability). Appears in both the deck and financial model. | REQUIREMENTS (FR-001), financial models |
 | **UEI** | Unique Entity Identifier. Replaced DUNS number for SAM.gov registration in April 2022. Required for all federal contracting. | requirements.md |
+| **Unison Marketplace** | Reverse auction procurement platform used by BOP for food procurement solicitations. Newport must register (free) to bid on BOP quarterly food POs. Separate from SAM.gov. | INTEGRATIONS, USER-STORIES, DEVELOPMENT-PLAN |
 | **USASpending** | USASpending.gov — federal award data. Free API, no auth. Source for TAM analysis, competitor analysis, contract examples. All Newport market data confirmed via live API runs Feb 2026. | ARCHITECTURE, research.md |
 | **v7 Model** | The 7th iteration of the GovCon financial model (Excel). 5 sheets: Inputs, Two Routes, 5-Year Model, Market Analysis, Key Questions. Built via Claude Desktop. Current best version for Newport presentation. | REQUIREMENTS (FR-008) |
 
@@ -64,6 +67,7 @@ Project-specific terms, abbreviations, and jargon used throughout the specificat
 | BPA | Blanket Purchase Agreement |
 | COI | Certificate of Insurance |
 | CRM | Customer Relationship Management |
+| DoW | Department of War (formerly Department of Defense) |
 | FFP | Firm-Fixed-Price (contract type) |
 | GFSI | Global Food Safety Initiative |
 | HACCP | Hazard Analysis Critical Control Points |
@@ -78,6 +82,7 @@ Project-specific terms, abbreviations, and jargon used throughout the specificat
 | SBA | Small Business Administration |
 | SDVOSBC | Service-Disabled Veteran-Owned Small Business Concern |
 | SKU | Stock Keeping Unit |
+| SPV | Subsistence Prime Vendor (e.g., US Foods VA contract, $263M — excludes bread, milk, produce) |
 | SQF | Safe Quality Food (certification) |
 | WOSB | Women-Owned Small Business |
 

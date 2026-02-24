@@ -1,6 +1,6 @@
 # Newport Wholesalers — Integrations
 
-> **Last Updated**: February 23, 2026
+> **Last Updated**: February 24, 2026
 > **Status**: Draft
 > **Depends On**: [03-ARCHITECTURE.md](./03-ARCHITECTURE.md)
 
@@ -45,7 +45,7 @@ This document catalogs every external service, API, and platform the Newport sys
 | **Docs** | https://api.usaspending.gov/ |
 | **Our Client** | `govcon/enrichment/usaspending_client.py` |
 | **Cost** | $0 |
-| **Status** | ✅ Built and validated. Confirmed $7.17B national TAM, $85M FL, 117 FL contracts. |
+| **Status** | ✅ Built and validated. Confirmed $7.17B national TAM, **$87M FL** (39,857 awards), $55.5M PSC 8925. All figures re-confirmed via live API query Feb 24, 2026. |
 | **If Unavailable** | Fallback to cached data in `market_data.json`. Research data doesn't change frequently. |
 
 ### FPDS (Federal Procurement Data System)
@@ -57,7 +57,7 @@ This document catalogs every external service, API, and platform the Newport sys
 | **Format** | ATOM feed (XML) |
 | **Our Client** | `govcon/enrichment/fpds_client.py` (uses `fpds` Python library) |
 | **Cost** | $0 |
-| **Status** | ✅ Built and validated. Key finding: 93% sole source for NAICS 424490 @ DoD. |
+| **Status** | ⚠️ FPDS ezSearch decommissioned Feb 24, 2026. ATOM feed survives through later FY2026 but will also be retired. Must migrate competition density analysis to SAM.gov contract awards search API before ATOM feed sunset. See Phase 5 in [DEVELOPMENT-PLAN.md](./05-DEVELOPMENT-PLAN.md). |
 
 ### Grants.gov API
 
@@ -120,6 +120,63 @@ This document catalogs every external service, API, and platform the Newport sys
 | **Env Variables** | `GOOGLE_SHEETS_CREDS_PATH`, `GOOGLE_SHEETS_ID` |
 | **Cost** | $0 |
 | **If Unavailable** | Pipeline data still saved as local CSVs. Sheets is a convenience layer, not a dependency. |
+
+---
+
+## Procurement Platforms (Registration Required — No API)
+
+These are web portals where Newport must register to receive and respond to solicitations. They don't have programmatic APIs — monitoring is manual or via email alert subscriptions.
+
+### Unison Marketplace (BOP)
+
+| Attribute | Detail |
+|-----------|--------|
+| **Purpose** | Bureau of Prisons reverse auction platform for food procurement. BOP uses this for quarterly subsistence solicitations. **Required for bidding on BOP food POs.** |
+| **URL** | https://www.unison.com/marketplace |
+| **Setup** | Register as vendor, link to SAM.gov UEI, select NAICS/PSC categories |
+| **Cost** | $0 (vendor registration is free) |
+| **Status** | ⬜ Not yet registered. Must complete before first BOP bid. |
+| **Priority** | HIGH — BOP is #1 FL small contract buyer ($5–7M/yr in FL food) |
+
+### MyFloridaMarketPlace (MFMP)
+
+| Attribute | Detail |
+|-----------|--------|
+| **Purpose** | Florida state procurement portal. Required for all state agency and most SLED bids. |
+| **URL** | https://vendor.myfloridamarketplace.com/ |
+| **Cost** | 1% transaction fee on awarded contracts |
+| **Status** | ⬜ Registration pending |
+| **Priority** | HIGH — gateway to $1.04B FL school district food market |
+
+### BidNet Direct
+
+| Attribute | Detail |
+|-----------|--------|
+| **Purpose** | Aggregated local/county government bid notifications across FL. Covers municipalities and special districts. |
+| **URL** | https://www.bidnetdirect.com/ |
+| **Cost** | Free basic tier (paid tiers for broader coverage) |
+| **Status** | ⬜ Not yet registered |
+| **Priority** | MEDIUM — FL county/municipal food procurement ($45M/yr est.) |
+
+### DemandStar
+
+| Attribute | Detail |
+|-----------|--------|
+| **Purpose** | Local government bid aggregator. Covers FL counties, cities, and school districts not on MFMP. |
+| **URL** | https://www.demandstar.com/ |
+| **Cost** | Free basic tier |
+| **Status** | ⬜ Not yet registered |
+| **Priority** | MEDIUM |
+
+### VendorLink (Broward County)
+
+| Attribute | Detail |
+|-----------|--------|
+| **Purpose** | Broward County's vendor self-service portal. Newport is based in Broward (Plantation, FL) — home county advantage. |
+| **URL** | https://www.broward.org/Purchasing/VendorRegistration/ |
+| **Cost** | $0 |
+| **Status** | ⬜ Not yet registered |
+| **Priority** | MEDIUM — local relationship + geographic proximity |
 
 ---
 
@@ -199,12 +256,17 @@ These platforms are recommended in the Newport proposal but are NOT currently in
 |---------|---------|--------|------|----------|
 | SAM.gov API | GovCon | ✅ Built | $0 | Critical |
 | USASpending API | GovCon | ✅ Built | $0 | Critical |
-| FPDS | GovCon | ✅ Built | $0 | High |
+| FPDS | GovCon | ⚠️ Sunsetting FY2026 | $0 | Migrate to SAM.gov |
 | Grants.gov API | GovCon | ✅ Built | $0 | Medium |
 | Apollo.io API | Commercial | ✅ Built | $0–$119/mo | Critical |
 | Google Sheets API | GovCon | ✅ Built | $0 | High |
 | Slack Webhooks | GovCon | ✅ Built | $0 | Medium |
 | Resend Email | GovCon | ✅ Built | $0 | Low |
+| Unison Marketplace | GovCon (BOP) | ⬜ Register | $0 | HIGH |
+| MyFloridaMarketPlace | GovCon (SLED) | ⬜ Register | 1% tx fee | HIGH |
+| BidNet Direct | GovCon (SLED) | ⬜ Register | $0 | MEDIUM |
+| DemandStar | GovCon (SLED) | ⬜ Register | $0 | MEDIUM |
+| VendorLink (Broward) | GovCon (SLED) | ⬜ Register | $0 | MEDIUM |
 | CLEATUS | GovCon | ⬜ Recommended | $2,400–$3,600/yr | Paid Route |
 | HigherGov | GovCon | ⬜ Recommended | $2,000–$5,000/yr | Paid Route |
 | GovSpend | GovCon | ⬜ Recommended | $3,000–$10,000/yr | Paid Route |
