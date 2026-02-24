@@ -123,18 +123,18 @@ const COMPLIANCE_NOT_NEEDED = [
   { item: "Facility Clearance", cost: "$15K+", note: "Classified contracts only" },
 ];
 
-// Key Questions — from v7 model Key Questions sheet
+// Key Questions — business capability & investment decisions
 const KEY_QUESTIONS = [
-  { priority: "1 HIGHEST", question: "Can Newport profitably fulfill orders under $5,200?", ifYes: "Micro channel opens (83% of awards). Credibility ramp starts.", ifNo: "Must skip to Simplified — harder, slower entry path" },
+  { priority: "1 HIGHEST", question: "How much are you willing to invest to build a government track record?", ifYes: "Free route: $0 cost, ~52 contracts over 5 yrs, ~$3.2M revenue. Paid route: $13K/yr, 104+ contracts, $6.5M+ revenue. Paid = more bids, faster feedback, steeper learning curve.", ifNo: "Determines which route and how fast credibility compounds" },
   { priority: "2 HIGHEST", question: "Eligible for SDB/HUBZone/8(a) set-aside?", ifYes: "Win rates 28%+, margins 25%. Available from Day 1.", ifNo: "Open competition only — lower win rates, slower ramp" },
-  { priority: "3 HIGH", question: "Delivery radius from FL warehouses?", ifYes: "FL only = $85M. SE region = $179M. Determines total addressable.", ifNo: "We right-size model to actual reach" },
-  { priority: "4 HIGH", question: "Existing food safety certs (SQF/GFSI)?", ifYes: "Year 1 investment drops by $23,500", ifNo: "Biggest single cost variable" },
-  { priority: "5 HIGH", question: "Willing to invest $11K-$47K (Paid Route)?", ifYes: "Full competitive capability from Day 1. ROI positive by mid-Y2.", ifNo: "Free route works but 12-18 months slower to traction" },
-  { priority: "6 MEDIUM", question: "How many confectionery/snack/nut SKUs?", ifYes: "Broader catalog = eligible for more bids across categories", ifNo: "We focus on strongest categories only" },
-  { priority: "7 MEDIUM", question: "Can add delivery routes to bases/prisons?", ifYes: "DOJ/BOP channel opens ($5M+ FL). Rainmaker Inc. is beatable.", ifNo: "Skip DOJ, focus DeCA commissaries instead" },
-  { priority: "8 MEDIUM", question: "Current commercial gross margin?", ifYes: "Calibrates if gov margins (18-25%) are accretive or dilutive", ifNo: "May not be worth pursuing if commercial margins much higher" },
-  { priority: "9 INFO", question: "Any prior gov contract experience?", ifYes: "Past performance references accelerate everything", ifNo: "Start from zero — typical for new entrants" },
-  { priority: "10 INFO", question: "Goal: supplemental revenue or primary channel?", ifYes: "Aggressive staffing and investment trajectory", ifNo: "Conservative side channel approach" },
+  { priority: "3 HIGH", question: "What geographic area can you realistically service?", ifYes: "FL only = $87M TAM. SE region expands to $179M. Drives contract eligibility.", ifNo: "We right-size model to actual delivery radius" },
+  { priority: "4 HIGH", question: "What products can you deliver against typical contract requirements?", ifYes: "Determines which NAICS/PSC codes to bid on and which agencies to target.", ifNo: "We match product catalog to contract categories before bidding" },
+  { priority: "5 HIGH", question: "Do you have warehouse capacity for government order volumes?", ifYes: "Can fulfill larger contracts immediately. Opens simplified acquisitions.", ifNo: "Start with micro-purchases only until capacity is addressed" },
+  { priority: "6 HIGH", question: "What is your cash flow position given gov payment terms (Net 30-60)?", ifYes: "Can absorb payment lag. Enables bidding on larger contracts.", ifNo: "Limits contract size until cash position supports the float" },
+  { priority: "7 MEDIUM", question: "Existing food safety certs (SQF/GFSI)?", ifYes: "Year 1 investment drops by $23,500", ifNo: "Biggest single compliance cost variable" },
+  { priority: "8 MEDIUM", question: "Can add delivery routes to military bases or prisons?", ifYes: "DOJ/BOP channel opens ($5M+ FL). Rainmaker Inc. is beatable.", ifNo: "Skip DOJ, focus DeCA commissaries instead" },
+  { priority: "9 MEDIUM", question: "Current commercial gross margin?", ifYes: "Calibrates if gov margins (18-25%) are accretive or dilutive", ifNo: "May not be worth pursuing if commercial margins much higher" },
+  { priority: "10 INFO", question: "Goal: supplemental revenue or primary growth channel?", ifYes: "Aggressive investment and staffing trajectory", ifNo: "Conservative side channel approach" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -232,13 +232,14 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
   const slide = pptx.addSlide();
   slide.background = { color: C.primary };
 
+  // Decorative shapes — tucked into corners
   slide.addShape(pptx.shapes.RECTANGLE, {
-    x: -0.5, y: 5.5, w: 4, h: 4, rotate: 45,
-    fill: { color: C.secondary, transparency: 70 },
+    x: -1.0, y: 6.0, w: 3, h: 3, rotate: 45,
+    fill: { color: C.secondary, transparency: 80 },
   });
   slide.addShape(pptx.shapes.RECTANGLE, {
-    x: 8, y: -1, w: 3, h: 3, rotate: 30,
-    fill: { color: C.accent, transparency: 60 },
+    x: 8.5, y: -1.5, w: 2.5, h: 2.5, rotate: 30,
+    fill: { color: C.accent, transparency: 75 },
   });
 
   slide.addText("Unlocking Government Revenue\nfor Newport Wholesalers", {
@@ -307,16 +308,16 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
 }
 
 // ============================================================================
-// SLIDE 3: The Opportunity (stat cards)
+// SLIDE 3: The Opportunity (stat cards) — FL-focused
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { color: C.white };
-  addHeadline(slide, "The Opportunity: A $7.2B Federal Food Market");
+  addHeadline(slide, "The Florida Opportunity");
 
   const stats = [
-    { value: "$7.2B", label: "Annual Federal\nFood Spending (FY2024)" },
-    { value: "$85M", label: "FL Food Contracts\nUnder $350K/Year" },
+    { value: "$87M", label: "Florida Food Contracts\nAnnual TAM" },
+    { value: "$17-20M", label: "Biddable FL Contracts\nAccessible to Newport" },
     { value: "93%", label: "Sole-Source Rate\nfor Grocery at DoD" },
   ];
 
@@ -324,27 +325,27 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
     addStatCard(slide, 0.5 + i * 3.2, 1.6, 2.8, 3.0, s.value, s.label);
   });
 
-  slide.addText("Government food procurement is massive, fragmented, and undercontested.\n117 FL food contracts totaling $6.4M confirmed — most with ZERO competing bids.", {
+  slide.addText("117 FL food contracts totaling $6.4M confirmed in FPDS — most with ZERO competing bids.\nTrue biddable market is $17-20M with micro-purchases and state/local included.", {
     x: 0.6, y: 5.0, w: 8.8, h: 0.8,
     fontSize: 13, fontFace: FONT_BODY, color: C.medGray, italic: true, align: "center",
   });
 
-  addSource(slide, `Source: FPDS ${dataFY}, USASpending API — live data, Feb 2026`);
+  addSource(slide, `Source: FPDS ${dataFY}, USASpending API, FL state procurement data — Feb 2026`);
 }
 
 // ============================================================================
-// SLIDE 4: Market Waterfall (National → FL → Serviceable)
+// SLIDE 4: Market Waterfall (FL TAM → Biddable → Visible)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { color: C.white };
-  addHeadline(slide, "From National Market to Newport's Opportunity");
+  addHeadline(slide, "Narrowing to Newport's Opportunity");
 
-  // Waterfall: 3 stages narrowing down
+  // Waterfall: 3 FL-focused stages
   const stages = [
-    { label: "National TAM", value: "$7.17B", desc: "Total federal food\nprocurement (all PSCs)", w: 6.0, color: C.primary },
-    { label: "Florida SAM", value: "$85M", desc: "FL contracts under\n$350K/year", w: 4.0, color: C.secondary },
-    { label: "Serviceable", value: "$6.4M", desc: "117 visible contracts\n(>$10K, FPDS-tracked)", w: 2.2, color: C.accent },
+    { label: "Florida TAM", value: "$87M", desc: "All FL food contracts\n(federal + state/local)", w: 7.0, color: C.primary },
+    { label: "Biddable", value: "$17-20M", desc: "Contracts Newport can\nbid on today", w: 4.5, color: C.secondary },
+    { label: "FPDS Visible", value: "$6.4M", desc: "117 tracked contracts\n(>$10K, on record)", w: 2.5, color: C.accent },
   ];
 
   const baseY = 1.6;
@@ -372,7 +373,7 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
 
     // Description to the right
     slide.addText(s.desc, {
-      x: leftX + maxW + 0.3, y: y + 0.1, w: 2.0, h: barH - 0.2,
+      x: leftX + maxW + 0.3, y: y + 0.1, w: 1.5, h: barH - 0.2,
       fontSize: 10, fontFace: FONT_BODY, color: C.textDark,
       lineSpacingMultiple: 1.2,
     });
@@ -386,8 +387,8 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
     }
   });
 
-  slide.addText("Micro-purchases (<$15K) account for 83% of awards but are invisible in FPDS.\nTrue serviceable market is estimated at $19-33M with paid monitoring tools.", {
-    x: 0.6, y: 7.0, w: 8.8, h: 0.5,
+  slide.addText("83% of awards are micro-purchases (<$15K) invisible in FPDS. Paid tools like GovSpend reveal $8-15M/yr in additional FL transactions.", {
+    x: 0.6, y: 7.0, w: 8.8, h: 0.4,
     fontSize: 10, fontFace: FONT_BODY, color: C.medGray, italic: true, align: "center",
   });
 }
@@ -790,22 +791,29 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
 }
 
 // ============================================================================
-// SLIDE 11: Two Routes (Free vs. Optimal)
+// SLIDE 11: Two Routes (Free vs. Paid)
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { color: C.white };
   addHeadline(slide, "Two Routes: Start Free or Go Full Coverage");
 
+  // 5-year totals: Free route sees ~40-50% of market, Paid sees ~90%+
+  // Free route: fewer bids → fewer wins → less compounding
+  const totalWinsFree = fin.wins.reduce((a, b) => a + b, 0);      // 104 total new wins
+  const totalRevFree = fin.revenue.reduce((a, b) => a + b, 0);     // ~$6.5M cumulative
+  const totalRecurring = fin.renewed.reduce((a, b) => a + b, 0);   // 82 renewals
+
   const rows = [
     ["Component", "Free Route ($0/yr)", "Paid Route ($13K/yr)"],
     ["Federal Monitoring", "SAM.gov API (built) — 117 FL contracts visible", "+ CLEATUS AI scoring ($3K/yr)"],
-    ["State/Local (FL $600M-$1.2B)", "Manual portal checking", "HigherGov — 40K+ agencies ($3.5K/yr)"],
+    ["State/Local (FL $600M+)", "Manual portal checking", "HigherGov — 40K+ agencies ($3.5K/yr)"],
     ["Micro-Purchases (83% invisible)", "Cannot see $8-15M/yr FL", "GovSpend — 1,500+ FL transactions ($6.5K/yr)"],
     ["Competitive Intel", "USASpending + FPDS (built)", "Same (already strong)"],
-    ["Pipeline Tracking", "Google Sheets (built)", "Same"],
     ["Market Coverage", "~40-50% ($6.4M visible)", "~90%+ ($19-33M visible)"],
-    ["Projected Y5 Owner Earnings", fmtDollarsK(fin.owner_earnings[4]), fmtDollarsK(fin.owner_earnings[4]) + "+"],
+    ["5-Year Contracts Won", `~${Math.round(totalWinsFree * 0.5)} contracts`, `${totalWinsFree}+ contracts`],
+    ["5-Year Cumulative Revenue", fmtDollarsK(Math.round(totalRevFree * 0.5)), fmtDollarsK(totalRevFree) + "+"],
+    ["5-Year Renewals (recurring)", `~${Math.round(totalRecurring * 0.4)}`, `${totalRecurring}+`],
   ];
 
   rows[0] = rows[0].map(t => ({
@@ -828,89 +836,86 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
     colW: [2.2, 3.2, 3.8],
     border: { type: "solid", pt: 0.5, color: "D1D5DB" },
     autoPage: false,
-    rowH: [0.4, 0.45, 0.45, 0.45, 0.4, 0.4, 0.45, 0.45],
+    rowH: [0.4, 0.45, 0.45, 0.45, 0.4, 0.4, 0.45, 0.45, 0.45],
   });
 
-  slide.addText("Both routes use the same intelligence system. The Paid Route adds visibility into the 83% of opportunities that are invisible to free tools.", {
-    x: 0.6, y: 5.8, w: 8.8, h: 0.5,
+  slide.addText("The Paid Route bids more, gets feedback faster, and compounds the portfolio sooner. Both routes use the same intelligence system.", {
+    x: 0.6, y: 6.0, w: 8.8, h: 0.5,
     fontSize: 11, fontFace: FONT_BODY, color: C.medGray, italic: true, align: "center",
   });
 }
 
 // ============================================================================
-// SLIDE 12: The Strategy (Phased: micro → simplified → renewals)
+// SLIDE 12: The Strategy — Waterfall: credibility → larger deals → compound
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { color: C.white };
-  addHeadline(slide, "The Strategy: Build Credibility, Then Compound");
+  addHeadline(slide, "The Strategy: Credibility Waterfall");
 
-  // Three phases as visual progression
+  slide.addText("Micro-purchases are a loss leader \u2014 do the minimum needed to build a track record, then leverage it into larger, profitable contracts.", {
+    x: 0.6, y: 1.15, w: 8.8, h: 0.4,
+    fontSize: 11, fontFace: FONT_BODY, color: C.secondary, italic: true, align: "center",
+  });
+
   const phases = [
     {
-      title: "Phase 1: Micro-Purchases",
-      period: "Year 1",
-      desc: "Target contracts under $15K. No past performance required. 83% of FL awards. Build credibility with 8-12 wins. Learn government fulfillment at low risk.",
-      metrics: `${fin.bids[0]} bids \u2192 ${fin.wins[0]} wins \u2192 ${fmtDollarsK(fin.revenue[0])} revenue`,
+      title: "Year 1: Build the Track Record",
+      desc: "Micro-purchases (<$15K) are the loss leader. Win 8-12 at break-even or small loss to establish past performance. Simultaneously bid on larger FL opportunities that don't require experience \u2014 sole-source, low-competition, and set-aside contracts.",
+      metrics: "Goal: Minimum viable credibility at minimum cost",
       color: C.primary,
     },
     {
-      title: "Phase 2: Simplified Acquisitions",
-      period: "Years 2-3",
-      desc: "Graduate to $15K-$250K contracts. Past performance from Phase 1 qualifies. Higher margins, longer terms. Renewals at 70% compound the portfolio.",
-      metrics: `${fin.active[2]} active contracts \u2192 ${fmtDollarsK(fin.revenue[2])} revenue`,
+      title: "Years 2-3: Leverage & Compound",
+      desc: "Past performance from Year 1 unlocks $15K-$250K simplified acquisitions \u2014 where the real margins are. Phase out any money-losing micros. Renewals at 70% start compounding the portfolio. Every win builds the reference list for the next, larger opportunity.",
+      metrics: `${fin.active[2]} active contracts \u2192 ${fmtDollarsK(fin.revenue[2])} revenue \u2192 phase out micros`,
       color: C.secondary,
     },
     {
-      title: "Phase 3: Incumbent Advantage",
-      period: "Years 4-5",
-      desc: "Preferred vendor status on renewals. Win rates improve to 25%+. Compounding portfolio of 50-70 active contracts generates predictable recurring revenue.",
-      metrics: `${fin.active[4]} active contracts \u2192 ${fmtDollarsK(fin.revenue[4])} revenue`,
+      title: "Years 4-5: Incumbent Advantage",
+      desc: "Preferred vendor status on renewals. Win rates climb to 25%+. Portfolio of 50-70 active contracts generates predictable recurring revenue. Newport is now an established government vendor competing for contracts others can't touch.",
+      metrics: `${fin.active[4]} active contracts \u2192 ${fmtDollarsK(fin.revenue[4])} revenue \u2192 ${fmtDollarsK(fin.cumulative_oe[4])} cumulative earnings`,
       color: C.accent,
     },
   ];
 
   phases.forEach((p, i) => {
-    const y = 1.5 + i * 2.0;
+    const y = 1.7 + i * 1.85;
 
-    // Phase card
     slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-      x: 0.5, y, w: 9.0, h: 1.7, rectRadius: 0.1,
+      x: 0.5, y, w: 9.0, h: 1.55, rectRadius: 0.1,
       fill: { color: C.lightGray },
     });
 
     // Colored left accent
     slide.addShape(pptx.shapes.RECTANGLE, {
-      x: 0.5, y, w: 0.12, h: 1.7,
+      x: 0.5, y, w: 0.12, h: 1.55,
       fill: { color: p.color },
     });
 
     slide.addText(p.title, {
-      x: 0.9, y: y + 0.1, w: 4.0, h: 0.4,
-      fontSize: 15, fontFace: FONT_HEADER, color: C.accent, bold: true,
-    });
-    slide.addText(p.period, {
-      x: 7.5, y: y + 0.1, w: 1.8, h: 0.4,
-      fontSize: 12, fontFace: FONT_BODY, color: C.primary, bold: true, align: "right",
+      x: 0.9, y: y + 0.08, w: 8.3, h: 0.35,
+      fontSize: 14, fontFace: FONT_HEADER, color: C.accent, bold: true,
     });
     slide.addText(p.desc, {
-      x: 0.9, y: y + 0.55, w: 8.3, h: 0.65,
-      fontSize: 10.5, fontFace: FONT_BODY, color: C.textDark,
-      lineSpacingMultiple: 1.3,
+      x: 0.9, y: y + 0.42, w: 8.3, h: 0.65,
+      fontSize: 10, fontFace: FONT_BODY, color: C.textDark,
+      lineSpacingMultiple: 1.25,
     });
     slide.addText(p.metrics, {
-      x: 0.9, y: y + 1.25, w: 8.3, h: 0.35,
-      fontSize: 11, fontFace: FONT_BODY, color: C.primary, bold: true,
+      x: 0.9, y: y + 1.1, w: 8.3, h: 0.35,
+      fontSize: 10, fontFace: FONT_BODY, color: C.primary, bold: true,
     });
 
-    // Arrow between phases
     if (i < phases.length - 1) {
       slide.addText("\u25BC", {
-        x: 4.5, y: y + 1.65, w: 1.0, h: 0.35,
+        x: 4.5, y: y + 1.52, w: 1.0, h: 0.3,
         fontSize: 14, color: C.medGray, align: "center",
       });
     }
   });
+
+  addSource(slide, "Micros are the price of admission \u2014 not the destination. Each phase funds and enables the next.");
 }
 
 // ============================================================================
@@ -1168,87 +1173,90 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
 
   // Bottom callout
   slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-    x: 0.5, y: 5.4, w: 9.0, h: 1.2, rectRadius: 0.1,
+    x: 0.5, y: 5.3, w: 9.0, h: 1.1, rectRadius: 0.1,
     fill: { color: C.tealLight },
   });
   slide.addText("The Misconception: Government contracting requires expensive certifications and complex compliance.", {
-    x: 0.7, y: 5.5, w: 8.6, h: 0.4,
-    fontSize: 11, fontFace: FONT_BODY, color: C.textDark, bold: true,
+    x: 0.7, y: 5.35, w: 8.6, h: 0.35,
+    fontSize: 10, fontFace: FONT_BODY, color: C.textDark, bold: true,
   });
-  slide.addText("The Reality: Food supply contracts under $250K need SAM.gov registration (free), standard insurance, and food safety certification. That's it. The expensive compliance requirements (DCAA, CMMC, CAS) apply to IT, defense, and consulting — not food procurement.", {
-    x: 0.7, y: 5.9, w: 8.6, h: 0.6,
-    fontSize: 10, fontFace: FONT_BODY, color: C.textDark,
-    lineSpacingMultiple: 1.3,
+  slide.addText("The Reality: Food supply contracts under $250K need SAM.gov registration (free), standard insurance, and food safety certification. That's it. DCAA, CMMC, and CAS apply to IT and defense — not food procurement.", {
+    x: 0.7, y: 5.7, w: 8.6, h: 0.55,
+    fontSize: 9.5, fontFace: FONT_BODY, color: C.textDark,
+    lineSpacingMultiple: 1.2,
   });
 }
 
 // ============================================================================
-// SLIDE 16: Your Investment
+// SLIDE 16: Executing the Strategy
 // ============================================================================
 {
   const slide = pptx.addSlide();
   slide.background = { color: C.white };
-  addHeadline(slide, "Your Investment: What Newport Pays vs. What We Handle");
+  addHeadline(slide, "Executing the Strategy");
 
-  // Left: Newport's investment
+  // Left: What it takes
   slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-    x: 0.5, y: 1.5, w: 4.3, h: 4.5, rectRadius: 0.1,
+    x: 0.5, y: 1.5, w: 4.3, h: 4.2, rectRadius: 0.1,
     fill: { color: C.tealLight },
     line: { color: C.primary, width: 1.5 },
   });
-  slide.addText("Newport Pays", {
-    x: 0.75, y: 1.7, w: 3.8, h: 0.5,
-    fontSize: 18, fontFace: FONT_HEADER, color: C.primary, bold: true,
+  slide.addText("What It Takes", {
+    x: 0.75, y: 1.65, w: 3.8, h: 0.45,
+    fontSize: 16, fontFace: FONT_HEADER, color: C.primary, bold: true,
   });
 
-  const newportItems = [
-    "SAM.gov registration — $0",
-    "State portal registrations — $0",
-    "Food safety cert (if needed) — $0-$23.5K",
-    "Insurance (if needed) — $1.5-3K/yr",
-    "Legal review — $2.5-5K (one-time)",
-    "Optional: Paid monitoring tools — $13K/yr",
+  const strategyItems = [
+    "SAM.gov registration (free, 2-4 weeks)",
+    "State portal registrations (free)",
+    "Food safety cert if not current ($0-$23.5K)",
+    "Insurance review ($1.5-3K/yr if needed)",
+    "Legal review of gov terms ($2.5-5K one-time)",
+    "Daily monitoring & bid pipeline",
+    "Capability statements & proposals",
+    "Competitive intelligence & scoring",
   ];
 
-  newportItems.forEach((item, i) => {
-    slide.addText(`\u2022  ${item}`, {
-      x: 0.75, y: 2.4 + i * 0.5, w: 3.8, h: 0.45,
-      fontSize: 11, fontFace: FONT_BODY, color: C.textDark,
-    });
-  });
-
-  // Right: Still Mind handles
-  slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-    x: 5.2, y: 1.5, w: 4.3, h: 4.5, rectRadius: 0.1,
-    fill: { color: C.lightGray },
-    line: { color: C.secondary, width: 1.5 },
-  });
-  slide.addText("Still Mind Handles", {
-    x: 5.45, y: 1.7, w: 3.8, h: 0.5,
-    fontSize: 18, fontFace: FONT_HEADER, color: C.secondary, bold: true,
-  });
-
-  const smcItems = [
-    "Federal opportunity monitoring system",
-    "Bid/no-bid scoring framework",
-    "Pipeline tracking & lifecycle management",
-    "Daily opportunity digests",
-    "Capability statement & proposal templates",
-    "Competitive intelligence dashboard",
-    "Monthly reporting & strategy",
-    "Ongoing system optimization",
-  ];
-
-  smcItems.forEach((item, i) => {
-    slide.addText(`\u2713  ${item}`, {
-      x: 5.45, y: 2.4 + i * 0.45, w: 3.8, h: 0.4,
+  strategyItems.forEach((item, i) => {
+    slide.addText(`${i + 1}.  ${item}`, {
+      x: 0.75, y: 2.25 + i * 0.43, w: 3.8, h: 0.38,
       fontSize: 10.5, fontFace: FONT_BODY, color: C.textDark,
     });
   });
 
-  slide.addText("Newport focuses on what it does best — fulfilling orders. We handle the intelligence, targeting, and proposal infrastructure.", {
-    x: 0.5, y: 6.3, w: 9.0, h: 0.5,
-    fontSize: 12, fontFace: FONT_BODY, color: C.primary, bold: true, italic: true, align: "center",
+  // Right: How we can help
+  slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+    x: 5.2, y: 1.5, w: 4.3, h: 4.2, rectRadius: 0.1,
+    fill: { color: C.lightGray },
+    line: { color: C.secondary, width: 1.5 },
+  });
+  slide.addText("How We Can Help", {
+    x: 5.45, y: 1.65, w: 3.8, h: 0.45,
+    fontSize: 16, fontFace: FONT_HEADER, color: C.secondary, bold: true,
+  });
+
+  const helpItems = [
+    { item: "Build the monitoring system", desc: "Automated SAM.gov scanning, scoring, daily digests" },
+    { item: "Run the intelligence pipeline", desc: "Competitive analysis, bid scoring, market tracking" },
+    { item: "Manage the bid lifecycle", desc: "Proposals, compliance docs, pipeline management" },
+    { item: "Ongoing strategy & reporting", desc: "Monthly reviews, model calibration, market updates" },
+  ];
+
+  helpItems.forEach((h, i) => {
+    const y = 2.25 + i * 0.85;
+    slide.addText(h.item, {
+      x: 5.45, y, w: 3.8, h: 0.3,
+      fontSize: 11, fontFace: FONT_BODY, color: C.accent, bold: true,
+    });
+    slide.addText(h.desc, {
+      x: 5.45, y: y + 0.3, w: 3.8, h: 0.35,
+      fontSize: 9.5, fontFace: FONT_BODY, color: C.textDark,
+    });
+  });
+
+  slide.addText("Newport focuses on fulfilling orders and growing the business. Everything else can be handled.", {
+    x: 0.5, y: 5.95, w: 9.0, h: 0.4,
+    fontSize: 11, fontFace: FONT_BODY, color: C.primary, bold: true, italic: true, align: "center",
   });
 }
 
@@ -1258,15 +1266,15 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
 {
   const slide = pptx.addSlide();
   slide.background = { color: C.white };
-  addHeadline(slide, "Key Questions: Critical Decisions That Shape the Model");
+  addHeadline(slide, "Key Questions: What We Need to Know");
 
   const rows = [
-    ["#", "Question", "If Yes", "If No"],
+    ["#", "Question", "Why It Matters"],
   ];
 
   KEY_QUESTIONS.forEach(q => {
     const num = q.priority.split(" ")[0];
-    rows.push([num, q.question, q.ifYes, q.ifNo]);
+    rows.push([num, q.question, q.ifYes]);
   });
 
   rows[0] = rows[0].map(t => ({
@@ -1283,25 +1291,25 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
     const bg = i % 2 === 0 ? C.lightGray : C.white;
     rows[i] = rows[i].map((t, j) => ({
       text: t, options: {
-        fill: { color: bg }, fontSize: 8.5,
+        fill: { color: bg }, fontSize: 8,
         align: j === 0 ? "center" : "left",
         bold: j === 0,
-        color: j === 0 ? priColor : j === 2 ? "2E7D32" : j === 3 ? C.red : C.textDark,
+        color: j === 0 ? priColor : C.textDark,
       },
     }));
   }
 
   slide.addTable(rows, {
-    x: 0.2, y: 1.3, w: 9.6,
-    colW: [0.4, 3.0, 3.0, 3.2],
+    x: 0.3, y: 1.3, w: 9.4,
+    colW: [0.4, 3.5, 5.5],
     border: { type: "solid", pt: 0.5, color: "D1D5DB" },
     autoPage: false,
-    rowH: [0.35, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    rowH: [0.32, 0.52, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42],
   });
 
-  slide.addText("These questions directly change the financial model. Answering them lets us customize projections to Newport's actual situation.", {
-    x: 0.6, y: 7.0, w: 8.8, h: 0.4,
-    fontSize: 10, fontFace: FONT_BODY, color: C.medGray, italic: true, align: "center",
+  slide.addText("Your answers calibrate the model. We customize projections to Newport\u2019s actual capabilities, capacity, and investment appetite.", {
+    x: 0.6, y: 6.95, w: 8.8, h: 0.35,
+    fontSize: 9.5, fontFace: FONT_BODY, color: C.medGray, italic: true, align: "center",
   });
 }
 
@@ -1312,51 +1320,52 @@ function addStatCard(slide, x, y, w, h, value, label, bgColor) {
   const slide = pptx.addSlide();
   slide.background = { color: C.primary };
 
+  // Subtle decorative shape — tucked into corner, won't overlap content
   slide.addShape(pptx.shapes.RECTANGLE, {
-    x: 7, y: 5, w: 4, h: 4, rotate: 45,
-    fill: { color: C.secondary, transparency: 70 },
+    x: 8.5, y: 6.0, w: 2.5, h: 2.5, rotate: 45,
+    fill: { color: C.secondary, transparency: 80 },
   });
 
   slide.addText("Next Steps", {
-    x: 0.8, y: 0.8, w: 8.4, h: 0.8,
-    fontSize: 36, fontFace: FONT_HEADER, color: C.white, bold: true,
+    x: 0.8, y: 0.6, w: 8.4, h: 0.7,
+    fontSize: 32, fontFace: FONT_HEADER, color: C.white, bold: true,
   });
 
   const steps = [
-    { num: "1", title: "Answer Key Questions", desc: "Review the 10 questions on the previous slide. Your answers let us customize the financial model to Newport's actual situation." },
-    { num: "2", title: "Register on SAM.gov", desc: "Free registration takes 2-4 weeks. This is the gateway to all federal contracting. We'll guide you through the process." },
-    { num: "3", title: "Choose Your Route", desc: "Free Route ($0) or Paid Route ($13K/yr). Both work — the Paid Route gets to traction 12-18 months faster." },
-    { num: "4", title: "30-Day Target: First Bids", desc: "Once SAM.gov is active, we begin daily monitoring and submit first micro-purchase bids within 30 days." },
+    { num: "1", title: "Answer Key Questions", desc: "Review the 10 questions. Your answers calibrate the model to Newport's actual capabilities and investment appetite." },
+    { num: "2", title: "Register on SAM.gov", desc: "Free registration, 2-4 weeks. This is the gateway to all federal contracting." },
+    { num: "3", title: "Choose Your Route", desc: "Free ($0) or Paid ($13K/yr). Paid = more bids, faster feedback, steeper learning curve." },
+    { num: "4", title: "First Bids Within 30 Days", desc: "Once SAM.gov is active, daily monitoring begins and first bids go out within 30 days." },
   ];
 
   steps.forEach((s, i) => {
-    const y = 2.0 + i * 1.2;
+    const y = 1.7 + i * 1.25;
     slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
-      x: 0.8, y, w: 7.5, h: 0.9, rectRadius: 0.08,
+      x: 0.8, y, w: 8.0, h: 0.95, rectRadius: 0.08,
       fill: { color: C.accent, transparency: 50 },
     });
     slide.addShape(pptx.shapes.OVAL, {
-      x: 0.95, y: y + 0.2, w: 0.5, h: 0.5,
+      x: 0.95, y: y + 0.22, w: 0.5, h: 0.5,
       fill: { color: C.white, transparency: 70 },
     });
     slide.addText(s.num, {
-      x: 0.95, y: y + 0.18, w: 0.5, h: 0.5,
+      x: 0.95, y: y + 0.2, w: 0.5, h: 0.5,
       fontSize: 16, fontFace: FONT_HEADER, color: C.white, bold: true, align: "center", valign: "middle",
     });
     slide.addText(s.title, {
-      x: 1.65, y: y + 0.05, w: 6.5, h: 0.35,
+      x: 1.65, y: y + 0.08, w: 6.8, h: 0.35,
       fontSize: 14, fontFace: FONT_HEADER, color: C.white, bold: true,
     });
     slide.addText(s.desc, {
-      x: 1.65, y: y + 0.4, w: 6.5, h: 0.45,
-      fontSize: 11, fontFace: FONT_BODY, color: C.white, transparency: 10,
+      x: 1.65, y: y + 0.45, w: 6.8, h: 0.42,
+      fontSize: 10.5, fontFace: FONT_BODY, color: C.white, transparency: 10,
       lineSpacingMultiple: 1.2,
     });
   });
 
   slide.addText("Zack  |  Still Mind Creative  |  zack@stillmindcreative.com", {
-    x: 0.8, y: 6.8, w: 7.5, h: 0.4,
-    fontSize: 12, fontFace: FONT_BODY, color: C.white, transparency: 20,
+    x: 0.8, y: 6.9, w: 7.5, h: 0.35,
+    fontSize: 11, fontFace: FONT_BODY, color: C.white, transparency: 20,
   });
 }
 

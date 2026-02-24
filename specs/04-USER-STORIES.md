@@ -31,7 +31,7 @@ User stories for this engagement cover two types of flows: (1) deliverable creat
 
 - **If market data is stale**: Use hardcoded fallback values (built into `build_presentation.js`). Note data date in footnotes. All core research was validated Feb 2026 and federal food markets don't shift dramatically quarter to quarter.
 - **If Newport can't answer a Key Question immediately**: Show the sensitivity — "if yes, the model looks like X. If no, it looks like Y. Take your time, we'll update when you decide."
-- **If Newport pushes back on win rates**: Point to the data — 93% sole source for NAICS 424490 @ DoD, 15 low-competition NAICS/agency combos worth $64.8M. Then the DOGE/fraud context: agencies are actively losing vendors to fraud investigations and need replacements with auditable histories. Newport isn't a stranger knocking on doors — they're a 30-year answer to a problem agencies are having right now. With the right capability statement and collateral, doors will open.
+- **If Newport pushes back on win rates**: Point to the data — three stats: (1) 93% sole source for NAICS 424490 at DoD, 117 awards, bases can't find vendors; (2) 1 registered federal confectionery contractor nationally under NAICS 424450; (3) 15 low-competition NAICS/agency combos worth $64.8M — nearly half the biddable market has almost no one bidding. Then the DOGE/fraud context: 1,091 firms suspended in January 2026 (25% of the 8(a) program), agencies are actively losing vendors to fraud investigations and need replacements with auditable histories for recurring food supply. Newport isn't a stranger knocking on doors — they're a 30-year answer to a problem agencies are having right now. The model's win rates are competition-density-informed, not generic assumptions.
 - **If Newport wants to start free and upgrade later**: Model supports both paths. Show Year 2 upgrade scenario.
 
 ### UI Notes (Deliverable Design)
@@ -105,12 +105,14 @@ Newport's uncle built a rich business through relationships and reputation over 
 ### Happy Path
 
 1. Still Mind identifies opportunity (daily monitor or direct portal notification)
-2. Still Mind prepares: quote with Newport pricing, capability statement, any required certifications
-3. Still Mind confirms with Newport: "Can you deliver [product] to [location] by [date] at [price]? Y/N"
-4. Newport confirms delivery capability and pricing
-5. Still Mind submits via SAM.gov, email to contracting officer, or portal
-6. If awarded: Newport fulfills. Still Mind handles paperwork.
-7. **End State**: Contract win added to past performance record. One more step toward simplified-acquisition eligibility.
+2. For BOP opportunities: check Unison Marketplace (reverse auction platform BOP uses for food procurement — registration required, see [INTEGRATIONS.md](./09-INTEGRATIONS.md))
+3. For DoD base-level opportunities: these are local supplemental/perishable purchases not covered by the DLA Prime Vendor. **93% sole source rate** — bases post requirements and get zero or one bid. MacDill AFB, NAS Jacksonville, Patrick SFB, NAS Pensacola, Eglin AFB, Homestead ARB. Newport showing up with a competitive quote and cold chain = win.
+4. Still Mind prepares: quote with Newport pricing, capability statement, any required certifications
+5. Still Mind confirms with Newport: "Can you deliver [product] to [location] by [date] at [price]? Y/N"
+6. Newport confirms delivery capability and pricing
+7. Still Mind submits via SAM.gov, Unison Marketplace, email to contracting officer, or portal
+8. If awarded: Newport fulfills. Still Mind handles paperwork.
+9. **End State**: Contract win added to past performance record. One more step toward simplified-acquisition eligibility.
 
 ### Critical Context
 
@@ -145,7 +147,16 @@ The model should show micro bid volume high in months 1–6, declining through m
 
 ### Key Insight
 
-Simplified and SLED bids should NOT wait until micro past performance is fully established. Newport has 30 years of commercial delivery excellence. Combined with even 2–3 successful micro deliveries plus the capability statement highlighting their infrastructure, fleet, workforce stability, and clean history — that's a stronger proposal than most new entrants have. The post-DOGE environment amplifies this: evaluators are looking for reasons to trust a vendor, and Newport gives them plenty. Bid on simplified/SLED from the beginning, while micro wins accumulate in parallel.
+Simplified and SLED bids should NOT wait until micro past performance is fully established. Newport has 30 years of commercial delivery excellence. Combined with even 2–3 successful micro deliveries plus the capability statement highlighting their infrastructure, fleet, workforce stability, and clean history — that's a stronger proposal than most new entrants have. The post-fraud-crackdown environment amplifies this: evaluators are looking for reasons to trust a vendor, and Newport gives them plenty. Bid on simplified/SLED from the beginning, while micro wins accumulate in parallel.
+
+### Agency-Specific Entry Vectors
+
+- **VA Medical Centers (7 in FL):** The VA's national Subsistence Prime Vendor contract (US Foods, $263M) explicitly **excludes fresh bread, fresh milk, and fresh produce**. These categories are purchased locally through BPAs and micro-purchases — estimated $3–5M/yr across FL VA facilities. Newport's entry pitch: "You buy everything through US Foods except bread, milk, and produce. We deliver those." Target: VA Nutrition & Food Service Chiefs at each facility.
+- **BOP Facilities (6 in FL):** Quarterly subsistence solicitations per institution on SAM.gov AND via **Unison Marketplace** (reverse auction platform). Start with smaller facilities (FPC Pensacola, FDC Miami) before scaling to FCC Coleman ($2.0–2.5M/yr food spend, largest complex nationally).
+- **DoD Installations (6 bases in FL):** 93% sole source rate for NAICS 424490 at DoD — bases are posting food requirements and receiving zero or one bid. MacDill AFB (Tampa), NAS Jacksonville, Patrick SFB, NAS Pensacola, Eglin AFB, Homestead ARB. These are local base-level purchases for supplemental/perishable items not covered by the DLA Subsistence Prime Vendor. Newport shows up with a competitive quote and cold chain capability = Newport wins.
+- **FL County Jails (67 counties):** Separate from FL DOC (state prisons, Aramark contract, NOT biddable). County jails procure food independently — some through FSMC contracts, some through direct purchasing on county procurement portals. Many fall under simplified acquisition thresholds. Bid through: VendorLink (Broward — Newport's home county), BidNet Direct, DemandStar. Target the 10 largest FL counties by jail population first. Estimated market: $45M/yr total FL county/municipal food procurement.
+- **FL School Districts:** Bid through MyFloridaMarketPlace and individual district portals. Top targets by food spend: Miami-Dade ($82.25M), Broward ($56.1M), Hillsborough ($44.3M), Orange ($42.1M). Per-student food cost: $358/yr (USDA NSLP data).
+- **FL DOC:** NOT biddable through April 2027 (Aramark Contract C3021). Newport's path: sell to Aramark as a subcontractor/supplier for confectionery and snack categories. When contract approaches rebid, position for direct supply. Year 3–5 opportunity.
 
 ---
 

@@ -1,0 +1,8 @@
+{
+  "name": "newport-commercial-deck",
+  "version": "1.0.0",
+  "description": "Commercial SDR Presentation Deck for Newport Wholesalers",
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
+}

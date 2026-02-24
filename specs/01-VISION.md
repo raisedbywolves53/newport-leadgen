@@ -1,6 +1,6 @@
 # Newport Wholesalers — Vision Document
 
-> **Last Updated**: February 23, 2026
+> **Last Updated**: February 24, 2026
 > **Status**: Draft
 > **Depends On**: None — this is the root document
 > **Author**: Still Mind Creative LLC
@@ -19,7 +19,9 @@ This document defines the strategic vision for Newport Wholesalers' two-channel 
 
 **How they solve it today:** They don't. Government contracting is an entirely new channel with zero past performance. Commercial sales growth is relationship-driven and manual — no structured SDR process, no enrichment pipeline, no automated outreach.
 
-**Why the timing is exceptional:** The post-DOGE/fraud-crackdown environment is fundamentally shifting how government agencies evaluate vendors. Agencies face increasing public scrutiny over contracting decisions. Shell companies, paper-only vendors, and contractors with questionable histories are being exposed and excluded. Newport — American-owned by a citizen born of legal immigrants, 30 years of continuous operations, real warehouse infrastructure, W-2 American workforce, clean audit history, full tax compliance — is exactly the type of vendor agencies need going forward. This competitive moat took three decades to build and cannot be manufactured overnight.
+**Why the timing is exceptional:** The federal small business contracting landscape is undergoing the most significant enforcement action in the 8(a) program's ~50-year history. In June 2025, SBA launched its first-ever audit of the 8(a) program. By November 2025, $253M in contracts were implicated in fraud allegations and a DOJ investigation uncovered a $550M bribery scheme involving a former USAID contracting officer. In December 2025, SBA ordered all 4,300 8(a) firms to produce three years of financial records. On January 28, 2026, SBA suspended 1,091 firms — 25% of the entire program — for failing to comply (source: SBA.gov). Simultaneously, Secretary Hegseth ordered a line-by-line review of all DoW small business set-aside contracts over $20M, with results due to DOGE by February 28, 2026 (source: Holland & Knight, Government Contracts Legal Forum). Treasury and GSA have launched parallel audits.
+
+Agencies cannot pause food procurement while vendors are suspended. Base dining halls, prison kitchens, and VA medical centers need replacement suppliers immediately. Newport — American-owned by a citizen born of legal immigrants, 30 years of continuous operations, real warehouse infrastructure, W-2 American workforce, clean audit history, full tax compliance — is exactly the type of vendor agencies need right now. This competitive moat took three decades to build and cannot be manufactured overnight.
 
 ---
 
@@ -152,9 +154,11 @@ We are both the strategists and the operators. The documentation and systems we 
 2. Newport can profitably fulfill orders under $5,200 (the micro-purchase threshold — critical question for ownership)
 3. Newport's delivery radius covers at minimum South Florida, potentially Southeast US (needs validation)
 4. Newport has or can obtain food safety certifications (SQF/GFSI/FDA) — largest cost variable if not
-5. Win rates for micro-purchases are 15–25% for a new entrant with no past performance, growing to 25%+ as credibility builds
+5. Win rates are competition-density-informed, not generic: 25–40% in low-competition categories (DoD 424490: 93% sole source; confectionery: 1 registered contractor nationally), 12–18% in moderate-competition categories, with a +5–10% post-fraud tailwind adjustment for the first 12–18 months. Blended Year 1 win rate of ~20–25% assumes Newport deliberately targets low-competition categories first. All rates justified by FPDS data (537 awards, 32 NAICS/agency combos analyzed, Feb 2026).
 6. 70% of government food contracts renew to the incumbent vendor — this is the compounding flywheel
-7. The post-DOGE/fraud-crackdown environment will increase demand for transparent, auditable vendors like Newport — this is a thesis, not a certainty, but supported by current policy direction
+7. The post-fraud-crackdown environment is actively increasing demand for transparent, auditable vendors like Newport — **confirmed by SBA actions January 2026**: 1,091 firms suspended (25% of 8(a) program), DoW auditing $80B+ in small business contracts, parallel audits by Treasury and GSA. Sources: SBA.gov (Jan 28, 2026), Holland & Knight (Jan 21, 2026), Government Contracts Legal Forum (Jan 2026).
+8. FL Department of Corrections food service is NOT biddable through April 2027 — locked under Aramark Contract C3021 ($86.7M/yr, $449M total). Newport's path to FL DOC is as a subcontractor/supplier to Aramark or the next FSMC winner, not as a direct bidder. This is a Year 3-5 opportunity.
+9. BOP uses Unison Marketplace for reverse auction food procurement — Newport must register on this platform in addition to SAM.gov to bid on BOP quarterly food POs.
 
 ---
 

@@ -82,7 +82,11 @@ Confirm the v7 financial model is accurate, complete, and ready to hand to Newpo
 3. Validate Two Routes sheet: cost comparison is current, expected outcomes match the research data
 4. Validate 5-Year Model: 
    - Bid volumes reflect strategy (micro declining, simplified/SLED/set-aside ramping from Day 1)
-   - Win rates reflect the post-fraud tailwind — agencies actively need replacement vendors, Newport's 30-year history opens doors. We should not be overly conservative on micro AND simplified simultaneously.
+   - Win rates **must be differentiated by competition density**, not generic per-tier. FPDS data provides the justification:
+     - Low-competition targets (DoD 424490: 93% sole source, 1.2 avg offers; Confectionery 424450: 58% sole source, 1 registered contractor nationally): **25–40% Year 1 win rate**
+     - Moderate-competition targets (BOP 424490: 3.2 avg offers; DoD 424410: 2.4 avg offers): **12–18% Year 1**
+     - Post-fraud tailwind: +5–10% adjustment for first 12–18 months (1,091 firms suspended, multi-agency audits — agencies actively losing vendors for recurring food contracts)
+     - Blended Year 1 win rate should land at ~20–25% if Newport targets low-competition categories first (which is the strategy). The old generic 15% assumed random bidding across all competition levels — that's not what we're proposing.
    - Micro-purchases decline sharply after enough wins for past performance (~5-10). They're on-ramp currency, not a business line.
    - Renewal math: 70% of contracts renew, compounding each year. Renewals should dominate revenue by Year 3.
    - Owner Earnings calculation is clean: Revenue - COGS - Bid Prep - Fulfillment - Program Costs = OE
@@ -103,7 +107,13 @@ Read /specs/02-REQUIREMENTS.md FR-003 and FR-008 for acceptance criteria.
 Open the v7 Excel model at data/newport-govcon-financial-model-v7.xlsx.
 Check all formulas for errors.
 Verify the 5-Year Model bid volumes show micro declining and simplified/SLED ramping simultaneously.
-Verify win rates are not overly conservative — see /specs/04-USER-STORIES.md Flow 4 and Flow 5 for context on the post-fraud environment.
+Verify win rates are differentiated by competition density:
+  - Low-competition (DoD 424490, confectionery 424450): 25-40% Year 1
+  - Moderate-competition (BOP 424490, DoD 424410): 12-18% Year 1
+  - Post-fraud tailwind: +5-10% adjustment for months 1-18
+  - Blended Year 1: ~20-25% (weighted toward low-competition targets)
+See /specs/04-USER-STORIES.md Flow 4 and Flow 5 for context.
+See /govcon/docs/research.md Section 3 for FPDS competition density data.
 List any issues found.
 ```
 
@@ -111,7 +121,8 @@ List any issues found.
 - [ ] Zero formula errors in v7 model
 - [ ] Bid volume trajectory: micro peaks early, declines by Year 2, near zero by Year 3
 - [ ] Simplified and SLED bids start Year 1 and ramp aggressively
-- [ ] Win rates reflect both new-entrant reality AND post-fraud tailwind
+- [ ] Win rates differentiated by competition density: 25–40% for low-competition targets (DoD, confectionery), 12–18% for moderate, blended ~20–25% Year 1
+- [ ] Post-fraud tailwind adjustment (+5–10%) applied for months 1–18 with documented justification
 - [ ] All charts render and tell a clear visual story
 - [ ] Key Questions tab is complete and formatted for Newport to fill in
 
@@ -134,23 +145,24 @@ Produce a presentation-ready PowerPoint deck that matches the v7 model's narrati
 | # | Slide Title | Content |
 |---|------------|---------|
 | 1 | Title Slide | Newport Wholesalers — Government Contracting Growth Strategy |
-| 2 | Newport's Competitive Advantage | 30 years. Clean books. Real infrastructure. American workforce. The vendor agencies need now. Backed by data: post-DOGE/fraud environment. |
-| 3 | The Opportunity | Federal food procurement = $7.17B. FL = $85M under $350K. Key stat: 93% sole source in Newport's category. |
-| 4 | Market Waterfall | Visual: National → FL → Newport's serviceable market. Data from USASpending. |
-| 5 | The Confectionery Gap | $55M national, $412K FL competition. Newport's beachhead category. |
-| 6 | Who's Buying | Target agencies: BOP, VA, DeCA, school districts, county governments. FL facilities map. |
-| 7 | The Competition | Top 10 FL food contractors. Newport slots into the $1–5M tier. Big players don't compete for micro. |
-| 8 | How It Works: Sourcing | How we find opportunities: SAM.gov, state portals, SLED platforms, small business set-asides, low-competition contracts. |
+| 2 | Newport's Competitive Advantage | 30 years. Clean books. Real infrastructure. American workforce. The vendor agencies need NOW. Hard data: 1,091 firms suspended Jan 2026 (25% of 8(a) program), $550M DOJ fraud case, DoW auditing $80B+ in set-asides. Agencies need replacement vendors for recurring food contracts — Newport is exactly what they're looking for. (Cite: SBA.gov Jan 28, 2026) |
+| 3 | The Opportunity | Federal food procurement = $7.17B national. FL = $87M under $350K (39,857 awards). Three stats that tell the story: (1) DoD food purchasing: 93% sole source, bases literally can't find vendors. (2) Confectionery: 1 registered federal contractor nationally. (3) Overall: 15 low-competition NAICS/agency combos worth $64.8M. Half the biddable market has almost no one bidding. |
+| 4 | TAM Waterfall | Visual: $87M FL total → filter locked SPV contracts → filter product mismatches → filter geography → **$17–20M biddable by Newport**. Shows disciplined market sizing. |
+| 5 | The Confectionery Gap | $55.5M national, $412K FL competition. **1 registered federal confectionery contractor nationally** (NAICS 424450). Newport's beachhead category — virtually zero competition. |
+| 6 | Who's Buying | Target agencies with FL-specific detail: BOP 6 facilities ($5–7M/yr, facility breakdown), VA 7 medical centers ($3–5M/yr in bread/milk/produce excluded from SPV), DoD 6 bases (93% sole source), School Districts top 10 by spend, County Jails ($45M/yr, separate from FL DOC). FL DOC explicitly marked NOT biddable (Aramark through 2027). |
+| 7 | The Competition | Top 10 FL food contractors. Newport slots into the $1–5M tier. Competition density pyramid: 15 LOW combos ($64.8M) → 11 MODERATE ($55.3M) → 4 HIGH ($25.4M, avoid). Big players don't compete for micro. Post-fraud: 1,091 fewer competitors in the market, agencies actively need replacements for recurring food supply. |
+| 8 | How It Works: Sourcing | How we find opportunities: SAM.gov, Unison Marketplace (BOP), state portals, SLED platforms, small business set-asides, low-competition contracts. |
 | 9 | How It Works: Evaluation & Bidding | Bid scoring, proposal preparation, capability statement, compliance docs. |
-| 10 | How It Works: Pipeline & Relationships | Dashboard tracking, decision-maker outreach, account-based approach to contracting officers AND front-line operators (kitchen managers, nutrition directors). |
+| 10 | How It Works: Pipeline & Relationships | Dashboard tracking, decision-maker outreach, account-based approach to contracting officers AND front-line operators (kitchen managers, nutrition directors). VA pitch: "You buy everything through US Foods except bread, milk, produce. We deliver those." |
 | 11 | Two Routes | Free ($0–$2K) vs. Paid ($11K–$47K). Side-by-side costs, market coverage, expected outcomes. |
 | 12 | The Strategy | Year 1: micro for credibility (loss leader) + simultaneous simplified/SLED bids. Year 2–3: portfolio shifts to larger contracts. Year 4–5: compounding renewal base. |
 | 13 | 5-Year Financial Summary | Revenue trajectory chart, owner earnings, cumulative return. From v7 model. |
 | 14 | The Compounding Flywheel | Active contracts chart: renewals + new wins = exponential growth. 70% renewal rate = money machine. |
-| 15 | Risk & Compliance | What it takes: SAM.gov registration, food safety, insurance, legal review. What it DOESN'T take: DCAA, CMMC, CAS, bonding. Cost-avoided section. |
-| 16 | Your Investment | What Newport pays (tools, certs, legal). What Still Mind handles (monitoring, bids, compliance, admin). Newport focuses on relationships and delivery. |
-| 17 | Key Questions | The 10 questions that calibrate the model. "We built this on research. Your answers make it real." |
-| 18 | Next Steps | Immediate actions: answer Key Questions, register SAM.gov, prepare capability statement, first bids within 30 days. |
+| 15 | SLED Deep Dive | FL school districts: $1.04B/yr total ($358/student). Top 10 districts individually sized. County/municipal: $45M/yr. Entry via MyFloridaMarketPlace + individual district portals. |
+| 16 | Risk & Compliance | What it takes: SAM.gov registration, food safety, insurance, legal review. What it DOESN'T take: DCAA, CMMC, CAS, bonding. Cost-avoided section. |
+| 17 | Your Investment | What Newport pays (tools, certs, legal). What Still Mind handles (monitoring, bids, compliance, admin). Newport focuses on relationships and delivery. |
+| 18 | Key Questions | The 10 questions that calibrate the model. "We built this on research. Your answers make it real." |
+| 19 | Next Steps | Immediate actions: answer Key Questions, register SAM.gov + Unison Marketplace, prepare capability statement, first bids within 30 days. |
 
 ### Claude CLI Prompt
 ```
@@ -249,6 +261,8 @@ Tighten the operational system for daily use after Newport gives the go-ahead.
 3. Prepare bid template library: capability statement (customized), sources sought response, RFQ response, simplified proposal
 4. Set up direct portal monitoring for top 5 FL school districts and top 3 counties
 5. Build Notion pipeline tracker consolidating all opportunity sources
+6. **FPDS Migration**: FPDS ezSearch decommissioned Feb 24, 2026. The ATOM feed (used by `fpds_client.py`) survives through later FY2026, but must be migrated to SAM.gov contract awards search API before then. Update competition density analysis scripts accordingly.
+7. **Platform Registrations**: Ensure Newport is registered on Unison Marketplace (BOP reverse auction platform), BidNet Direct, DemandStar, and VendorLink (Broward County) — in addition to SAM.gov and MyFloridaMarketPlace.
 
 ### Done When
 - [ ] Still Mind can process a new opportunity from detection to submission with no ad-hoc scripting

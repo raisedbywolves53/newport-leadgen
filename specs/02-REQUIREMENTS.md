@@ -1,6 +1,6 @@
 # Newport Wholesalers — Requirements
 
-> **Last Updated**: February 23, 2026
+> **Last Updated**: February 24, 2026
 > **Status**: Draft
 > **Depends On**: [01-VISION.md](./01-VISION.md)
 
@@ -39,18 +39,21 @@ These requirements must be complete before presenting to Newport ownership.
 **As** Newport ownership, **I need to** see defensible market sizing for government food procurement in Florida and the Southeast, **so that** I can evaluate whether the opportunity justifies the investment.
 
 **Acceptance Criteria:**
-- [ ] Market waterfall from national → Florida → Newport's serviceable range, with dollar values and award counts at each level
+- [ ] Market waterfall from national → Florida → Newport's serviceable addressable market (SAM), with dollar values and award counts at each level
+- [ ] TAM waterfall slide: $87M (FL federal food under $350K, all PSC 89xx, USASpending confirmed) → filter locked SPV contracts → filter product categories outside Newport's range → filter unreachable geographies → **$17–20M biddable by Newport**
 - [ ] Breakdown by contract tier: micro-purchase (<$15K, 83% of awards), simplified ($15K–$350K, 14.4%), sealed bid (>$350K, 2.2%)
-- [ ] Florida federal food TAM: $85M / 39,685 awards (confirmed USASpending data)
+- [ ] Florida federal food TAM: **$87M / 39,857 awards** (USASpending API, FY2024, re-confirmed Feb 24, 2026)
 - [ ] Southeast regional TAM: $179M (if multi-state delivery — depends on Newport's answer to delivery radius question)
-- [ ] SLED estimate: $600M–$1.2B/yr for FL (school districts, corrections, county agencies) — clearly marked as LOW confidence
+- [ ] SLED estimate upgraded to **MEDIUM confidence**: FL school districts **$1.04B/yr** (USDA-derived: $358/student × 2.9M students, top 10 districts individually sized — Miami-Dade $82.25M, Broward $56.1M, etc.), FL county/municipal $45M/yr, FL DOC **explicitly excluded** (Aramark Contract C3021, $86.7M/yr through April 2027, not biddable)
+- [ ] BOP facility-level breakdown: FCC Coleman $2.0–2.5M, FCI Miami $800K–1.2M, FCI Marianna $800K–1.0M, FCI Tallahassee $500–700K, FPC Pensacola $500–700K, FDC Miami $300–500K — **total FL BOP $5–7M/yr**
+- [ ] VA entry vector specified: national SPV (US Foods, $263M) **excludes fresh bread, fresh milk, and fresh produce** — these categories purchased locally through BPAs/micro-purchases, estimated **$3–5M/yr across FL's 7 VA medical centers**
 - [ ] Category breakdown by PSC code showing Newport's fit (HIGHEST: Confectionery 8925, HIGH: Produce 8915, MODERATE: Dairy 8910, etc.)
-- [ ] Confectionery gap highlighted: $55M national, only $412K in FL competition — Newport's beachhead
-- [ ] All data points cite source and date (e.g., "USASpending API, FY2024, confirmed Feb 2026")
-- [ ] Confidence levels marked on every estimate (HIGH = live API data, MEDIUM = extrapolated, LOW = industry estimates)
-- [ ] Appears in Excel ("Market Analysis" sheet) and deck (2–3 slides)
+- [ ] Confectionery gap highlighted: **$55.5M national** (USASpending API, re-confirmed Feb 24, 2026), only **$412K** in FL competition, **1 registered federal contractor nationally under NAICS 424450** — Newport's beachhead
+- [ ] All data points cite source and date (e.g., "USASpending API, FY2024, confirmed Feb 24, 2026")
+- [ ] Confidence levels marked on every estimate (HIGH = live API data, MEDIUM = extrapolated from verified formula, LOW = industry estimates)
+- [ ] Appears in Excel ("Market Analysis" sheet) and deck (2–3 slides including TAM waterfall)
 
-**Notes:** Most of this data exists in `govcon/docs/research.md`. The Excel v7 has a solid Market Analysis sheet. Key gap: SLED data requires paid tools (HigherGov, GovSpend) for precision — must be transparent about this.
+**Notes:** Most data exists in `govcon/docs/research.md`. The $87M and $17–20M SAM are both defensible — present both as the honest waterfall shows disciplined market sizing, not pie-in-the-sky claims. SLED school district numbers now have a per-student formula ($358/yr from USDA NSLP data) that makes them verifiable. FL DOC must be in "Not Addressable" column with clear explanation. BOP Unison Marketplace registration is a prerequisite for bidding on BOP food POs — see [INTEGRATIONS.md](./09-INTEGRATIONS.md).
 
 ---
 
@@ -61,16 +64,24 @@ These requirements must be complete before presenting to Newport ownership.
 **Acceptance Criteria:**
 - [ ] Five tiers modeled separately: Micro (<$15K), Simplified ($15K–$250K), Set-Aside (SDB/HUBZone), SLED (State/Local/Ed), Sealed Bid ($250K+)
 - [ ] Bid volume per tier per year, with strategic narrative (micro phases OUT, simplified/SLED phase IN)
-- [ ] Win rates by tier, escalating over 5 years as past performance accumulates (Year 1 micro: 15%, Year 5 simplified: 20%)
+- [ ] Win rates by tier AND by competition density, escalating over 5 years as past performance accumulates. Win rates must be justified by FPDS competition data, not assumed generically:
+  - **Low-competition categories** (15 NAICS/agency combos, $64.8M, 233 awards): DoD NAICS 424490 = 93% sole source, avg 1.2 offers/award. Confectionery NAICS 424450 = 58% sole source, avg 1.6 offers, **1 registered federal contractor nationally**. Forest Service NAICS 722310 = 100% sole source. Win rates in these categories should be **25–40% Year 1, 40–55% Year 3** — agencies posting requirements and receiving zero or one bid.
+  - **Moderate-competition categories** (11 combos, $55.3M, 258 awards): DoD NAICS 424410 avg 2.4 offers, BOP NAICS 424490 avg 3.2 offers. Win rates: **12–18% Year 1, 20–30% Year 3**.
+  - **High-competition categories** (4 combos, $25.4M, 33 awards): Avoid initially. Win rates: **5–8% Year 1**.
+  - **Post-fraud tailwind adjustment**: 1,091 firms suspended (25% of 8(a) program, Jan 2026), multi-agency audits ongoing. Agencies with recurring food contracts are actively losing vendors — Newport's 30-year clean history is a warm introduction, not a cold bid. Apply a **+5–10% tailwind adjustment** to all categories for the first 12–18 months while the enforcement wave plays out. This is not speculative — it's the documented result of SBA, DoW, Treasury, and GSA actions taken in December 2025–January 2026 (sources: SBA.gov, Holland & Knight).
+  - Blended Year 1 win rate across all categories: ~20–25% (weighted by bid volume toward low-competition targets). This is higher than the generic 15% "new entrant" assumption because Newport is deliberately targeting low-competition categories first, not bidding randomly.
 - [ ] Renewal/recompete rate: 70% of contracts renew to incumbent — this is the compounding flywheel
 - [ ] Revenue split: new wins vs. renewal base — must show renewals becoming dominant by Year 3
 - [ ] Owner earnings calculation: Revenue → COGS → Gross Profit → Bid Prep → Fulfillment Overhead → Program Costs → Owner Earnings
 - [ ] Cumulative owner earnings: negative Year 1 (investment), breakeven mid-Year 2, $500K–$840K cumulative by Year 5
 - [ ] Portfolio shift visualization: Year 1 = mostly micro, Year 5 = mostly simplified/SLED/renewals
 - [ ] All calculations driven by editable inputs (not hardcoded)
-- [ ] Three scenarios tied to investment path: Conservative (free tools) vs. Moderate vs. Aggressive (full paid stack)
+- [ ] Three scenarios tied to investment path AND competition targeting:
+  - **Conservative** (free tools, broad bidding): Lower bid volume, generic win rates (15% micro, 10% simplified), limited market visibility. ~$50K Year 1 revenue.
+  - **Moderate** (paid tools, targeted bidding): Higher bid volume focused on low-competition categories, competition-informed win rates (25% micro in low-competition, 15% simplified), SLED portals active. ~$100K–$150K Year 1 revenue.
+  - **Aggressive** (full paid stack, active relationship building): Maximum bid volume, low-competition targeting + account-based outreach to contracting officers, post-fraud tailwind fully leveraged. ~$150K–$250K Year 1 revenue.
 
-**Notes:** The v7 Excel model implements most of this. Key refinements needed: (1) validate bid volumes are defensible, (2) ensure the "phase out micro" narrative is clear in the numbers, (3) confirm the compounding renewal math is correct.
+**Notes:** The v7 Excel model implements most of this. Key refinements needed: (1) **differentiate win rates by competition density** — the 93% sole source rate at DoD and 1 registered contractor nationally in confectionery justify materially higher rates than generic "new entrant" assumptions, (2) model should have a "Competition Density" input section where each NAICS/agency combo's avg offers and sole source % feed into win rate calculations, (3) ensure the "phase out micro" narrative is clear in the numbers, (4) confirm the compounding renewal math is correct. The three scenarios should reflect not just tool investment but **how aggressively Newport targets low-competition categories** — this is the primary lever, not just spending on platforms.
 
 ---
 
@@ -114,10 +125,14 @@ These requirements must be complete before presenting to Newport ownership.
 **Acceptance Criteria:**
 - [ ] Top 10 FL food contract holders with government revenue and category focus
 - [ ] Clear positioning: competitors #5–10 are small FL companies doing $1–5M — Newport's infrastructure and pricing are competitive in this tier
-- [ ] FPDS competition density data: 15 low-competition NAICS/agency combos worth $64.8M (233 awards)
-- [ ] Sole source rates: 93% sole source for NAICS 424490 @ DoD (117 awards, $9.1M)
+- [ ] **Full low-competition universe**: 15 NAICS/agency combos rated LOW competition covering 233 awards worth $64.8M — nearly half the biddable universe by award count. This is Newport's primary target zone.
+- [ ] **Three headline competition stats** (must appear in deck):
+  1. **DoD food purchasing (NAICS 424490)**: 93% sole source, avg 1.2 offers/award, $9.1M across 117 awards. Military bases are posting food requirements and getting zero or one bid. Newport shows up = Newport wins.
+  2. **Confectionery (NAICS 424450)**: 1 registered federal contractor nationally, 58% sole source, avg 1.6 offers, $55.5M national market. Newport's beachhead — virtually zero competition.
+  3. **Forest Service (NAICS 722310)**: 100% sole source, $43.1M, 98 awards. Remote food delivery — geographically challenging but high value if Newport's delivery radius reaches North FL.
+- [ ] Competition density breakdown by level: LOW (15 combos, $64.8M) → MODERATE (11 combos, $55.3M) → HIGH (4 combos, $25.4M) → VERY HIGH (2 combos, $818K, avoid)
 - [ ] Big players (Sysco, US Foods) don't compete for micro-purchases — structural advantage for Newport
-- [ ] Post-DOGE/fraud narrative: agencies shifting toward transparent, auditable vendors
+- [ ] Post-fraud-crackdown narrative backed by hard data: 1,091 8(a) firms suspended Jan 2026 (25% of program), $550M DOJ fraud case, DoW auditing $80B+ in set-asides with results due to DOGE by Feb 28, 2026. Agencies need replacement vendors for recurring food supply contracts — these are perishable goods, procurement can't pause. (Cite: SBA.gov Jan 28, 2026; Holland & Knight Jan 21, 2026)
 - [ ] Appears in Excel ("Market Analysis" competitive section) and deck (1–2 slides)
 
 ---
