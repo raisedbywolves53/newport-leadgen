@@ -28,7 +28,7 @@ python govcon/scrapers/contract_scanner.py                   # Full market scan 
 python govcon/deliverables/collect_market_data.py            # Generate market_data.json
 
 # GovCon Deliverables
-python govcon/deliverables/financials/build_proforma.py      # Generate Excel model (v4-era, needs update)
+python govcon/deliverables/financials/build_proforma.py      # Generate Excel model (WIP v7 rewrite, canonical is data/*.xlsx)
 cd govcon/deliverables/presentation && node build_presentation.js  # Generate deck (v4-era, needs rebuild)
 
 # Commercial Prospecting
@@ -95,20 +95,29 @@ Reference these for detailed context:
 
 **Known gotchas:**
 - SAM.gov API has intermittent outages (experienced Feb 2026). System degrades gracefully — check logs.
-- `build_proforma.py` generates v4-era 4-sheet output. The v7 model (5 sheets: Inputs, Two Routes, 5-Year Model, Market Analysis, Key Questions) was built in Claude Desktop and is the canonical deliverable. The script needs updating to match.
-- `build_presentation.js` also generates v4-era narrative. Needs rebuild per Phase 2 of the development plan.
+- The canonical GovCon financial model is `data/Newport_GovCon_Financial_Model_v7.xlsx` (built in Claude Desktop — 5 sheets, 176 formulas, zero errors, 7 charts). `build_proforma.py` contains a WIP v7 rewrite (~95% complete, runs successfully, generates all 5 sheets with 7 charts) but has not been validated against the .xlsx for output parity. Script completion deferred to Phase 5.
+- `build_presentation.js` generates v4-era narrative. Needs rebuild per Phase 2 of the development plan.
 - Google Sheets API requires a service account JSON file at the path specified in `GOOGLE_SHEETS_CREDS_PATH`. The spreadsheet must be shared with the service account email.
 - Apollo.io free tier has unlimited search but limited reveal credits. Budget reveals per segment.
 
 ## Current Phase
 
-**Phase 0: Spec Finalization & Repo Cleanup** — IN PROGRESS
+**Phase 0: Spec Finalization & Repo Cleanup** — COMPLETE
 - [x] Blueprint specs created (VISION, REQUIREMENTS, ARCHITECTURE, USER-STORIES, DEVELOPMENT-PLAN, REPO-STRUCTURE, INTEGRATIONS, GLOSSARY)
 - [x] CLAUDE.md updated
-- [ ] .claude/commands/ created
-- [ ] Verify all existing scripts run without errors
-- [ ] Confirm market_data.json generation
+- [x] .claude/commands/ created
+- [x] Verify all existing scripts run without errors
+- [x] Confirm market_data.json generation
 
-**Next**: Phase 1 (GovCon Excel Model Validation) → Phase 2 (GovCon Deck Rebuild) → Phase 3 (Commercial Financial Model) → Phase 4 (Commercial Deck)
+**Phase 1: GovCon Excel Model Validation** — COMPLETE
+- [x] V7 .xlsx validated: 5 sheets, 176 formulas, zero errors, 7 charts
+- [x] FR-003 met: five tiers, bid volumes, win rates, renewals at 70%, owner earnings, portfolio shift
+- [x] FR-008 met: 5 sheets, color coding, formula-driven, charts, zero formula errors
+- [x] Win rates cross-checked against research: Yr1 micro 15% matches FR-003; conservative vs research's 35-45% but defensible for zero past performance
+- [x] Market data validated: $7.17B national TAM, $85M FL, 117 FL contracts / $6.4M, 537 FPDS awards / 32 combos, 93% sole source NAICS 424490 @ DoD
+- [x] WIP build_proforma.py v7 rewrite restored from stash (~95% complete, runs successfully, deferred to Phase 5)
+- [x] Decision: v7 .xlsx accepted as canonical model (Option A from dev plan)
+
+**Next**: Phase 2 (GovCon Deck Rebuild) → Phase 3 (Commercial Financial Model) → Phase 4 (Commercial Deck) → Phase 5 (Script Completion)
 
 See `/specs/05-DEVELOPMENT-PLAN.md` for full phase details and completion criteria.
