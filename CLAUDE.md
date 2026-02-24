@@ -31,6 +31,9 @@ python govcon/deliverables/collect_market_data.py            # Generate market_d
 python govcon/deliverables/financials/build_proforma.py      # Generate Excel model (WIP v7 rewrite, canonical is data/*.xlsx)
 cd govcon/deliverables/presentation && node build_presentation.js  # Generate 18-slide v7 deck
 
+# Commercial Deliverables
+python commercial/deliverables/financials/build_commercial_model.py        # Generate SDR financial model (5 sheets, 3 scenarios)
+
 # Commercial Prospecting
 python commercial/scrapers/apollo_prospector.py --segment A --max-pages 5  # Prospect by segment
 python commercial/enrichment/enricher.py --input data/raw/segment_a.csv    # Enrich contacts
@@ -132,6 +135,17 @@ Reference these for detailed context:
 - [x] Slide 17: All 10 Key Questions from v7 model with priority levels
 - [x] Preserved: design system, color palette, fonts, helpers, data loading, fallback constants
 
-**Next**: Phase 3 (Commercial Financial Model) → Phase 4 (Commercial Deck) → Phase 5 (Script Completion)
+**Phase 3: Commercial Financial Model** — COMPLETE
+- [x] `build_commercial_model.py`: 5 sheets, 3 scenarios (Free/Moderate/Aggressive), 3 charts
+- [x] Sheet 1 (Inputs): Newport business inputs (yellow), outreach params (blue), tool costs by scenario, capacity, weighted avg deal size
+- [x] Sheet 2 (ICP Segments): 5-segment economics (A-E) with reachable contacts, deal sizes, TAM, priority
+- [x] Sheet 3 (Funnel Model): 12-month projection × 3 scenarios with sales cycle lag, capacity caps, cumulative revenue
+- [x] Sheet 4 (Market Analysis): TAM by segment with pie chart, candy market data (NAICS 424450), tool comparison, Apollo coverage
+- [x] Sheet 5 (Key Questions): 10 decisions with priority levels (HIGHEST/HIGH/MEDIUM/INFO)
+- [x] All formulas reference Inputs sheet — changing any input recalculates everything
+- [x] Design system matches GovCon model (same colors, fonts, fills, helpers)
+- [x] Tool costs sourced from specs/09-INTEGRATIONS.md; candy market data from commercial/docs/candy_wholesaler_research.md
+
+**Next**: Phase 4 (Commercial Deck) → Phase 5 (Script Completion)
 
 See `/specs/05-DEVELOPMENT-PLAN.md` for full phase details and completion criteria.
