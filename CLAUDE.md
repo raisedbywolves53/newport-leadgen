@@ -29,7 +29,7 @@ python govcon/deliverables/collect_market_data.py            # Generate market_d
 
 # GovCon Deliverables
 python govcon/deliverables/financials/build_proforma.py      # Generate Excel model (WIP v7 rewrite, canonical is data/*.xlsx)
-cd govcon/deliverables/presentation && node build_presentation.js  # Generate deck (v4-era, needs rebuild)
+cd govcon/deliverables/presentation && node build_presentation.js  # Generate 18-slide v7 deck
 
 # Commercial Prospecting
 python commercial/scrapers/apollo_prospector.py --segment A --max-pages 5  # Prospect by segment
@@ -96,7 +96,7 @@ Reference these for detailed context:
 **Known gotchas:**
 - SAM.gov API has intermittent outages (experienced Feb 2026). System degrades gracefully — check logs.
 - The canonical GovCon financial model is `data/Newport_GovCon_Financial_Model_v7.xlsx` (built in Claude Desktop — 5 sheets, 176 formulas, zero errors, 7 charts). `build_proforma.py` contains a WIP v7 rewrite (~95% complete, runs successfully, generates all 5 sheets with 7 charts) but has not been validated against the .xlsx for output parity. Script completion deferred to Phase 5.
-- `build_presentation.js` generates v4-era narrative. Needs rebuild per Phase 2 of the development plan.
+- `build_presentation.js` generates an 18-slide v7 deck with Owner Earnings, Risk/Compliance, Key Questions, and competitive analysis. Financial data uses hardcoded fallbacks from v7 model; market data loads from market_data.json when available.
 - Google Sheets API requires a service account JSON file at the path specified in `GOOGLE_SHEETS_CREDS_PATH`. The spreadsheet must be shared with the service account email.
 - Apollo.io free tier has unlimited search but limited reveal credits. Budget reveals per segment.
 
@@ -118,6 +118,20 @@ Reference these for detailed context:
 - [x] WIP build_proforma.py v7 rewrite restored from stash (~95% complete, runs successfully, deferred to Phase 5)
 - [x] Decision: v7 .xlsx accepted as canonical model (Option A from dev plan)
 
-**Next**: Phase 2 (GovCon Deck Rebuild) → Phase 3 (Commercial Financial Model) → Phase 4 (Commercial Deck) → Phase 5 (Script Completion)
+**Phase 2: GovCon Deck Rebuild** — COMPLETE
+- [x] Full rewrite of build_presentation.js: 17 slides → 18 slides, v7 narrative arc
+- [x] Slide 2 leads with Newport's 30-year competitive moat + post-DOGE positioning
+- [x] Slide 4: Market waterfall visual (National $7.17B → FL $85M → Serviceable $6.4M)
+- [x] Slide 5: Standalone confectionery gap analysis (PSC 8925, Newport's Segment E edge)
+- [x] Slide 7: Top FL competitor table with Newport's $1-5M entry tier positioning
+- [x] Slides 8-10: How It Works expanded to 3 slides (Sourcing, Evaluation, Pipeline)
+- [x] Slide 12: Phased strategy visual (micro → simplified → incumbent advantage)
+- [x] Slide 13: 5-Year Financial Summary with Owner Earnings from v7 model
+- [x] Slide 14: Compounding flywheel stacked bar chart (new wins + renewals)
+- [x] Slide 15: Risk & Compliance two-column (required vs. $120-360K avoided)
+- [x] Slide 17: All 10 Key Questions from v7 model with priority levels
+- [x] Preserved: design system, color palette, fonts, helpers, data loading, fallback constants
+
+**Next**: Phase 3 (Commercial Financial Model) → Phase 4 (Commercial Deck) → Phase 5 (Script Completion)
 
 See `/specs/05-DEVELOPMENT-PLAN.md` for full phase details and completion criteria.
