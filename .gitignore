@@ -44,6 +44,7 @@ govcon/deliverables/market_data.json
 /deliverables/
 
 # Generated outputs (Commercial deliverables)
+commercial/deliverables/**/*.pptx
 commercial/deliverables/**/*.xlsx
 
 # Node

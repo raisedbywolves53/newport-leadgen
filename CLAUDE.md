@@ -33,6 +33,7 @@ cd govcon/deliverables/presentation && node build_presentation.js  # Generate 18
 
 # Commercial Deliverables
 python commercial/deliverables/financials/build_commercial_model.py        # Generate SDR financial model (5 sheets, 3 scenarios)
+cd commercial/deliverables/presentation && node build_presentation.js      # Generate 12-slide commercial SDR deck
 
 # Commercial Prospecting
 python commercial/scrapers/apollo_prospector.py --segment A --max-pages 5  # Prospect by segment
@@ -146,6 +147,22 @@ Reference these for detailed context:
 - [x] Design system matches GovCon model (same colors, fonts, fills, helpers)
 - [x] Tool costs sourced from specs/09-INTEGRATIONS.md; candy market data from commercial/docs/candy_wholesaler_research.md
 
-**Next**: Phase 4 (Commercial Deck) → Phase 5 (Script Completion)
+**Phase 4: Commercial Deck + Reference Docs** — COMPLETE
+- [x] Specs updated: 01-VISION, 02-REQUIREMENTS, 04-USER-STORIES, 05-DEVELOPMENT-PLAN, 09-INTEGRATIONS, GLOSSARY
+- [x] Post-fraud crisis quantified: 1,091 firms suspended, $550M DOJ scheme, SBA audit dates
+- [x] Competition density data: win rates 25-40% low, 12-18% moderate, +5-10% post-fraud tailwind
+- [x] New procurement platforms: Unison Marketplace, MFMP, BidNet Direct, DemandStar, VendorLink
+- [x] FPDS deprecation warning: ezSearch decommissioned Feb 24, 2026
+- [x] FL TAM updated: $85M → $87M with $17-20M biddable
+- [x] All 6 .claude/commands/ refined with DOGE/fraud context
+- [x] `build_presentation.js` (commercial): 12-slide deck, same design system as GovCon
+- [x] Slide 4: Five Growth Segments table (5 ICP segments with priority indicators)
+- [x] Slides 5-8: How It Works — Find, Enrich, Reach, Convert (4-slide sequence)
+- [x] Slide 7: Three scenarios side-by-side (Free/Moderate/Aggressive with costs and capacity)
+- [x] Slide 9: Economics table — 3-scenario 12-month summary with Net Contribution
+- [x] Slide 10: Two Channels, One Strategy — GovCon ($87M TAM) + Commercial (7,531 companies)
+- [x] Slide 11: All 10 Key Questions from commercial model with priority levels
+
+**Next**: Phase 5 (Script Completion)
 
 See `/specs/05-DEVELOPMENT-PLAN.md` for full phase details and completion criteria.
