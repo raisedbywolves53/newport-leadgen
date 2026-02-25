@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* ── Midnight Executive Design Tokens ── */
+@theme {
+  --color-navy-950: #0F1A2E;
+  --color-navy-900: #1A2744;
+  --color-navy-800: #243356;
+  --color-navy-700: #2E4068;
+  --color-navy-600: #3A5080;
+  --color-teal-500: #1B7A8A;
+  --color-teal-400: #239BAD;
+  --color-teal-300: #3CC0D4;
+  --color-amber-500: #E8913A;
+  --color-amber-400: #F0A85C;
+  --color-amber-300: #F5C080;
+  --color-offwhite: #F5F6FA;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Base Styles ── */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-navy-950);
+  color: var(--color-offwhite);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar (for model mode overflow) ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-navy-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-navy-700);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-teal-500);
+}
+
+/* ── Selection ── */
+::selection {
+  background: var(--color-teal-500);
+  color: var(--color-offwhite);
+}
