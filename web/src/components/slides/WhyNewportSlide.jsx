@@ -1,76 +1,85 @@
 import { motion } from 'motion/react'
-import { Clock, Shield, Truck, FileCheck } from 'lucide-react'
-import SlideLayout, { SlideTitle, SlideSubtitle } from '../ui/SlideLayout'
-import SourceCitation from '../ui/SourceCitation'
 
-const cards = [
+const stats = [
   {
-    icon: Clock,
-    title: '30 Years of Continuous Operations',
-    body: 'Three decades of uninterrupted wholesale distribution in Florida. Real warehouse, real fleet, real W-2 workforce. The kind of audit trail agencies need — and can\'t be manufactured.',
-    color: 'teal',
+    value: '30',
+    label: 'Years',
+    description: 'Uninterrupted wholesale distribution in Florida. Real warehouse, real fleet, real W-2 workforce.',
+    color: '#C9A84C',
   },
   {
-    icon: Shield,
-    title: 'Post-Fraud Competitive Moat',
-    body: 'SBA suspended 1,091 firms from the 8(a) program in January 2026 — 25% of the entire program. DOJ uncovered a $550M bribery scheme. Agencies need vendors with verifiable, transparent histories. Newport is exactly that.',
-    color: 'amber',
+    value: '1,091',
+    label: 'Firms Suspended',
+    description: 'SBA cleared 25% of the 8(a) program in Jan 2026. Agencies need vendors with verifiable histories.',
+    color: '#C9A84C',
   },
   {
-    icon: Truck,
-    title: 'Infrastructure Already in Place',
-    body: 'Trucks, routes, cold chain, warehouse — all operating. Government delivery is incremental volume on existing routes. Competitors #5-10 in FL are doing $1-5M with less infrastructure.',
-    color: 'teal',
+    value: '83%',
+    label: 'Micro-Purchase',
+    description: 'Of FL food contracts fall below $15K — no competitive bidding, no past performance required to win.',
+    color: '#1B7A8A',
   },
   {
-    icon: FileCheck,
-    title: 'No Past Performance Required (Year 1)',
-    body: '83% of FL food contracts fall below the $15K micro-purchase threshold — agencies can buy from any SAM-registered vendor without competitive bidding. Commercial experience qualifies for entry.',
-    color: 'teal',
+    value: '$5M',
+    label: 'Entry Tier',
+    description: 'FL competitors #5-10 do $1-5M with less infrastructure. Newport enters with trucks, cold chain, and routes.',
+    color: '#1B7A8A',
   },
 ]
 
-const colorMap = {
-  teal: { bg: 'bg-teal-500/8', border: 'border-teal-500/20', icon: 'text-teal-400', iconBg: 'bg-teal-500/15' },
-  amber: { bg: 'bg-amber-500/8', border: 'border-amber-500/20', icon: 'text-amber-400', iconBg: 'bg-amber-500/15' },
-}
-
 export default function WhyNewportSlide() {
   return (
-    <SlideLayout>
-      <SlideTitle>Why Newport Wins</SlideTitle>
-      <SlideSubtitle>
+    <div className="w-full h-full flex flex-col justify-center px-16">
+      <motion.h2
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="font-body text-3xl font-bold tracking-tight text-white mb-3"
+      >
+        Why Newport Wins
+      </motion.h2>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="font-body text-sm text-slate-400 mb-8"
+      >
         A competitive moat built over three decades — exactly what agencies need right now.
-      </SlideSubtitle>
+      </motion.p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
-        {cards.map((card, i) => {
-          const c = colorMap[card.color]
-          return (
-            <motion.div
-              key={card.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }}
-              className={`rounded-xl border ${c.border} ${c.bg} p-5`}
+      <div className="flex gap-6">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.3 + i * 0.1 }}
+            className="flex-1 h-64 rounded-3xl bg-gradient-to-br from-[#0c1220] via-[#131d30] to-[#0c1220] border border-white/5 p-6 flex flex-col justify-end"
+          >
+            <span
+              className="font-body text-5xl font-bold tracking-tight leading-none mb-2 drop-shadow-lg"
+              style={{ color: stat.color }}
             >
-              <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${c.iconBg} mb-3`}>
-                <card.icon className={`w-4.5 h-4.5 ${c.icon}`} />
-              </div>
-              <h3 className="font-body text-lg font-semibold text-white mb-2">
-                {card.title}
-              </h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                {card.body}
-              </p>
-            </motion.div>
-          )
-        })}
+              {stat.value}
+            </span>
+            <span className="font-body text-sm font-semibold text-white uppercase tracking-wide mb-2">
+              {stat.label}
+            </span>
+            <span className="text-white/50 text-xs leading-relaxed">
+              {stat.description}
+            </span>
+          </motion.div>
+        ))}
       </div>
 
-      <SourceCitation>
-        SBA.gov (Jan 28, 2026) — 1,091 firms suspended | DOJ OPA (Jun 12, 2025) — $550M scheme | USASpending FY2024 — contract size distribution
-      </SourceCitation>
-    </SlideLayout>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.0 }}
+        className="text-[10px] text-slate-600 mt-6"
+      >
+        SBA.gov (Jan 28, 2026) — 1,091 firms suspended | DOJ OPA (Jun 12, 2025) — $550M scheme | USASpending FY2024
+      </motion.p>
+    </div>
   )
 }
