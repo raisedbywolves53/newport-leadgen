@@ -28,7 +28,7 @@ const layers = [
 ]
 
 const colorMap = {
-  slate: { bg: 'bg-navy-800/50', border: 'border-navy-700', icon: 'text-slate-400', iconBg: 'bg-slate-500/15' },
+  slate: { bg: 'bg-white/70', border: 'border-black/[0.06]', icon: 'text-slate-400', iconBg: 'bg-slate-500/15' },
   teal: { bg: 'bg-teal-500/5', border: 'border-teal-500/20', icon: 'text-teal-400', iconBg: 'bg-teal-500/15' },
   amber: { bg: 'bg-amber-500/8', border: 'border-amber-500/20', icon: 'text-amber-400', iconBg: 'bg-amber-500/15' },
 }
@@ -67,15 +67,15 @@ export default function BdStrategySlide() {
                       <layer.icon className={`w-4 h-4 ${c.icon}`} />
                     </div>
                     <div>
-                      <h4 className="text-offwhite font-semibold text-sm">{layer.title}</h4>
-                      <span className="text-slate-500 text-[10px]">{layer.subtitle}</span>
+                      <h4 className="text-navy-950 font-semibold text-sm">{layer.title}</h4>
+                      <span className="text-navy-800/50 text-[10px]">{layer.subtitle}</span>
                     </div>
                   </div>
-                  <p className="text-slate-400 text-xs leading-relaxed">{layer.description}</p>
+                  <p className="text-navy-800/60 text-xs leading-relaxed">{layer.description}</p>
                 </motion.div>
                 {i < layers.length - 1 && (
                   <div className="flex justify-center py-0.5">
-                    <ArrowDown className="w-3.5 h-3.5 text-slate-600" />
+                    <ArrowDown className="w-3.5 h-3.5 text-navy-800/40" />
                   </div>
                 )}
               </div>
@@ -104,7 +104,7 @@ export default function BdStrategySlide() {
                 <span className="w-5 h-5 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-amber-400 text-[10px] font-semibold">{i + 1}</span>
                 </span>
-                <span className="text-slate-300 text-sm leading-relaxed">{step}</span>
+                <span className="text-navy-800 text-sm leading-relaxed">{step}</span>
               </motion.div>
             ))}
           </div>

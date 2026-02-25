@@ -30,13 +30,13 @@ export default function FloridaTamSlide() {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#1A2744',
-        borderColor: '#2E4068',
-        textStyle: { color: '#F5F6FA', fontSize: 12, fontFamily: 'Inter' },
+        backgroundColor: '#ffffff',
+        borderColor: '#e2e8f0',
+        textStyle: { color: '#0F1A2E', fontSize: 12, fontFamily: 'Inter' },
         formatter: (params) => {
           const d = params[0]
           const ch = FL_TAM_CHANNELS[d.dataIndex]
-          return `<strong>${ch.channel}</strong><br/>${ch.amountLabel || fmtDollars(ch.amount)}<br/><span style="color:#94A3B8;font-size:11px">${ch.description}</span>`
+          return `<strong>${ch.channel}</strong><br/>${ch.amountLabel || fmtDollars(ch.amount)}<br/><span style="color:#64748B;font-size:11px">${ch.description}</span>`
         },
       },
       grid: { left: 200, right: 60, top: 10, bottom: 30 },
@@ -48,14 +48,14 @@ export default function FloridaTamSlide() {
           fontFamily: 'Inter',
           fontSize: 11,
         },
-        splitLine: { lineStyle: { color: '#243356', type: 'dashed' } },
+        splitLine: { lineStyle: { color: '#e2e8f0', type: 'dashed' } },
         axisLine: { show: false },
       },
       yAxis: {
         type: 'category',
         data: FL_TAM_CHANNELS.map(c => c.channel).reverse(),
         axisLabel: {
-          color: '#CBD5E1',
+          color: '#475569',
           fontFamily: 'Inter',
           fontSize: 12,
           width: 180,
@@ -82,7 +82,7 @@ export default function FloridaTamSlide() {
             const ch = FL_TAM_CHANNELS[FL_TAM_CHANNELS.length - 1 - p.dataIndex]
             return ch.amountLabel || fmtDollars(ch.amount)
           },
-          color: '#F5F6FA',
+          color: '#0F1A2E',
           fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: 600,
@@ -123,7 +123,7 @@ export default function FloridaTamSlide() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
-        className="text-xs text-slate-500 mt-2 text-center"
+        className="text-xs text-navy-800/50 mt-2 text-center"
       >
         Geographic expansion beyond FL depends on Newport's delivery capabilities — a key question for ownership.
       </motion.p>

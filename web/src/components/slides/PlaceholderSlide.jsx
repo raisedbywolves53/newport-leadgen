@@ -13,14 +13,14 @@ export default function PlaceholderSlide({ title, slideNumber }) {
         transition={{ duration: 0.3 }}
         className="text-center"
       >
-        <span className="text-slate-600 text-sm font-body mb-2 block">
+        <span className="text-navy-800/40 text-sm font-body mb-2 block">
           Slide {slideNumber}
         </span>
-        <h2 className="font-body text-4xl font-bold text-slate-400">
+        <h2 className="font-body text-4xl font-bold text-navy-800/60">
           {title}
         </h2>
-        <div className="mt-4 w-16 h-0.5 bg-navy-700 rounded-full mx-auto" />
-        <p className="mt-4 text-sm text-slate-600">
+        <div className="mt-4 w-16 h-0.5 bg-white/70 rounded-full mx-auto" />
+        <p className="mt-4 text-sm text-navy-800/40">
           Content coming in Phase 5B
         </p>
       </motion.div>

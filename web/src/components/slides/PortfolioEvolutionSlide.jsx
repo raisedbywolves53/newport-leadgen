@@ -31,13 +31,13 @@ export default function PortfolioEvolutionSlide() {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#1A2744',
-        borderColor: '#2E4068',
-        textStyle: { color: '#F5F6FA', fontSize: 12, fontFamily: 'Inter' },
+        backgroundColor: '#ffffff',
+        borderColor: '#e2e8f0',
+        textStyle: { color: '#0F1A2E', fontSize: 12, fontFamily: 'Inter' },
       },
       legend: {
         bottom: 0,
-        textStyle: { color: '#94A3B8', fontSize: 11, fontFamily: 'Inter' },
+        textStyle: { color: '#475569', fontSize: 11, fontFamily: 'Inter' },
         itemWidth: 12,
         itemHeight: 12,
         itemGap: 20,
@@ -46,16 +46,16 @@ export default function PortfolioEvolutionSlide() {
       xAxis: {
         type: 'category',
         data: data.labels,
-        axisLabel: { color: '#CBD5E1', fontFamily: 'Inter', fontSize: 11 },
-        axisLine: { lineStyle: { color: '#243356' } },
+        axisLabel: { color: '#475569', fontFamily: 'Inter', fontSize: 11 },
+        axisLine: { lineStyle: { color: '#cbd5e1' } },
         axisTick: { show: false },
       },
       yAxis: {
         type: 'value',
         name: 'Active Contracts',
-        nameTextStyle: { color: '#64748B', fontSize: 10, fontFamily: 'Inter' },
-        axisLabel: { color: '#64748B', fontFamily: 'Inter', fontSize: 11 },
-        splitLine: { lineStyle: { color: '#243356', type: 'dashed' } },
+        nameTextStyle: { color: '#475569', fontSize: 10, fontFamily: 'Inter' },
+        axisLabel: { color: '#475569', fontFamily: 'Inter', fontSize: 11 },
+        splitLine: { lineStyle: { color: '#e2e8f0', type: 'dashed' } },
         axisLine: { show: false },
       },
       series: [
@@ -123,7 +123,7 @@ export default function PortfolioEvolutionSlide() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="text-xs text-slate-500 text-center mt-1"
+        className="text-xs text-navy-800/50 text-center mt-1"
       >
         The question isn't whether to do micros — it's how quickly we can build enough references to shift the portfolio upward.
         Year 1 is not exclusively micro-purchases. We bid on larger winnable deals from Day 1.

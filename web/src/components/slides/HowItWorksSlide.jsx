@@ -40,10 +40,10 @@ export default function HowItWorksSlide() {
               >
                 <Icon className="w-4 h-4 mx-auto mb-1" />
                 <span className="text-xs font-semibold block">{stage.name}</span>
-                <span className="text-[10px] text-slate-500 block">{stage.description}</span>
+                <span className="text-[10px] text-navy-800/50 block">{stage.description}</span>
               </motion.div>
               {i < PIPELINE_STAGES.length - 1 && (
-                <ArrowRight className="w-3.5 h-3.5 text-slate-600 mx-1" />
+                <ArrowRight className="w-3.5 h-3.5 text-navy-800/40 mx-1" />
               )}
             </div>
           )
@@ -58,10 +58,10 @@ export default function HowItWorksSlide() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 + i * 0.1, duration: 0.3 }}
-            className="rounded-lg border border-navy-700 bg-navy-800/40 p-3.5"
+            className="rounded-lg border border-black/[0.06] bg-white/70 p-3.5"
           >
-            <h4 className="text-offwhite font-semibold text-xs mb-1.5">{ch.title}</h4>
-            <p className="text-slate-400 text-[11px] leading-relaxed mb-2">{ch.description}</p>
+            <h4 className="text-navy-950 font-semibold text-xs mb-1.5">{ch.title}</h4>
+            <p className="text-navy-800/60 text-[11px] leading-relaxed mb-2">{ch.description}</p>
             <span className="text-teal-400 text-xs font-semibold">{ch.cost}</span>
           </motion.div>
         ))}

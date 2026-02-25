@@ -11,7 +11,7 @@ export default function BlueprintSlide() {
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="font-body text-3xl font-bold tracking-tight text-white text-center leading-tight"
+        className="font-body text-3xl font-bold tracking-tight text-navy-950 text-center leading-tight"
       >
         The Blueprint Is Yours
       </motion.h2>
@@ -19,7 +19,7 @@ export default function BlueprintSlide() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="text-slate-400 text-sm text-center mt-2 max-w-xl leading-relaxed"
+        className="text-navy-800/60 text-sm text-center mt-2 max-w-xl leading-relaxed"
       >
         Everything in this presentation — the market data, the competitive intelligence,
         the pipeline strategy — is yours whether we work together or not.
@@ -47,7 +47,7 @@ export default function BlueprintSlide() {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 + i * 0.06 }}
-                className="text-slate-400 text-xs leading-relaxed flex items-start gap-2"
+                className="text-navy-800/60 text-xs leading-relaxed flex items-start gap-2"
               >
                 <span className="text-amber-500/60 mt-1">-</span>
                 {item}
@@ -58,8 +58,8 @@ export default function BlueprintSlide() {
 
         {/* Center connector */}
         <div className="flex flex-col items-center justify-center gap-2">
-          <Handshake className="w-5 h-5 text-slate-600" />
-          <div className="w-px h-16 bg-gradient-to-b from-amber-500/30 via-slate-600 to-teal-500/30" />
+          <Handshake className="w-5 h-5 text-navy-800/40" />
+          <div className="w-px h-16 bg-gradient-to-b from-amber-500/30 via-navy-800/40 to-teal-500/30" />
         </div>
 
         {/* Still Mind */}
@@ -77,7 +77,7 @@ export default function BlueprintSlide() {
                 initial={{ opacity: 0, x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 + i * 0.06 }}
-                className="text-slate-400 text-xs leading-relaxed flex items-start gap-2"
+                className="text-navy-800/60 text-xs leading-relaxed flex items-start gap-2"
               >
                 <span className="text-teal-500/60 mt-1">-</span>
                 {item}
@@ -92,7 +92,7 @@ export default function BlueprintSlide() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4 }}
-        className="text-slate-500 text-xs text-center mt-8 max-w-lg leading-relaxed"
+        className="text-navy-800/50 text-xs text-center mt-8 max-w-lg leading-relaxed"
       >
         No obligation, no pressure. If the opportunity makes sense for your business,
         we're ready to build it with you.
@@ -105,7 +105,7 @@ export default function BlueprintSlide() {
         transition={{ delay: 1.6 }}
         className="mt-6 text-center"
       >
-        <span className="text-slate-600 text-[10px] tracking-wider uppercase">
+        <span className="text-navy-800/40 text-[10px] tracking-wider uppercase">
           Prepared by Still Mind Creative LLC
         </span>
       </motion.div>

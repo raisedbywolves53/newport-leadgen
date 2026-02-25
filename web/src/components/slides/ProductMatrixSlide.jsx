@@ -35,15 +35,15 @@ export default function ProductMatrixSlide() {
             <div key={p.psc} className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h4 className="text-offwhite font-semibold text-sm">{p.name}</h4>
-                  <span className="text-slate-400 text-xs">PSC {p.psc}</span>
+                  <h4 className="text-navy-950 font-semibold text-sm">{p.name}</h4>
+                  <span className="text-navy-800/60 text-xs">PSC {p.psc}</span>
                 </div>
                 <span className="text-amber-400 font-body text-lg font-bold">{fmtM(p.flSpend)}</span>
               </div>
-              <p className="text-slate-400 text-xs leading-relaxed mb-2">{p.advantage}</p>
+              <p className="text-navy-800/60 text-xs leading-relaxed mb-2">{p.advantage}</p>
               <div className="flex gap-3 text-xs">
                 <span className="text-teal-400">{p.soleSource}% sole-source</span>
-                <span className="text-slate-500">Gov markup: {p.govMarkup}</span>
+                <span className="text-navy-800/50">Gov markup: {p.govMarkup}</span>
               </div>
             </div>
           ))}
@@ -63,11 +63,11 @@ export default function ProductMatrixSlide() {
         </div>
         <div className="grid grid-cols-3 gap-3">
           {PRODUCT_TIERS.tier2.map((p) => (
-            <div key={p.psc} className="rounded-lg border border-navy-700 bg-navy-800/50 p-3">
-              <h4 className="text-offwhite font-semibold text-sm mb-1">{p.name}</h4>
+            <div key={p.psc} className="rounded-lg border border-black/[0.06] bg-white/70 p-3">
+              <h4 className="text-navy-950 font-semibold text-sm mb-1">{p.name}</h4>
               <span className="text-teal-400 font-body text-base font-bold">{fmtM(p.flSpend)}</span>
-              <span className="text-slate-500 text-xs ml-1">FL</span>
-              <p className="text-slate-400 text-xs mt-1">{p.soleSource}% sole-source</p>
+              <span className="text-navy-800/50 text-xs ml-1">FL</span>
+              <p className="text-navy-800/60 text-xs mt-1">{p.soleSource}% sole-source</p>
             </div>
           ))}
         </div>
@@ -80,13 +80,13 @@ export default function ProductMatrixSlide() {
         transition={{ delay: 0.6, duration: 0.4 }}
       >
         <div className="flex items-center gap-2 mb-1.5">
-          <AlertTriangle className="w-3.5 h-3.5 text-slate-500" />
-          <span className="text-slate-500 font-semibold text-xs uppercase tracking-wider">Avoid / Long-Term Only</span>
+          <AlertTriangle className="w-3.5 h-3.5 text-navy-800/50" />
+          <span className="text-navy-800/50 font-semibold text-xs uppercase tracking-wider">Avoid / Long-Term Only</span>
         </div>
         <div className="flex gap-4">
           {PRODUCT_TIERS.avoid.map((p) => (
-            <span key={p.psc} className="text-xs text-slate-500">
-              <span className="text-slate-400">{p.name}</span> — {p.reason}
+            <span key={p.psc} className="text-xs text-navy-800/50">
+              <span className="text-navy-800/60">{p.name}</span> — {p.reason}
             </span>
           ))}
         </div>

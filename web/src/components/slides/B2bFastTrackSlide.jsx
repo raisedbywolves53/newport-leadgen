@@ -16,15 +16,15 @@ export default function B2bFastTrackSlide() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className="rounded-xl border border-navy-700 overflow-hidden"
+        className="rounded-xl border border-black/[0.06] overflow-hidden"
       >
         {/* Header */}
-        <div className="grid grid-cols-[180px_100px_100px_1fr_160px] bg-navy-800 px-4 py-2.5 gap-2">
-          <span className="text-slate-400 text-xs font-semibold">Organization</span>
-          <span className="text-slate-400 text-xs font-semibold">FL Beds/Scale</span>
-          <span className="text-slate-400 text-xs font-semibold">Est. Food $</span>
-          <span className="text-slate-400 text-xs font-semibold">Detail</span>
-          <span className="text-slate-400 text-xs font-semibold">Entry Path</span>
+        <div className="grid grid-cols-[180px_100px_100px_1fr_160px] bg-white/70 px-4 py-2.5 gap-2">
+          <span className="text-navy-800/60 text-xs font-semibold">Organization</span>
+          <span className="text-navy-800/60 text-xs font-semibold">FL Beds/Scale</span>
+          <span className="text-navy-800/60 text-xs font-semibold">Est. Food $</span>
+          <span className="text-navy-800/60 text-xs font-semibold">Detail</span>
+          <span className="text-navy-800/60 text-xs font-semibold">Entry Path</span>
         </div>
 
         {B2B_TARGETS.map((t, i) => (
@@ -33,12 +33,12 @@ export default function B2bFastTrackSlide() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 + i * 0.08, duration: 0.3 }}
-            className={`grid grid-cols-[180px_100px_100px_1fr_160px] px-4 py-2.5 gap-2 border-t border-navy-700/50 ${
-              i === 0 ? 'bg-amber-500/8' : 'bg-navy-800/20'
+            className={`grid grid-cols-[180px_100px_100px_1fr_160px] px-4 py-2.5 gap-2 border-t border-black/[0.06] ${
+              i === 0 ? 'bg-amber-500/8' : 'bg-white/70'
             }`}
           >
             <div>
-              <span className={`text-sm font-semibold ${i === 0 ? 'text-amber-300' : 'text-offwhite'}`}>
+              <span className={`text-sm font-semibold ${i === 0 ? 'text-amber-300' : 'text-navy-950'}`}>
                 {t.name}
               </span>
               {i === 0 && (
@@ -47,10 +47,10 @@ export default function B2bFastTrackSlide() {
                 </span>
               )}
             </div>
-            <span className="text-sm text-slate-400">{t.flBeds}</span>
+            <span className="text-sm text-navy-800/60">{t.flBeds}</span>
             <span className="text-sm text-teal-400 font-semibold">{t.estFoodSpend}</span>
-            <span className="text-xs text-slate-400 leading-relaxed">{t.detail}</span>
-            <span className="text-xs text-slate-500">{t.path}</span>
+            <span className="text-xs text-navy-800/60 leading-relaxed">{t.detail}</span>
+            <span className="text-xs text-navy-800/50">{t.path}</span>
           </motion.div>
         ))}
       </motion.div>
@@ -65,7 +65,7 @@ export default function B2bFastTrackSlide() {
         <Zap className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
         <div>
           <span className="text-amber-400 text-sm font-semibold">Why this matters: </span>
-          <span className="text-slate-300 text-sm">
+          <span className="text-navy-800 text-sm">
             B2B sales to private operators have a 2-8 week sales cycle (vs 3-12 months for gov bids),
             require no past performance, and build institutional food supply credentials that strengthen future government proposals.
           </span>

@@ -58,6 +58,18 @@ const DIVIDER_CONFIG = {
   },
 }
 
+// Light background applied to all slides except title
+function SlideBackground({ slideId, children }) {
+  if (slideId === 'title') {
+    return <>{children}</>
+  }
+  return (
+    <div className="w-full h-full" style={{ backgroundColor: '#e6e6ec' }}>
+      {children}
+    </div>
+  )
+}
+
 function renderSlide(slide, index) {
   // Section dividers
   if (slide.isDivider) {
@@ -112,7 +124,9 @@ export default function App() {
         direction={direction}
         onClick={handleClick}
       >
-        {renderSlide(slide, currentSlide)}
+        <SlideBackground slideId={slide.id}>
+          {renderSlide(slide, currentSlide)}
+        </SlideBackground>
       </SlideContainer>
 
       <Navigation currentSlide={currentSlide} goTo={goTo} />

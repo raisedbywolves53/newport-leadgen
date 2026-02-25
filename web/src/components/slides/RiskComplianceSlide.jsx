@@ -34,16 +34,16 @@ export default function RiskComplianceSlide() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.08, duration: 0.25 }}
-                className="rounded-lg border border-navy-700 bg-navy-800/40 p-2.5"
+                className="rounded-lg border border-black/[0.06] bg-white/70 p-2.5"
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-offwhite text-xs font-semibold">{r.item}</span>
+                  <span className="text-navy-950 text-xs font-semibold">{r.item}</span>
                   <span className="text-teal-400 text-xs font-mono font-semibold">{r.cost}</span>
                 </div>
                 <div className="flex items-center gap-2 text-[10px]">
-                  <span className="text-slate-500">{r.timeline}</span>
-                  <span className="text-slate-600">|</span>
-                  <span className="text-slate-400">{r.note}</span>
+                  <span className="text-navy-800/50">{r.timeline}</span>
+                  <span className="text-navy-800/40">|</span>
+                  <span className="text-navy-800/60">{r.note}</span>
                 </div>
               </motion.div>
             ))}
@@ -58,7 +58,7 @@ export default function RiskComplianceSlide() {
             <p className="text-teal-300 text-xs font-semibold">
               Total Entry Cost: $4K-$31.5K
             </p>
-            <p className="text-slate-400 text-[10px] mt-0.5">
+            <p className="text-navy-800/60 text-[10px] mt-0.5">
               $0 if food safety certs already held. Legal review + insurance may already be in place.
             </p>
           </motion.div>
@@ -84,13 +84,13 @@ export default function RiskComplianceSlide() {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + i * 0.08, duration: 0.25 }}
-                className="rounded-lg border border-navy-700/50 bg-navy-900/30 p-2.5"
+                className="rounded-lg border border-black/[0.06] bg-white/50 p-2.5"
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-slate-400 text-xs font-semibold line-through decoration-slate-600">{r.item}</span>
-                  <span className="text-slate-500 text-xs font-mono">{r.cost}</span>
+                  <span className="text-navy-800/60 text-xs font-semibold line-through decoration-navy-800/40">{r.item}</span>
+                  <span className="text-navy-800/50 text-xs font-mono">{r.cost}</span>
                 </div>
-                <p className="text-slate-500 text-[10px]">{r.note}</p>
+                <p className="text-navy-800/50 text-[10px]">{r.note}</p>
               </motion.div>
             ))}
           </div>
@@ -104,7 +104,7 @@ export default function RiskComplianceSlide() {
             <p className="text-amber-300 text-xs font-semibold">
               Avoided: $120K-$360K+
             </p>
-            <p className="text-slate-400 text-[10px] mt-0.5">
+            <p className="text-navy-800/60 text-[10px] mt-0.5">
               These are common government compliance costs that don't apply to food supply contracts.
             </p>
           </motion.div>

@@ -11,7 +11,7 @@ export default function SectionDivider({ title, subtitle, backgroundImage }) {
             alt=""
             className="w-full h-full object-contain object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/60 to-navy-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#e6e6ec] via-[#e6e6ec]/60 to-[#e6e6ec]/30" />
         </div>
       )}
 
@@ -30,7 +30,7 @@ export default function SectionDivider({ title, subtitle, backgroundImage }) {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="font-body text-4xl md:text-5xl font-bold tracking-tight text-white"
+          className="font-body text-4xl md:text-5xl font-bold tracking-tight text-navy-950"
         >
           {title}
         </motion.h2>
@@ -40,7 +40,7 @@ export default function SectionDivider({ title, subtitle, backgroundImage }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-3 text-base text-slate-400 max-w-lg mx-auto"
+            className="mt-3 text-base text-navy-800/60 max-w-lg mx-auto"
           >
             {subtitle}
           </motion.p>

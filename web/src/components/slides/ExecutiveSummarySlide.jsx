@@ -6,16 +6,11 @@ import { HEADLINE_STATS } from '../../data/market'
 
 const icons = [MapPin, ShieldCheck, FileStack, RefreshCw]
 
-const accents = [
-  { border: 'from-[#C9A84C] via-[#C9A84C]/20 to-transparent', glow: 'shadow-[0_0_30px_rgba(201,168,76,0.08)]' },
-  { border: 'from-[#1B7A8A] via-[#1B7A8A]/20 to-transparent', glow: '' },
-  { border: 'from-[#1B7A8A] via-[#1B7A8A]/20 to-transparent', glow: '' },
-  { border: 'from-[#1B7A8A] via-[#1B7A8A]/20 to-transparent', glow: '' },
-]
+const accentColors = ['#C9A84C', '#1B7A8A', '#1B7A8A', '#1B7A8A']
 
 function StatCard({ stat, index }) {
   const Icon = icons[index]
-  const accent = accents[index]
+  const accent = accentColors[index]
   const count = useCountUp(stat.value, 1200, 600 + index * 200)
   const isHero = index === 0
 
@@ -28,40 +23,38 @@ function StatCard({ stat, index }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 + index * 0.12 }}
-      className={`relative rounded-[16px] ${accent.glow}`}
+      className="rounded-2xl bg-white/70 backdrop-blur-sm border border-black/[0.06] p-5 h-full flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
     >
-      <div className={`absolute -inset-px rounded-[16px] bg-gradient-to-b ${accent.border} opacity-60`} />
-
-      <div className="relative rounded-[16px] bg-gradient-to-br from-[#0c1220] via-[#131d30] to-[#0c1220] p-5 h-full flex flex-col">
-        <div className="flex items-center gap-3 mb-3">
-          <Icon
-            className={`w-5 h-5 ${isHero ? 'text-[#C9A84C]' : 'text-white/30'}`}
-            strokeWidth={1.5}
-          />
-          <span className="text-white font-semibold text-xs tracking-[-0.02em] leading-snug">
-            {stat.label}
-          </span>
-        </div>
-
-        <span
-          className={`font-body font-bold tracking-tight leading-none mb-2 ${
-            isHero ? 'text-4xl text-[#C9A84C]' : 'text-3xl text-white'
-          }`}
-        >
-          {display}
-        </span>
-
-        <span className="text-white/40 font-medium text-[11px] leading-relaxed mt-auto">
-          {stat.detail}
+      <div className="flex items-center gap-3 mb-3">
+        <Icon
+          className="w-5 h-5"
+          style={{ color: isHero ? accent : '#0F1A2E50' }}
+          strokeWidth={1.5}
+        />
+        <span className="text-navy-950 font-semibold text-xs tracking-[-0.02em] leading-snug">
+          {stat.label}
         </span>
       </div>
+
+      <span
+        className={`font-body font-bold tracking-tight leading-none mb-2 ${
+          isHero ? 'text-4xl' : 'text-3xl text-navy-950'
+        }`}
+        style={isHero ? { color: accent } : undefined}
+      >
+        {display}
+      </span>
+
+      <span className="text-navy-800/50 font-medium text-[11px] leading-relaxed mt-auto">
+        {stat.detail}
+      </span>
     </motion.div>
   )
 }
 
 export default function ExecutiveSummarySlide() {
   return (
-    <div className="w-full h-full relative overflow-hidden" style={{ backgroundColor: '#e6e6ec' }}>
+    <div className="w-full h-full relative overflow-hidden">
       {/* Tree illustration — slide background matches image gray */}
       <div className="absolute inset-0">
         <motion.img

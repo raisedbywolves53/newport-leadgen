@@ -28,7 +28,7 @@ export default function TargetAgenciesSlide() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }}
-              className={`rounded-xl border ${c.border} bg-navy-800/40 p-5 relative overflow-hidden`}
+              className={`rounded-xl border ${c.border} bg-white/70 p-5 relative overflow-hidden`}
             >
               {/* Top accent */}
               <div className={`absolute top-0 left-0 right-0 h-0.5 ${c.accent}`} />
@@ -36,11 +36,11 @@ export default function TargetAgenciesSlide() {
               <div className="flex items-start gap-3 mb-2">
                 <Icon className={`w-5 h-5 ${c.text} mt-0.5`} />
                 <div>
-                  <h3 className="text-offwhite font-semibold text-sm">{agency.name}</h3>
+                  <h3 className="text-navy-950 font-semibold text-sm">{agency.name}</h3>
                   <span className={`${c.text} font-body text-base font-bold`}>{agency.stat}</span>
                 </div>
               </div>
-              <p className="text-slate-400 text-xs leading-relaxed">{agency.description}</p>
+              <p className="text-navy-800/60 text-xs leading-relaxed">{agency.description}</p>
             </motion.div>
           )
         })}

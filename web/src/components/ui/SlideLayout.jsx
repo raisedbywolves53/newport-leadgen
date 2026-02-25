@@ -23,7 +23,7 @@ export function SlideTitle({ children, className = '' }) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className={`font-body text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 ${className}`}
+      className={`font-body text-3xl md:text-4xl font-bold tracking-tight text-navy-950 mb-2 ${className}`}
     >
       {children}
     </motion.h2>
@@ -36,7 +36,7 @@ export function SlideSubtitle({ children, className = '' }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className={`font-body text-base text-slate-400 mb-8 ${className}`}
+      className={`font-body text-base text-navy-800/60 mb-8 ${className}`}
     >
       {children}
     </motion.p>

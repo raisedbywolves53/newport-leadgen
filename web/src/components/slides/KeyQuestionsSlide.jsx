@@ -6,13 +6,13 @@ import { KEY_QUESTIONS } from '../../data/strategy'
 const priorityColors = {
   HIGHEST: 'text-amber-400 bg-amber-500/15 border-amber-500/30',
   HIGH: 'text-teal-400 bg-teal-500/15 border-teal-500/30',
-  MEDIUM: 'text-slate-400 bg-slate-500/15 border-slate-500/30',
+  MEDIUM: 'text-navy-800/60 bg-slate-500/15 border-slate-500/30',
 }
 
 const categoryColors = {
   'Will This Work?': 'text-teal-400',
   'What Are the Risks?': 'text-amber-400',
-  'How Much Bigger?': 'text-slate-300',
+  'How Much Bigger?': 'text-navy-800',
 }
 
 export default function KeyQuestionsSlide() {
@@ -48,14 +48,14 @@ export default function KeyQuestionsSlide() {
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 + ci * 0.15 + qi * 0.06, duration: 0.2 }}
-                      className="rounded-lg border border-navy-700 bg-navy-800/30 p-2.5 flex items-start gap-3"
+                      className="rounded-lg border border-black/[0.06] bg-white/70 p-2.5 flex items-start gap-3"
                     >
                       <span className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded border ${pc} mt-0.5`}>
                         {q.priority}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-offwhite text-xs font-medium leading-relaxed">{q.question}</p>
-                        <p className="text-slate-500 text-[10px] leading-relaxed mt-0.5">{q.whyItMatters}</p>
+                        <p className="text-navy-950 text-xs font-medium leading-relaxed">{q.question}</p>
+                        <p className="text-navy-800/50 text-[10px] leading-relaxed mt-0.5">{q.whyItMatters}</p>
                       </div>
                     </motion.div>
                   )
