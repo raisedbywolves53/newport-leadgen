@@ -16,7 +16,7 @@ export default function PlaceholderSlide({ title, slideNumber }) {
         <span className="text-slate-600 text-sm font-body mb-2 block">
           Slide {slideNumber}
         </span>
-        <h2 className="font-display text-4xl font-semibold text-slate-400">
+        <h2 className="font-body text-4xl font-bold text-slate-400">
           {title}
         </h2>
         <div className="mt-4 w-16 h-0.5 bg-navy-700 rounded-full mx-auto" />

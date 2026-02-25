@@ -8,7 +8,6 @@ export const SLIDES = [
   { id: 'executive-summary', label: 'The Opportunity at a Glance', section: null },
 
   // Act 2: The Market (Florida Only)
-  { id: 'divider-opportunity', label: 'The Opportunity', section: 'opportunity', isDivider: true },
   { id: 'why-newport', label: 'Why Newport Wins', section: 'opportunity' },
   { id: 'florida-tam', label: 'Florida TAM by Channel', section: 'opportunity' },
   { id: 'product-matrix', label: 'Product Opportunity', section: 'opportunity' },

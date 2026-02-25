@@ -57,7 +57,7 @@ export default function WhyNewportSlide() {
               <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${c.iconBg} mb-3`}>
                 <card.icon className={`w-4.5 h-4.5 ${c.icon}`} />
               </div>
-              <h3 className="font-display text-lg font-semibold text-offwhite mb-2">
+              <h3 className="font-body text-lg font-semibold text-white mb-2">
                 {card.title}
               </h3>
               <p className="text-slate-400 text-sm leading-relaxed">

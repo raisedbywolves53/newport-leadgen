@@ -46,20 +46,27 @@ const SLIDE_COMPONENTS = {
   'blueprint': BlueprintSlide,
 }
 
-const DIVIDER_SUBTITLES = {
-  'divider-opportunity': 'Market data, competitive landscape, and buyer universe',
-  'divider-strategy': 'How we source, evaluate, and win government contracts',
-  'divider-economics': 'Five-year financial model with interactive projections',
-  'divider-execution': 'Risk management, compliance, and next steps',
+const DIVIDER_CONFIG = {
+  'divider-strategy': {
+    subtitle: 'How we source, evaluate, and win government contracts',
+  },
+  'divider-economics': {
+    subtitle: 'Five-year financial model with interactive projections',
+  },
+  'divider-execution': {
+    subtitle: 'Risk management, compliance, and next steps',
+  },
 }
 
 function renderSlide(slide, index) {
   // Section dividers
   if (slide.isDivider) {
+    const config = DIVIDER_CONFIG[slide.id] || {}
     return (
       <SectionDivider
         title={slide.label}
-        subtitle={DIVIDER_SUBTITLES[slide.id]}
+        subtitle={config.subtitle}
+        backgroundImage={config.backgroundImage}
       />
     )
   }

@@ -98,13 +98,13 @@ export default function ConfectioneryGapSlide() {
         >
           <div ref={chartRef} className="w-56 h-56" />
           <div className="text-center -mt-2 mb-4">
-            <span className="text-amber-400 font-display text-2xl font-semibold">{soleSource}%</span>
+            <span className="text-amber-400 font-body text-2xl font-bold">{soleSource}%</span>
             <span className="text-slate-400 text-sm ml-2">sole-source</span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 w-full">
             <div className="rounded-lg border border-teal-500/20 bg-teal-500/8 p-3 text-center">
-              <span className="text-teal-400 font-display text-2xl font-semibold block">{awards}</span>
+              <span className="text-teal-400 font-body text-2xl font-bold block">{awards}</span>
               <span className="text-slate-400 text-xs">National Awards</span>
               <span className="text-slate-500 text-[10px] block">Lowest of all food PSCs</span>
             </div>

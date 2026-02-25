@@ -38,7 +38,7 @@ export default function ProductMatrixSlide() {
                   <h4 className="text-offwhite font-semibold text-sm">{p.name}</h4>
                   <span className="text-slate-400 text-xs">PSC {p.psc}</span>
                 </div>
-                <span className="text-amber-400 font-display text-lg font-semibold">{fmtM(p.flSpend)}</span>
+                <span className="text-amber-400 font-body text-lg font-bold">{fmtM(p.flSpend)}</span>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed mb-2">{p.advantage}</p>
               <div className="flex gap-3 text-xs">
@@ -65,7 +65,7 @@ export default function ProductMatrixSlide() {
           {PRODUCT_TIERS.tier2.map((p) => (
             <div key={p.psc} className="rounded-lg border border-navy-700 bg-navy-800/50 p-3">
               <h4 className="text-offwhite font-semibold text-sm mb-1">{p.name}</h4>
-              <span className="text-teal-400 font-display text-base font-semibold">{fmtM(p.flSpend)}</span>
+              <span className="text-teal-400 font-body text-base font-bold">{fmtM(p.flSpend)}</span>
               <span className="text-slate-500 text-xs ml-1">FL</span>
               <p className="text-slate-400 text-xs mt-1">{p.soleSource}% sole-source</p>
             </div>

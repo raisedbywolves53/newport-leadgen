@@ -1,22 +1,23 @@
 import { motion } from 'motion/react'
 import { MapPin, ShieldCheck, RefreshCw, FileStack } from 'lucide-react'
-import SlideLayout, { SlideTitle, SlideSubtitle } from '../ui/SlideLayout'
 import SourceCitation from '../ui/SourceCitation'
 import { useCountUp } from '../../hooks/useCountUp'
 import { HEADLINE_STATS } from '../../data/market'
 
 const icons = [MapPin, ShieldCheck, FileStack, RefreshCw]
-const colors = [
-  { text: 'text-teal-400', bg: 'bg-teal-500/10', border: 'border-teal-500/20' },
-  { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-  { text: 'text-teal-300', bg: 'bg-teal-400/10', border: 'border-teal-400/20' },
-  { text: 'text-amber-300', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
+
+const accents = [
+  { border: 'from-[#C9A84C] via-[#C9A84C]/20 to-transparent', glow: 'shadow-[0_0_30px_rgba(201,168,76,0.08)]' },
+  { border: 'from-[#1B7A8A] via-[#1B7A8A]/20 to-transparent', glow: '' },
+  { border: 'from-[#1B7A8A] via-[#1B7A8A]/20 to-transparent', glow: '' },
+  { border: 'from-[#1B7A8A] via-[#1B7A8A]/20 to-transparent', glow: '' },
 ]
 
 function StatCard({ stat, index }) {
   const Icon = icons[index]
-  const color = colors[index]
-  const count = useCountUp(stat.value, 1200, 300 + index * 150)
+  const accent = accents[index]
+  const count = useCountUp(stat.value, 1200, 600 + index * 200)
+  const isHero = index === 0
 
   const display = stat.prefix
     ? `${stat.prefix}${count.toLocaleString()}${stat.suffix || ''}`
@@ -26,42 +27,98 @@ function StatCard({ stat, index }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-      className={`rounded-xl border ${color.border} ${color.bg} p-6 flex flex-col`}
+      transition={{ duration: 0.5, delay: 0.5 + index * 0.12 }}
+      className={`relative rounded-[16px] ${accent.glow}`}
     >
-      <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${color.bg} mb-4`}>
-        <Icon className={`w-5 h-5 ${color.text}`} />
+      <div className={`absolute -inset-px rounded-[16px] bg-gradient-to-b ${accent.border} opacity-60`} />
+
+      <div className="relative rounded-[16px] bg-gradient-to-br from-[#0c1220] via-[#131d30] to-[#0c1220] p-5 h-full flex flex-col">
+        <div className="flex items-center gap-3 mb-3">
+          <Icon
+            className={`w-5 h-5 ${isHero ? 'text-[#C9A84C]' : 'text-white/30'}`}
+            strokeWidth={1.5}
+          />
+          <span className="text-white font-semibold text-xs tracking-[-0.02em] leading-snug">
+            {stat.label}
+          </span>
+        </div>
+
+        <span
+          className={`font-body font-bold tracking-tight leading-none mb-2 ${
+            isHero ? 'text-4xl text-[#C9A84C]' : 'text-3xl text-white'
+          }`}
+        >
+          {display}
+        </span>
+
+        <span className="text-white/40 font-medium text-[11px] leading-relaxed mt-auto">
+          {stat.detail}
+        </span>
       </div>
-      <span className={`font-display text-3xl font-semibold ${color.text} mb-1`}>
-        {display}
-      </span>
-      <span className="text-offwhite font-medium text-sm mb-1">
-        {stat.label}
-      </span>
-      <span className="text-slate-400 text-xs">
-        {stat.detail}
-      </span>
     </motion.div>
   )
 }
 
 export default function ExecutiveSummarySlide() {
   return (
-    <SlideLayout>
-      <SlideTitle>The Opportunity at a Glance</SlideTitle>
-      <SlideSubtitle>
-        Newport's 30-year operating history is a competitive moat in today's post-fraud procurement environment.
-      </SlideSubtitle>
+    <div className="w-full h-full relative overflow-hidden">
+      <div className="h-full grid grid-cols-[45%_55%]">
+        {/* Left — Tree illustration */}
+        <div className="relative h-full">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.1 }}
+            className="h-full flex items-center justify-center px-8"
+          >
+            <img
+              src="/animated_under_tree.png"
+              alt="From seed to shade — the growth metaphor"
+              className="max-h-[85%] max-w-full object-contain opacity-80"
+            />
+          </motion.div>
+          {/* Soft edge blend into right side */}
+          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-navy-950" />
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-4">
-        {HEADLINE_STATS.map((stat, i) => (
-          <StatCard key={stat.label} stat={stat} index={i} />
-        ))}
+        {/* Right — Content */}
+        <div className="flex flex-col justify-center px-10 py-12">
+          <motion.h2
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="font-body text-3xl md:text-4xl font-bold tracking-tight text-white mb-2"
+          >
+            The Opportunity
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.35 }}
+            className="font-body text-sm text-slate-400 mb-8 max-w-md"
+          >
+            Newport's 30-year operating history is a competitive moat in today's post-fraud procurement environment.
+          </motion.p>
+
+          <div className="grid grid-cols-2 gap-4">
+            {HEADLINE_STATS.map((stat, i) => (
+              <StatCard key={stat.label} stat={stat} index={i} />
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4 }}
+            className="mt-6"
+          >
+            <p className="text-[10px] text-slate-600">
+              Sources: USASpending API FY2024 (Feb 2026 query) | FPDS competition analysis | Fed-Spend recompete analysis
+            </p>
+          </motion.div>
+        </div>
       </div>
-
-      <SourceCitation>
-        Sources: USASpending API FY2024 (Feb 2026 query) | FPDS competition analysis | Fed-Spend recompete analysis
-      </SourceCitation>
-    </SlideLayout>
+    </div>
   )
 }

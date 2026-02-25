@@ -72,7 +72,7 @@ export default function CompetitionSlide() {
         transition={{ delay: 0.9, duration: 0.4 }}
         className="mt-4 rounded-xl border border-teal-500/30 bg-teal-500/8 p-4"
       >
-        <h4 className="text-teal-400 font-display text-base font-semibold mb-1">
+        <h4 className="text-teal-400 font-body text-base font-bold mb-1">
           Newport's Entry Point: $1-5M Tier
         </h4>
         <p className="text-slate-300 text-sm">

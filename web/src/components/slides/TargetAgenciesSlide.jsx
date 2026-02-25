@@ -37,7 +37,7 @@ export default function TargetAgenciesSlide() {
                 <Icon className={`w-5 h-5 ${c.text} mt-0.5`} />
                 <div>
                   <h3 className="text-offwhite font-semibold text-sm">{agency.name}</h3>
-                  <span className={`${c.text} font-display text-base font-semibold`}>{agency.stat}</span>
+                  <span className={`${c.text} font-body text-base font-bold`}>{agency.stat}</span>
                 </div>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">{agency.description}</p>

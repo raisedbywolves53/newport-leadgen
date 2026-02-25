@@ -11,7 +11,7 @@ export default function BlueprintSlide() {
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="font-display text-3xl text-offwhite text-center leading-tight"
+        className="font-body text-3xl font-bold tracking-tight text-white text-center leading-tight"
       >
         The Blueprint Is Yours
       </motion.h2>

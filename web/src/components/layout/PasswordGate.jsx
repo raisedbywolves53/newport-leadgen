@@ -42,7 +42,7 @@ export default function PasswordGate({ onAuthenticated }) {
           >
             <Lock className="w-7 h-7 text-teal-500" />
           </motion.div>
-          <h1 className="font-display text-3xl font-semibold text-offwhite mb-2">
+          <h1 className="font-body text-3xl font-bold tracking-tight text-white mb-2">
             Confidential Presentation
           </h1>
           <p className="text-slate-400 text-sm">
