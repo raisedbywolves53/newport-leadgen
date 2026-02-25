@@ -62,24 +62,24 @@ function StatCard({ stat, index }) {
 export default function ExecutiveSummarySlide() {
   return (
     <div className="w-full h-full relative overflow-hidden">
-      <div className="h-full grid grid-cols-[45%_55%]">
-        {/* Left — Tree illustration */}
-        <div className="relative h-full">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.1 }}
-            className="h-full flex items-center justify-center px-8"
-          >
-            <img
-              src="/animated_under_tree.png"
-              alt="From seed to shade — the growth metaphor"
-              className="max-h-[85%] max-w-full object-contain opacity-80"
-            />
-          </motion.div>
-          {/* Soft edge blend into right side */}
-          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-navy-950" />
-        </div>
+      {/* Tree illustration as full background — blended into navy */}
+      <div className="absolute inset-0">
+        <motion.img
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 0.1 }}
+          src="/animated_under_tree.png"
+          alt=""
+          className="absolute -left-[15%] top-1/2 -translate-y-1/2 h-[90%] object-contain opacity-20"
+        />
+        {/* Radial fade from the image outward */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-navy-950/70 to-navy-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/50 via-transparent to-navy-950/50" />
+      </div>
+
+      <div className="relative z-10 h-full grid grid-cols-[45%_55%]">
+        {/* Left — breathing room for the tree */}
+        <div />
 
         {/* Right — Content */}
         <div className="flex flex-col justify-center px-10 py-12">
