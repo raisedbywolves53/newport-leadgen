@@ -61,8 +61,8 @@ function StatCard({ stat, index }) {
 
 export default function ExecutiveSummarySlide() {
   return (
-    <div className="w-full h-full relative overflow-hidden">
-      {/* Tree illustration as full background — blended into navy */}
+    <div className="w-full h-full relative overflow-hidden" style={{ backgroundColor: '#e6e6ec' }}>
+      {/* Tree illustration — slide background matches image gray */}
       <div className="absolute inset-0">
         <motion.img
           initial={{ opacity: 0 }}
@@ -70,11 +70,8 @@ export default function ExecutiveSummarySlide() {
           transition={{ duration: 1.2, delay: 0.1 }}
           src="/animated_under_tree.png"
           alt=""
-          className="absolute -left-[15%] top-1/2 -translate-y-1/2 h-[90%] object-contain opacity-20"
+          className="absolute -left-[15%] top-1/2 -translate-y-1/2 h-[90%] object-contain"
         />
-        {/* Radial fade from the image outward */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-navy-950/70 to-navy-950" />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/50 via-transparent to-navy-950/50" />
       </div>
 
       <div className="relative z-10 h-full grid grid-cols-[45%_55%]">
@@ -87,7 +84,7 @@ export default function ExecutiveSummarySlide() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="font-body text-3xl md:text-4xl font-bold tracking-tight text-white mb-2"
+            className="font-body text-3xl md:text-4xl font-bold tracking-tight text-navy-950 mb-2"
           >
             The Opportunity
           </motion.h2>
@@ -96,7 +93,7 @@ export default function ExecutiveSummarySlide() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.35 }}
-            className="font-body text-sm text-slate-400 mb-8 max-w-md"
+            className="font-body text-sm text-navy-800/60 mb-8 max-w-md"
           >
             Newport's 30-year operating history is a competitive moat in today's post-fraud procurement environment.
           </motion.p>
@@ -113,7 +110,7 @@ export default function ExecutiveSummarySlide() {
             transition={{ delay: 1.4 }}
             className="mt-6"
           >
-            <p className="text-[10px] text-slate-600">
+            <p className="text-[10px] text-navy-800/40">
               Sources: USASpending API FY2024 (Feb 2026 query) | FPDS competition analysis | Fed-Spend recompete analysis
             </p>
           </motion.div>
