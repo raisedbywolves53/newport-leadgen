@@ -85,7 +85,7 @@ export default function ProductMatrixSlide() {
       },
       grid: {
         left: 16,
-        right: 70,
+        right: 90,
         top: 16,
         bottom: 16,
         containLabel: true,
@@ -152,12 +152,12 @@ export default function ProductMatrixSlide() {
   }, [])
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-20 pb-12 relative overflow-hidden">
+    <div className="w-full h-full flex flex-col justify-center px-16 pt-6 pb-8 relative overflow-hidden">
       <BackgroundRing size={450} className="-top-36 -right-36" opacity={0.03} />
       <BackgroundRing size={280} className="bottom-16 -left-24" opacity={0.025} />
 
-      {/* Header */}
-      <div className="mb-5 relative z-10">
+      {/* Header — compact top spacing */}
+      <div className="mb-3 relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -182,7 +182,7 @@ export default function ProductMatrixSlide() {
         >
           Not all products are equal — prioritized by FL demand, competition, and Newport's advantage.
         </motion.p>
-        <GoldLine width={60} className="mt-4" delay={0.25} />
+        <GoldLine width={60} className="mt-3" delay={0.25} />
       </div>
 
       {/* Top zone: full-width bar chart card (~55%) */}
@@ -191,7 +191,7 @@ export default function ProductMatrixSlide() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
         className="rounded-2xl bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/[0.04] relative z-10 mb-4"
-        style={{ height: '280px' }}
+        style={{ height: '340px' }}
       >
         <div className="w-full h-full flex flex-col">
           <div className="flex-1 min-h-0">
@@ -223,7 +223,7 @@ export default function ProductMatrixSlide() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.45 }}
-          className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-5 flex flex-col justify-center relative overflow-hidden"
+          className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-6 py-5 flex flex-col justify-center relative overflow-hidden"
         >
           <span
             className="absolute top-3 right-3 text-[9px] font-bold px-1.5 py-0.5 rounded-md"
@@ -267,7 +267,7 @@ export default function ProductMatrixSlide() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.55 }}
-          className="rounded-2xl bg-white/80 backdrop-blur-sm p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.06] flex flex-col justify-center"
+          className="rounded-2xl bg-white/80 backdrop-blur-sm px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.06] flex flex-col justify-center"
         >
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-lg bg-navy-950/[0.08] flex items-center justify-center shrink-0">

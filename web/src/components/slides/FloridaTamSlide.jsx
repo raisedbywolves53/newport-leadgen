@@ -59,21 +59,21 @@ const CHANNEL_CARDS = [
   },
 ]
 
-// Concentric circle sizes — outermost to innermost
-const RING_SIZES = [380, 310, 240, 175, 115]
-const CONTAINER = 400
+// Concentric circle sizes — outermost to innermost (~30% larger)
+const RING_SIZES = [500, 408, 316, 230, 150]
+const CONTAINER = 520
 
 export default function FloridaTamSlide() {
   const [hoveredRing, setHoveredRing] = useState(null)
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-20 pb-12 relative overflow-hidden">
+    <div className="w-full h-full flex flex-col justify-center px-16 pt-6 pb-8 relative overflow-hidden">
       {/* Background decorative rings */}
       <BackgroundRing size={500} className="-top-40 -left-40" opacity={0.03} />
       <BackgroundRing size={300} className="bottom-16 -right-24" opacity={0.025} />
 
-      {/* Header */}
-      <div className="mb-5 relative z-10">
+      {/* Header — compact top spacing */}
+      <div className="mb-3 relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -98,11 +98,11 @@ export default function FloridaTamSlide() {
         >
           Federal is the entry point — state, education, and local expand the opportunity.
         </motion.p>
-        <GoldLine width={60} className="mt-4" delay={0.25} />
+        <GoldLine width={60} className="mt-3" delay={0.25} />
       </div>
 
-      {/* Main: circles left (~60%) + channel cards right (~35%) */}
-      <div className="flex gap-6 relative z-10" style={{ height: '420px' }}>
+      {/* Main: circles left (~60%) + channel cards right (~35%) — tight gap */}
+      <div className="flex gap-3 relative z-10 flex-1 min-h-0">
 
         {/* Concentric circles — float directly on background, no card */}
         <motion.div
@@ -135,12 +135,13 @@ export default function FloridaTamSlide() {
 
             {/* Ring labels — positioned on each ring */}
             {RING_DATA.map((ring, i) => {
-              // Position labels at different angles around each ring
+              // Position labels at well-separated angles to avoid overlap
               const radius = RING_SIZES[i] / 2
-              // Angles: top-left, top-right, left, right, bottom-left
-              const angles = [-135, -45, 180, 0, 135]
+              // Spread labels: top-left, top-right, left, right, bottom
+              const angles = [-130, -40, 195, -10, 160]
               const angle = angles[i] * (Math.PI / 180)
-              const labelRadius = radius * 0.72
+              // Use larger offset for outer rings, smaller for inner
+              const labelRadius = radius * (i < 2 ? 0.70 : 0.65)
               const x = CONTAINER / 2 + Math.cos(angle) * labelRadius
               const y = CONTAINER / 2 + Math.sin(angle) * labelRadius
 
@@ -161,10 +162,10 @@ export default function FloridaTamSlide() {
                     zIndex: 5,
                   }}
                 >
-                  <span className="font-body text-[10px] font-semibold text-white/90 block leading-tight drop-shadow-sm">
+                  <span className="font-body text-[11px] font-semibold text-white/90 block leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
                     {ring.label}
                   </span>
-                  <span className="font-body text-[9px] text-white/70 block leading-tight drop-shadow-sm">
+                  <span className="font-body text-[10px] text-white/70 block leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
                     {ring.amount}
                   </span>
                 </motion.div>
@@ -180,10 +181,10 @@ export default function FloridaTamSlide() {
               style={{ zIndex: 10 }}
             >
               <div className="text-center">
-                <span className="font-body text-4xl font-bold tracking-tight block leading-none text-white drop-shadow-sm">
+                <span className="font-body text-5xl font-bold tracking-tight block leading-none text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
                   $87M
                 </span>
-                <span className="font-body text-[9px] font-semibold uppercase tracking-widest block mt-1 text-white/80 drop-shadow-sm">
+                <span className="font-body text-[10px] font-semibold uppercase tracking-widest block mt-1.5 text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                   Total TAM
                 </span>
               </div>
