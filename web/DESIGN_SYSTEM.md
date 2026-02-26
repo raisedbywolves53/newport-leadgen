@@ -1,145 +1,198 @@
-# Newport GovCon Presentation — Visual Design Reference
+# Newport GovCon Presentation — Visual Design System
 
-**Theme Name:** Midnight Executive
-**Last Updated:** February 25, 2026
-**Applies to:** Web presentation at `/web/` (Vite + React + Tailwind v4)
+**Theme:** Midnight Executive
+**Updated:** February 25, 2026
+**Platform:** Vite + React 19 + Tailwind CSS v4 + Motion (Framer Motion) + ECharts
+**Quality Baseline:** Slides 1 (Title) and 2 (The Opportunity) — every slide must match this bar
+
+---
+
+## 0. The Quality Bar — What "Good" Looks Like
+
+Slides 1 and 2 are the standard. Every new slide must be evaluated against them before shipping.
+
+### What Makes Slides 1–2 Work
+
+**Slide 1 (Title)** succeeds because it is *cinematic*. A full-bleed aerial photograph creates immediate emotional weight — this is a real business with real infrastructure. The navy overlay at 80% makes the image feel like texture, not decoration. The typography is massive and confident (9xl bold, tracking-tight). The gold subtitle in small uppercase tracking says "premium editorial." The footer credit in wide-tracked uppercase says "this was crafted." Every element has intentional breathing room. There are only four things on the slide.
+
+**Slide 2 (The Opportunity)** succeeds because it pairs *art with data*. The pencil-sketch tree illustration (roots = 30-year foundation) is emotionally resonant and hand-crafted — it immediately separates this from a template. The illustration occupies the full left 45% and bleeds off-edge, treating the slide like a magazine spread. The stat cards on the right are clean but warm (white glass, gold hero accent, count-up animations). The decorative compass/star element at the bottom adds a finishing touch. There are only two "zones" — art and content — and they don't compete.
+
+### What Slides 3–19 Get Wrong
+
+The remaining slides fail the quality bar in two ways:
+
+**1. Visual storytelling disappears.** After slide 2, the presentation becomes a data-card layout engine. Every slide is the same pattern: heading, subtitle, grid of white rounded cards on warm-gray background. There are no illustrations, no photography, no visual metaphors, no emotional moments. The slides read as "dashboard UI" instead of "editorial presentation."
+
+**2. The cards feel generic.** White rounded rectangles with tiny icons and small text are the default output of any AI coding tool. They're functional but they're not designed. Slide 2's cards work because they sit alongside a dramatic illustration — they're the "data" half of an art-data pairing. When cards exist alone on a blank warm-gray background (slides 3–19), they read as wireframes.
+
+### The Fix: Every Slide Needs a Visual Anchor
+
+A **visual anchor** is the element that makes someone pause and look. It's the thing that separates a designed slide from a data layout. On slide 1, it's the photograph. On slide 2, it's the tree illustration.
+
+For slides 3–19, visual anchors could be:
+
+- A curated illustration or artistic element (hand-drawn, editorial style — NOT stock icons, NOT AI-generated clip art)
+- A hero data visualization that is beautiful on its own (a well-designed chart IS art when done right)
+- A dramatic layout asymmetry (split compositions, oversized numbers that bleed, intentional negative space)
+- Photography used as texture (heavily overlaid, cropped dramatically, never "stock photo on a slide")
+- Subtle decorative elements (the compass star from slide 2, gold accent lines, fine typographic details)
+
+**The rule: if you remove the data from a slide and there's nothing interesting left to look at, the slide needs a visual anchor.**
 
 ---
 
 ## 1. Color Palette
 
-### Primary Colors
+### Core Tokens (defined in `index.css` @theme block)
 
-| Token | Hex | Usage |
-|---|---|---|
-| `navy-950` | `#0F1A2E` | Slide background (dark mode), primary heading text (light mode), deepest layer |
-| `navy-900` | `#1A2744` | Navigation bar background, secondary dark surfaces |
-| `navy-800` | `#243356` | Body text (with opacity), used at `/60` or `/70` for readable-but-quiet copy |
-| `navy-700` | `#2E4068` | Borders in dark contexts, scrollbar thumb, subtle dividers |
-| `navy-600` | `#3A5080` | Lighter navy accents (rarely used) |
+```css
+@theme {
+  /* Navy — the foundation */
+  --color-navy-950: #0F1A2E;   /* Deepest: dark backgrounds, heading text on light */
+  --color-navy-900: #1A2744;   /* Navigation bar, secondary dark surfaces */
+  --color-navy-800: #243356;   /* Body text via opacity: /70 readable, /60 quiet, /40 metadata */
+  --color-navy-700: #2E4068;   /* Dark borders, scrollbar, nav borders */
+  --color-navy-600: #3A5080;   /* Rarely used — lighter navy accent */
 
-### Accent Colors
+  /* Teal — primary accent (opportunity, data, trust) */
+  --color-teal-500: #1B7A8A;   /* Section labels, primary highlights, nav "opportunity" color */
+  --color-teal-400: #239BAD;   /* Competitor callouts, lighter teal emphasis */
+  --color-teal-300: #3CC0D4;   /* Callout text on teal-tinted cards */
 
-| Token | Hex | Role |
-|---|---|---|
-| `teal-500` | `#1B7A8A` | **Primary accent.** Section labels, stat accents, highlighted data, "opportunity" section color |
-| `teal-400` | `#239BAD` | Lighter teal for hover states, secondary teal highlights, competitor callouts |
-| `teal-300` | `#3CC0D4` | Lightest teal — callout text on teal-tinted backgrounds |
-| `amber-500` | `#E8913A` | **Secondary accent.** "Strategy" section color, chart segments, warm emphasis |
-| `amber-400` | `#F0A85C` | "Execution" section color, chart elements, lighter warm accent |
-| `amber-300` | `#F5C080` | Lightest amber — icon backgrounds at low opacity |
+  /* Amber — secondary accent (strategy, warmth, action) */
+  --color-amber-500: #E8913A;  /* "Strategy" nav color, chart segments, warm emphasis */
+  --color-amber-400: #F0A85C;  /* "Execution" nav color, lighter warm highlights */
+  --color-amber-300: #F5C080;  /* Icon backgrounds at low opacity */
 
-### Signature Colors
+  /* Neutrals */
+  --color-offwhite: #F5F6FA;   /* Default text on dark backgrounds */
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;  /* Nav counter text, muted labels */
+  --color-slate-500: #64748B;  /* Inactive nav dots */
+
+  /* Fonts */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+```
+
+### Signature Colors (hardcoded, not in @theme)
 
 | Hex | Name | Usage |
 |---|---|---|
-| `#C9A84C` | **Gold** | Premium accent. Title slide subtitle, section divider accent lines, hero stat numbers, icon tints on hero cards. This is the presentation's signature "editorial" color. |
-| `#9CA0A4` | Footer gray | Credit/attribution text on dark backgrounds |
+| `#C9A84C` | **Gold** | The editorial signature. Title subtitle, section divider accent lines, hero stat numbers, hero card left-edge accent strips, icon tints on premium cards. Use sparingly — it signals "this is the most important thing." |
+| `#9CA0A4` | Footer gray | Credit/attribution text on dark backgrounds only |
+| `#E6E6EC` | Warm gray | Section divider gradient overlay base. Approximates the light-mode slide background. |
 
-### Neutrals
+### Background Modes
 
-| Token | Hex | Usage |
+**Dark (Title slide, password gate):** `navy-950` base. Photography or imagery with `bg-navy-950/80` overlay. Text is white/offwhite. Gold for accent text.
+
+**Light (Content slides):** Warm gray ~`#E2E2E8` to `#E6E6EC`. Headings are `navy-950`. Body copy is `navy-800` at varying opacity. Cards are white.
+
+### Opacity-Based Hierarchy
+
+Instead of multiple gray tokens, this system controls text hierarchy through a single base color (`navy-800`) at different opacities:
+
+| Opacity | Role | Example |
 |---|---|---|
-| `offwhite` | `#F5F6FA` | Default text on dark backgrounds, base body color |
-| `slate-300` | `#CBD5E1` | Light text accents |
-| `slate-400` | `#94A3B8` | Navigation counter text, muted labels |
-| `slate-500` | `#64748B` | Inactive navigation dots |
-| `white` | `#FFFFFF` | Card backgrounds (often at `/70` opacity for glass effect) |
-| `black` | `#000000` | Used only at very low opacity for borders (`/[0.04]`, `/[0.06]`) and shadows |
-
-### Background Contexts
-
-The presentation has two distinct background modes:
-
-**Dark mode** (Title slide only): `navy-950` (`#0F1A2E`) with 80% overlay on photography. Text is white/offwhite. Subtitle is gold.
-
-**Light mode** (All other slides): A warm gray approximately `#E2E2E8` to `#E6E6EC`. This is not a named token — it comes from the slide container's visual treatment. Text is `navy-950` for headings, `navy-800/60` for body copy. Cards are white.
+| `/70` | Readable body copy | Card descriptions, detail paragraphs |
+| `/65` | Slightly quieter body | Secondary card text |
+| `/60` | Slide subtitles | One-line context setters below headings |
+| `/50` | Supporting detail | Supplementary info, less-important stats |
+| `/40` | Metadata | Source citations, timestamps, unit labels |
+| `/35` | Nearly invisible | Footnote-level citations |
 
 ---
 
 ## 2. Typography
 
-### Font Stack
+### Fonts (loaded from Google Fonts in `index.html`)
 
-| Role | Font | Weights Loaded | Tailwind Class |
-|---|---|---|---|
-| **Display / Decorative** | Playfair Display | 400, 500, 600, 700 | `font-display` |
-| **Body / UI** | Inter | 300, 400, 500, 600, 700 | `font-body` |
+| Role | Font | Weights | Tailwind | Notes |
+|---|---|---|---|---|
+| **Body / Everything** | Inter | 300, 400, 500, 600, 700 | `font-body` | Used for all headings, body, stats, labels. This is the voice of the presentation. |
+| **Display / Reserved** | Playfair Display | 400, 500, 600, 700 | `font-display` | Available but currently unused. Reserved for future editorial moments where serif warmth is needed. |
 
-**Important:** The presentation uses Inter (`font-body`) for almost everything — headings, body, stats, labels. Playfair Display (`font-display`) is available but reserved. The overall look is clean sans-serif with tight tracking, not decorative serif.
+### Type Scale
 
-### Type Scale (as rendered)
-
-| Element | Size | Weight | Tracking | Line Height | Color |
+| Element | Size | Weight | Tracking | Color | Notes |
 |---|---|---|---|---|---|
-| **Title slide H1** | `text-7xl` / `text-9xl` | 700 (bold) | `tracking-tight` | `leading-none` | White `#FFFFFF` |
-| **Title slide subtitle** | `text-base` (16px) | 400 | `tracking-[0.2em]` | Normal | Gold `#C9A84C`, uppercase |
-| **Slide heading (H2)** | `text-3xl` / `text-4xl` | 700 (bold) | `tracking-tight` | 1.25 | `navy-950` |
-| **Section divider heading** | `text-4xl` / `text-5xl` | 700 (bold) | `tracking-tight` | 1.25 | `navy-950` |
-| **Slide subtitle** | `text-base` (16px) | 400 | Normal | 1.625 | `navy-800/60` |
-| **Category label** | `text-xs` (12px) | 600 | `tracking-widest` | Normal | `teal-500`, uppercase |
-| **Card headline** | `text-base` to `text-xl` | 600 | Normal | 1.4 | `navy-950` |
-| **Card body** | `text-sm` to `text-[15px]` | 400 | Normal | `leading-relaxed` | `navy-800/65` to `/70` |
-| **Hero stat number** | `text-4xl` to `text-7xl` | 700 (bold) | `tracking-tighter` to `tracking-tight` | `leading-none` | Gold `#C9A84C` or accent color |
-| **Stat unit label** | `text-[11px]` to `text-lg` | 500 | `tracking-wide`, uppercase | Normal | `navy-800/35` to `/40` |
-| **Table header** | `text-xs` (12px) | 600 | Normal | Normal | `navy-800/60` |
-| **Table cell** | `text-sm` (14px) | 400 | Normal | Normal | `navy-800` or accent |
-| **Source citation** | `text-[10px]` | 400 | Normal | Normal | `navy-800/35` to `/40` |
-| **Nav counter** | `text-xs` | 400 | `tabular-nums` | Normal | `slate-400` |
-| **Footer credit** | `text-sm` | 400 | `tracking-[0.2em]`, uppercase | Normal | `#9CA0A4` |
+| Title H1 | `text-7xl` / `text-9xl` | 700 | `tracking-tight` | White | Only on title slide. Massive, confident. |
+| Title subtitle | `text-base` | 400 | `tracking-[0.2em]` | Gold `#C9A84C` | Uppercase. Small and spaced = editorial luxury. |
+| Slide heading H2 | `text-3xl` / `text-4xl` | 700 | `tracking-tight` | `navy-950` | Every content slide starts here. |
+| Section divider H2 | `text-4xl` / `text-5xl` | 700 | `tracking-tight` | `navy-950` | Larger for act breaks. |
+| Slide subtitle | `text-base` | 400 | Normal | `navy-800/60` | One line. Sets context. Always under heading. |
+| Category label | `text-xs` | 600 | `tracking-widest` | `teal-500` | Uppercase. Appears above headings ("COMPETITIVE MOAT"). |
+| Hero stat number | `text-4xl` to `text-7xl` | 700 | `tracking-tighter` | Gold or accent | The visual anchor of stat cards. Intentionally oversized. |
+| Stat unit label | `text-[11px]` to `text-lg` | 500 | `tracking-wide` | `navy-800/35` | Uppercase. Sits next to big numbers. |
+| Card headline | `text-base` to `text-xl` | 600 | Normal | `navy-950` | Clear, scannable. |
+| Card body | `text-sm` to `text-[15px]` | 400 | Normal | `navy-800/65-70` | `leading-relaxed` for readability. |
+| Table header | `text-xs` | 600 | Normal | `navy-800/60` | Uppercase optional. |
+| Table cell | `text-sm` | 400 | Normal | `navy-800` or accent | Monospace for numbers (`font-mono`). |
+| Source citation | `text-[10px]` | 400 | Normal | `navy-800/35-40` | Bottom-left, nearly invisible. Every data slide. |
+| Footer credit | `text-sm` | 400 | `tracking-[0.2em]` | `#9CA0A4` | Uppercase. Title slide only. |
 
 ### Typography Rules
 
-1. **Headings never use serif.** All headings are Inter bold with tight tracking.
-2. **Uppercase is reserved** for category labels (`tracking-widest`), unit labels (`tracking-wide`), the title subtitle (`tracking-[0.2em]`), and footer credits.
-3. **Opacity controls hierarchy.** Rather than using lighter font weights or gray colors, the system uses navy-800 at varying opacities: `/70` for readable body, `/60` for subtitles, `/50` for supporting detail, `/40` for metadata, `/35` for source citations.
-4. **Stat numbers are oversized.** They break the normal type scale intentionally — `text-3xl` minimum, up to `text-7xl` for hero stats. Always bold, always accent-colored.
-5. **No italic text** anywhere in the presentation.
-6. **Antialiasing is always on:** `-webkit-font-smoothing: antialiased`.
+1. **No serif headings.** All headings are Inter bold with tight tracking.
+2. **Uppercase is a design tool, not a default.** Reserved for: category labels, unit labels, title subtitle, footer credits. Never on headings or body.
+3. **Opacity is hierarchy.** Navy-800 at `/70` → `/60` → `/50` → `/40` → `/35`. Never introduce new gray colors.
+4. **Stat numbers break the scale.** `text-3xl` minimum, `text-7xl` for hero stats. Always bold, always accent-colored. They should be the first thing your eye hits.
+5. **No italic. No underline. No strikethrough.** Anywhere.
+6. **Antialiasing always on:** `-webkit-font-smoothing: antialiased`.
 
 ---
 
-## 3. Spacing & Layout
+## 3. Layout & Spacing
 
-### Slide Container
+### Slide Container (`SlideLayout.jsx`)
 
-- **Max width:** `max-w-7xl` (80rem / 1280px) centered with `mx-auto`
-- **Horizontal padding:** Responsive — `px-8` (mobile) → `px-16` (md) → `px-24` (lg) for standard slides. Some custom slides use `px-20` or `px-16`.
-- **Vertical padding:** `py-12`
-- **Content alignment:** `flex flex-col justify-center` — content is vertically centered in the viewport
+```
+max-w-7xl mx-auto
+px-8 md:px-16 lg:px-24
+py-12
+flex flex-col justify-center    /* vertically centered */
+```
 
-### Common Spacing Values
+### Slide Transitions (`SlideContainer.jsx`)
 
-| Use Case | Value | Tailwind |
+```javascript
+enter:  { x: '8%',  opacity: 0 }
+center: { x: 0,     opacity: 1 }
+exit:   { x: '-8%', opacity: 0 }
+duration: 0.4s
+ease: [0.25, 0.1, 0.25, 1]
+```
+
+### Key Spacing Values
+
+| Relationship | Value | Why |
 |---|---|---|
-| Gap between cards in a grid | 16-20px | `gap-4` to `gap-5` |
-| Heading to subtitle | 8px | `mb-2` |
-| Subtitle to content block | 32px | `mb-8` |
-| Inside cards (padding) | 16-40px | `p-4` to `p-10` (varies by card importance) |
-| Icon container to label | 12px | `gap-3` |
-| Stat number to description | 8-12px | `mb-2` to `mb-3` |
-| Source citation from bottom | 16px | `bottom-4` |
-| Between stacked items | 4-8px | `gap-1` to `gap-2` |
-| Section divider bottom padding | 96px | `pb-24` |
+| Heading → subtitle | `mb-2` (8px) | Tight — they're a unit. |
+| Subtitle → content | `mb-8` (32px) | Clear separation between setup and payload. |
+| Cards in grid | `gap-4` to `gap-5` (16-20px) | Breathable but connected. |
+| Card internal padding | `p-4` (standard) to `p-10` (hero) | Hero cards need room. Standard cards are compact. |
+| Source citation → bottom | `bottom-4` (16px) | Pinned, out of the way. |
+| Section divider → bottom | `pb-24` (96px) | Generous — the divider title sits low, leaving room for an illustration above. |
 
-### Grid Patterns
+### Layout Patterns
 
-**Bento grid (WhyNewport slide):** `grid-cols-[1fr_1fr] grid-rows-[1fr_1fr_1fr]` — hero card spans 2 rows on left, 3 smaller cards stack on right. Height fixed at 460px.
+**Magazine split** (Slide 2 — THE GOLD STANDARD): `grid-cols-[45%_55%]`. Art on left bleeds off-edge. Content on right is self-contained. This is the pattern that should be used more.
 
-**2×2 stat grid (Executive Summary):** `grid-cols-2 gap-4`
+**Bento grid** (Slide 3): Hero card spans 2 rows left, 3 smaller cards stack right. Height fixed at 460px.
 
-**4-column pipeline (How It Works):** 5 step indicators in a row with arrow separators, then 4 content cards below
+**Equal grid**: `grid-cols-2 gap-4` (stats), `grid-cols-4` (pipeline steps), `grid-cols-3` (tier 2 products).
 
-**2-column comparison (Risk, Recommendation, Blueprint):** Side-by-side columns with distinct visual treatments per column
-
-**Split layout (Executive Summary):** `grid grid-cols-[45%_55%]` — illustration left, content right
+**Two-column compare**: Side-by-side with distinct visual treatments per column (Risk: required vs. not required; Blueprint: Newport vs. Still Mind).
 
 ---
 
-## 4. Card & Surface Styles
+## 4. Cards & Surfaces
 
-### Standard Content Card
+### The Three Card Types
 
+**Standard Card** — workhorse data container:
 ```
 rounded-2xl bg-white/70 backdrop-blur-sm
 border border-black/[0.06]
@@ -147,278 +200,380 @@ shadow-[0_1px_3px_rgba(0,0,0,0.04)]
 p-5
 ```
 
-This is the workhorse card. White at 70% opacity with a hair-thin border and almost imperceptible shadow. The glass effect (`backdrop-blur-sm`) is subtle — it reads as a clean white card on the warm gray background.
-
-### Hero Card
-
+**Hero Card** — most important element on the slide:
 ```
 rounded-2xl bg-white p-10
 shadow-[0_2px_8px_rgba(0,0,0,0.06)]
 border border-black/[0.04]
+/* Often includes a gold accent strip: */
+/* absolute left-0 top-8 bottom-8 w-1 rounded-full bg-[#C9A84C] */
 ```
 
-Bigger padding, slightly stronger shadow, fully opaque white. Used for the most important stat on a slide. Often includes a **gold accent strip** on the left edge: `w-1 rounded-full` in `#C9A84C`.
-
-### Accent-Tinted Card (Callout)
-
+**Callout Card** — accent-tinted insight box:
 ```
 rounded-xl border border-teal-500/30 bg-teal-500/8 p-4
+/* Or amber variant: */
+rounded-xl border border-amber-500/20 bg-amber-500/5 p-4
 ```
 
-Used for callout boxes and highlighted recommendations. The tint is extremely subtle (8% opacity). Also appears in amber: `border-amber-500/20 bg-amber-500/5`.
-
 ### Table Container
-
 ```
 rounded-xl border border-black/[0.06] overflow-hidden
 ```
-
-Header row: `bg-white/70 px-4 py-2.5`
-Body rows: `px-4 py-2 border-t border-black/[0.06]`
-Highlighted rows (competitors): `bg-teal-500/8` with teal-colored text
+- Header: `bg-white/70 px-4 py-2.5`
+- Rows: `px-4 py-2 border-t border-black/[0.06]`
+- Highlighted rows: `bg-teal-500/8` with teal text
 
 ### Card Rules
 
-1. **Border radius is always `rounded-xl` (12px) or `rounded-2xl` (16px).** Never sharp corners, never full-round except pills/badges.
-2. **Borders are black at 4-6% opacity** — barely visible but structurally defining.
-3. **Shadows are minimal.** The strongest shadow in the system is `0_2px_8px_rgba(0,0,0,0.06)`. Most cards use `0_1px_3px_rgba(0,0,0,0.04)` or no shadow at all.
-4. **No colored borders on standard cards.** Color borders only appear on accent-tinted callout cards.
-5. **Cards never have colored backgrounds** (other than white or very subtle accent tints at 5-8% opacity).
+1. Border radius: `rounded-xl` (12px) or `rounded-2xl` (16px). Never sharp. Never fully round.
+2. Borders: black at 4-6% opacity. Structurally defining but invisible.
+3. Shadows: max `rgba(0,0,0,0.06)`. Most use `rgba(0,0,0,0.04)`.
+4. No colored backgrounds on standard cards. White only. Accent tints at 5-8% only on callout cards.
+5. No colored borders on standard cards. Color borders only on callouts.
+
+### ⚠️ Card Anti-Pattern (The Quality Gap)
+
+**The problem with slides 3–19:** Cards on a blank warm-gray background read as "generic dashboard component." The cards themselves are fine — the issue is that there's nothing else on the slide to create visual interest.
+
+**The fix:** Pair card grids with at least one of:
+- An illustration or editorial image (like slide 2's tree)
+- A dramatic asymmetric layout (hero card 2x size, dramatic negative space)
+- A gold accent element (accent strip, decorative line, compass star)
+- An oversized stat number that breaks the card boundary
+- A subtle textured or photographic background treatment
 
 ---
 
-## 5. Icon System
+## 5. Icons
 
 ### Library
-**Lucide React** (`lucide-react` v0.575.0) — line-style icons with consistent stroke weight.
+**Lucide React** v0.575.0 — line-style only.
 
-### Icon Styling Rules
-
-| Context | Size | Stroke Width | Container | Color |
+| Context | Size | Stroke | Container | Color |
 |---|---|---|---|---|
-| Stat card icon | `w-5 h-5` | 1.5 | `w-7 h-7 rounded-lg` with accent at 15% opacity bg | Accent color or `navy-950/50` |
-| Hero card icon | `w-6 h-6` | 1.8 | `w-12 h-12 rounded-xl` with accent at ~8% opacity bg | Gold `#C9A84C` |
-| Category/label icon | `w-4 h-4` | 1.5 | None | Same as label text color |
-| Pipeline step icon | `w-5 h-5` to `w-6 h-6` | 1.5 | Full circle or rounded-xl container | Section accent color |
+| Stat card | `w-5 h-5` | 1.5 | `w-7 h-7 rounded-lg` bg at 15% | Accent or `navy-950/50` |
+| Hero card | `w-6 h-6` | 1.8 | `w-12 h-12 rounded-xl` bg at ~8% | Gold `#C9A84C` |
+| Label/inline | `w-4 h-4` | 1.5 | None | Same as text |
+| Pipeline step | `w-5-6 h-5-6` | 1.5 | Circle or rounded-xl | Section accent |
 
-### Icon Rules
-
-1. **Always line-style** (never filled/solid variants).
-2. **Always inside a tinted container** when appearing at the start of a card or stat. The container background is the accent color at 8-15% opacity.
-3. **Icon containers use `rounded-lg` (8px) or `rounded-xl` (12px)** — matching the card radius but smaller.
-4. **Color matches the stat or section accent** — gold for hero elements, teal for data/opportunity, amber for strategy.
+Rules: Always line-style. Always in a tinted container when leading a card. Container bg = accent at 8-15% opacity.
 
 ---
 
-## 6. Data Visualization
+## 6. Data Visualization (ECharts)
 
-### Chart Library
-**ECharts** (`echarts-for-react` v6.0.0)
+### Library
+**ECharts** via `echarts-for-react` v6.0.0
 
-### Chart Color Sequence
-Charts use the same accent palette: navy-950 (darkest bars), teal-500/400 (mid values), amber-500/400 (highlights/renewals).
+### Current Chart Types
+- **Stacked bar** (Portfolio Evolution): navy-950 → teal-500 → teal-400 → amber-500
+- **Horizontal bar** (Florida TAM): navy/teal/amber by channel type
+- **Donut ring** (Confectionery Gap): amber-500 arc, value below
 
-### Bar Chart Rules (Portfolio Evolution, Florida TAM)
-- Bars have no border/outline
-- Stacked bar segments use the 4-color sequence: navy-950 → teal-500 → teal-400 → amber-500
-- Axis labels are small (`text-xs`), slate-colored
-- Grid lines are minimal or absent
-- The chart sits directly in the slide with no card wrapper
+### Chart Styling Rules (Current)
+- No borders on bar segments
+- Minimal/no grid lines
+- Axis labels: `text-xs`, slate-colored
+- Charts sit directly on slide — no card wrapper
 
-### Donut/Ring Chart (Confectionery Gap)
-- Single-value ring with amber-500 fill and transparent remainder
-- Stat value displayed below in accent color
+### Interactive Financial Dashboard (Pro Forma) — Direction
+
+The financial dashboard should follow a **light editorial** direction, consistent with slides 1-2's quality bar. Reasoning: the warm-gray content slides are where the user's data-heavy content lives, and slides 1-2 proved that the light palette with selective accent color creates the most premium feel.
+
+**Visual Principles for the Dashboard:**
+
+1. **The chart IS the visual anchor.** Unlike content slides where we need an illustration to break up cards, a well-designed interactive chart can be the centerpiece. It needs to be *beautiful on its own* — thoughtful color, generous whitespace, smooth transitions.
+
+2. **Light base, selective color.** Background matches the warm gray slide treatment. Charts use the navy/teal/amber palette. The key stat or insight gets gold `#C9A84C` treatment.
+
+3. **Glass card containers for controls.** Input controls (scenario toggles, sliders) live in the same `bg-white/70 backdrop-blur-sm` cards. Interactive elements get the teal accent for affordance.
+
+4. **Generous chart sizing.** Charts should occupy at least 50-60% of the viewport. Don't shrink charts to fit more cards around them. Let the visualization breathe.
+
+5. **Animated transitions.** When inputs change, chart values should animate smoothly (ECharts supports this natively). Count-up numbers for key stats (reuse `useCountUp` hook).
+
+6. **One "hero number" per view.** Whatever the user is looking at — Year 5 revenue, cumulative owner earnings, ROI — one number should be oversized in gold or teal, anchoring the whole layout.
+
+7. **Scenario toggling.** Free / Moderate / Aggressive scenarios should use a clean tab or segmented control (not dropdown). Active scenario gets teal accent, inactive gets slate.
+
+**ECharts Theme Configuration:**
+```javascript
+const CHART_THEME = {
+  backgroundColor: 'transparent',
+  color: ['#0F1A2E', '#1B7A8A', '#239BAD', '#3CC0D4', '#E8913A', '#F0A85C'],
+  textStyle: {
+    fontFamily: 'Inter, system-ui, sans-serif',
+    color: '#243356',  // navy-800
+  },
+  title: {
+    textStyle: { fontWeight: 700, fontSize: 16, color: '#0F1A2E' }
+  },
+  grid: { containLabel: true, left: 20, right: 20, top: 40, bottom: 20 },
+  xAxis: {
+    axisLine: { lineStyle: { color: '#CBD5E1' } },  // slate-300
+    axisLabel: { fontSize: 11, color: '#94A3B8' },   // slate-400
+    splitLine: { show: false }
+  },
+  yAxis: {
+    axisLine: { show: false },
+    axisLabel: { fontSize: 11, color: '#94A3B8' },
+    splitLine: { lineStyle: { color: '#0F1A2E', opacity: 0.06 } }
+  },
+  tooltip: {
+    backgroundColor: '#0F1A2E',
+    borderColor: '#2E4068',
+    textStyle: { color: '#F5F6FA', fontSize: 12 },
+    borderRadius: 8
+  },
+  legend: {
+    textStyle: { fontSize: 11, color: '#64748B' }  // slate-500
+  }
+}
+```
 
 ---
 
 ## 7. Animation & Motion
 
 ### Library
-**Motion** (Framer Motion v12.34.3, imported as `motion/react`)
+**Motion** (Framer Motion v12.34.3) — imported as `motion/react`
 
-### Slide Transitions
-
-```javascript
-// Slide enter/exit
-x: direction > 0 ? '8%' : '-8%'  // Horizontal shift
-opacity: 0 → 1
-duration: 0.4s
-ease: [0.25, 0.1, 0.25, 1]  // Cubic bezier (smooth deceleration)
-```
-
-### Element Entrance Animations
+### Element Entrances
 
 | Element | Animation | Duration | Delay |
 |---|---|---|---|
-| Slide heading | Fade up (`y: 15 → 0`) | 0.4s | 0.1s |
-| Subtitle | Fade in | 0.4s | 0.2s |
-| Cards (staggered) | Fade up (`y: 16-20 → 0`) | 0.45-0.5s | Base 0.3s + `index * 0.1-0.12s` |
-| Table rows (staggered) | Fade from left (`x: -10 → 0`) | 0.3s | Base 0.4s + `index * 0.06s` |
-| Source citations | Fade in | 0.4s | 0.8-1.4s (last element) |
-| Section divider accent line | Width expand (`width: 0 → 60px`) | 0.8s | 0.2s |
-| Background images | Fade in | 1.2s | 0.1s |
-| Number counters | Count up animation | 1.2s | 0.6s + stagger |
+| Slide heading | `y: 15 → 0`, opacity | 0.4s | 0.1s |
+| Subtitle | opacity only | 0.4s | 0.2s |
+| Cards (staggered) | `y: 16-20 → 0`, opacity | 0.45-0.5s | 0.3s + `i × 0.1-0.12s` |
+| Table rows | `x: -10 → 0`, opacity | 0.3s | 0.4s + `i × 0.06s` |
+| Illustrations / images | opacity | 1.2s | 0.1s |
+| Divider accent line | `width: 0 → 60px` | 0.8s | 0.2s |
+| Number counters | count-up | 1.2s | 0.6s + stagger |
+| Source citations | opacity | 0.4s | 0.8-1.4s (last) |
 
 ### Motion Rules
 
-1. **Everything fades in** — no element appears instantly.
-2. **Vertical movement is subtle** — 15-20px maximum. Never bouncy or overshooting.
-3. **Stagger creates reading order** — heading first, then subtitle, then content cards left-to-right/top-to-bottom, then source citations last.
-4. **No exit animations on individual elements** — only the slide-level transition handles exit.
-5. **Easing is always smooth deceleration** — content "settles into place."
-6. **Count-up numbers** are used on stat slides to add dynamism without being flashy.
+1. Everything fades in. Nothing appears instantly.
+2. Vertical movement: 15-20px max. Subtle. Content settles into place.
+3. Stagger = reading order. Heading → subtitle → content (L→R, top→bottom) → citations last.
+4. No exit animations on individual elements. Only slide-level transition.
+5. Easing: smooth deceleration. `[0.25, 0.1, 0.25, 1]` for slides, spring-free for elements.
+6. Count-up numbers on stat slides add polish without being flashy.
 
 ---
 
 ## 8. Navigation
 
-### Progress Bar
-- **Position:** Fixed, bottom-center (`bottom-6`), full z-index (`z-50`)
-- **Container:** `rounded-full bg-navy-900/80 backdrop-blur-md border border-navy-700/50`
-- **Padding:** `px-4 py-2.5`
+### Progress Bar (bottom-center, fixed)
+```
+rounded-full bg-navy-900/80 backdrop-blur-md border border-navy-700/50
+px-4 py-2.5, z-50
+```
 
-### Dot Indicators
-- **Inactive:** `w-2 h-2 rounded-full bg-slate-500/50`
-- **Active:** `w-8 h-2.5 rounded-full` in section color (see below)
-- **Hover:** `bg-slate-400/70`
-- **Transition:** `transition-all duration-300`
+### Dots
+- Inactive: `w-2 h-2 bg-slate-500/50`
+- Active: `w-8 h-2.5` in section color
+- Hover: `bg-slate-400/70`
+- Transition: `duration-300`
 
-### Section Colors in Navigation
-
+### Section Colors
 | Section | Color | Slides |
 |---|---|---|
-| Opportunity | `bg-teal-500` | Slides 3-9 |
-| Strategy | `bg-amber-500` | Slides 10-14 |
-| Execution | `bg-amber-400` | Slides 15-18 |
-| Unsectioned | `bg-slate-400` | Slides 1-2, 19 |
+| Opportunity | `teal-500` | 3-9 |
+| Strategy | `amber-500` | 10-14 |
+| Execution | `amber-400` | 15-18 |
+| Unsectioned | `slate-400` | 1-2, 19 |
 
-### Section Dividers (between acts)
-- Extra margin on dots: `mx-1`
-- Slide type: Centered text at bottom of viewport
-- Gold accent line above title: 60px wide, 1px height, `#C9A84C`
-- Gradient overlay on background images: `from-[#e6e6ec] via-[#e6e6ec]/60 to-[#e6e6ec]/30` (bottom to top)
-
----
-
-## 9. Photography & Illustration
-
-### Title Slide Background
-- Full-bleed aerial photograph of port/warehouse operations with Newport Wholesalers branding visible
-- **Heavy overlay:** `bg-navy-950/80` — the image is visible but dark, reading as texture not content
-- Image positioned with `object-cover object-bottom`
-
-### Illustration (Executive Summary)
-- Pencil-sketch style tree illustration (roots visible — symbolizing deep history/foundation)
-- Positioned on left 45% of slide at 90% height
-- Offset: `-left-[15%]` to bleed off the edge
-- Fades in slowly (1.2s)
-
-### Image Rules
-
-1. **Photography is used exactly once** (title slide) and is heavily overlaid to avoid competing with text.
-2. **Illustrations are editorial, hand-drawn style** — not stock vector art, not photographic.
-3. **All images have `alt=""`** — they are decorative, not informational.
-4. **Background images on section dividers** are optional and receive a heavy gradient overlay (`from-[#e6e6ec]`) so text remains readable.
-5. **No inline images, logos, or diagrams** in content slides. Data is presented through cards, tables, and charts — never infographics or decorative illustrations.
+### Section Dividers
+- Gold accent line: 60px wide, 1px, `#C9A84C`
+- Title at bottom third of viewport, centered
+- Optional background image with heavy gradient: `from-[#e6e6ec] via-[#e6e6ec]/60 to-[#e6e6ec]/30`
 
 ---
 
-## 10. Badge & Tag Patterns
+## 9. Visual Assets — Photography & Illustration
 
-### Priority Badges (Key Questions slide)
+### The Role of Visual Assets
 
-| Level | Style |
-|---|---|
-| HIGHEST | Solid amber/orange fill, white text, `rounded-md`, `text-[10px] font-bold uppercase` |
-| HIGH | Solid teal fill, white text |
-| MEDIUM | Outlined/lighter fill, muted text |
+This is the most important section of the design system because it addresses the core quality gap. Slides 1-2 work because they have *curated visual storytelling*. Slides 3-19 fail because they don't.
 
-### Type Tags (Contract Examples)
+### Photography Rules
+- Used on title slide only (so far). Full-bleed with `bg-navy-950/80` overlay.
+- Image reads as texture/atmosphere, not as content to study.
+- `object-cover object-bottom` positioning.
+- Can be used on section dividers with the warm-gray gradient overlay.
 
-Small pill badges: `rounded-md` or `rounded-full`, teal or amber background at low opacity with matching text. Example: "Micro-purchase", "Simplified / SLED", "B2B sub-supply".
+### Illustration Rules
+- **Style: hand-drawn / pencil-sketch / editorial.** The tree on slide 2 is the reference. It looks like it belongs in a premium magazine or book, not in a SaaS product.
+- **NOT:** stock vector icons, flat illustration, AI-generated generic imagery, clip art, photo collages.
+- **Placement:** Large and confident. Minimum 40% of slide width. Bleeds off edge when possible (`-left-[15%]`).
+- **One per slide maximum.** Illustrations are visual anchors, not decorations.
+- **Conceptually resonant.** The tree = roots = 30-year foundation. Every illustration should carry narrative weight, not just fill space.
 
-### "RECOMMENDED" Badge
+### Decorative Elements
+- **Compass/star mark:** Appears at bottom of slide 2 as a subtle brand touch. Can be reused as a decorative element.
+- **Gold accent lines:** 1px, 40-60px wide, `#C9A84C`. Used on section dividers. Can be used as separators or decorative elements in editorial layouts.
+- **All decorative images:** `alt=""` — they are decorative, not informational.
 
-Appears on the Recommendation slide: solid teal-500 pill with white text, positioned top-right of the recommended card.
+### When a Slide Needs a Visual Anchor (Checklist)
+
+Ask: "If I remove all the data cards, is there anything visually interesting left?"
+
+If no, add one of:
+- [ ] An editorial illustration paired with the content (magazine split layout)
+- [ ] A hero chart that's beautiful enough to be the centerpiece
+- [ ] A dramatically asymmetric layout with oversized typography
+- [ ] A subtle photographic texture treatment on the background
+- [ ] A gold-accent decorative element that adds editorial polish
 
 ---
 
-## 11. Writing & Content Style
+## 10. Badges, Tags & Status Indicators
 
-### Headline Pattern
-Slide headings are direct and declarative: "Why Newport Wins", "The B2B Fast Track", "The Blueprint Is Yours". No questions, no jargon, no filler.
+### Priority Badges
+| Level | Fill | Text | Radius |
+|---|---|---|---|
+| HIGHEST | Solid amber/orange | White | `rounded-md` |
+| HIGH | Solid teal | White | `rounded-md` |
+| MEDIUM | Lighter/outlined | Muted | `rounded-md` |
 
-### Subtitle Pattern
-One-line summaries that set context: always plain language, often with an em dash for a subordinate clause. Example: "Top FL food distributors — Newport enters at the #5-10 tier with superior infrastructure."
+All badges: `text-[10px] font-bold uppercase`
+
+### Type Tags
+Small pills: `rounded-md` or `rounded-full`, accent bg at low opacity with matching text. Examples: "Micro-purchase" (teal), "B2B sub-supply" (amber).
+
+### RECOMMENDED Badge
+Solid `teal-500`, white text, positioned top-right of the recommended card.
+
+---
+
+## 11. Writing & Content Voice
+
+### Tone
+Professional assessment. Buffett-style: direct, no fluff, no hard sell. We present research and let the data make the case. We're honest about what we don't know (Key Questions exist for a reason).
+
+### Headlines
+Direct and declarative. "Why Newport Wins", "The B2B Fast Track", "The Blueprint Is Yours". No questions in headlines. No jargon. No filler words.
+
+### Subtitles
+One line, plain language, often with an em dash subordinate clause: "Top FL food distributors — Newport enters at the #5-10 tier with superior infrastructure."
 
 ### Stat Presentation
-Large number + small unit label + one-line explanation. The number is always the visual anchor. Example:
+The number is always the biggest visual element:
 ```
-$87M          ← accent-colored, oversized
-Florida Federal Food TAM   ← label, semibold, small
-Annual addressable market, all PSC 89xx categories under $350K   ← detail, muted
+$87M                        ← gold/accent, text-4xl+, bold
+Florida Federal Food TAM    ← navy-950, semibold, text-xs
+Annual addressable market   ← navy-800/50, text-[11px]
 ```
 
 ### Source Citations
-Every data slide has a source citation pinned to the bottom-left. Format: `API/Source Name (date) | Second Source | Third Source`. Font size 10px, nearly invisible (`navy-800/35`).
+Every data slide. Bottom-left. Format: `Source (date) | Source | Source`. `text-[10px] navy-800/35-40`. Nearly invisible but always present.
 
 ### Callout Boxes
-Short insight paragraph in an accent-tinted card. Usually start with a bold lead-in like "The creative insight:" or "Why this matters:" followed by one to two sentences.
+One to two sentences in an accent-tinted card. Lead with a bold hook: "The creative insight:", "Why this matters:", "Total Entry Cost:".
 
 ---
 
-## 12. Do's and Don'ts
+## 12. Using 21st.dev for Visual Inspiration
 
-### DO
+### Purpose
+21st.dev is a reference library for finding premium React component patterns that match the quality bar of slides 1-2. It is NOT a component library to import — it's a visual dictionary for communicating design intent.
+
+### Workflow
+
+1. **Browse 21st.dev** for components or layouts that capture the feel you want
+2. **Screenshot or link** the specific component
+3. **Share with Claude** alongside the instruction: "This is the visual quality I want for [slide/section]. Match this feel using our design tokens."
+4. Claude translates the visual pattern into components using our existing Tailwind tokens, Motion animations, and ECharts config — no external dependencies added
+
+### What to Look For on 21st.dev
+
+- **Dashboard cards** with subtle glass effects, generous whitespace, and premium typography (→ reference for upgrading our stat cards)
+- **Data visualization layouts** where the chart is the hero element, not crammed into a small card (→ reference for the financial dashboard)
+- **Hero sections** with dramatic typography, editorial layouts, and intentional negative space (→ reference for slides that currently feel like data dumps)
+- **Comparison tables** with visual polish beyond basic alternating-row styling (→ reference for competition/risk/recommendation slides)
+
+### What to Avoid on 21st.dev
+
+- Neon/dark-mode SaaS dashboards (too techy for Newport's audience)
+- Overly animated components (motion should be subtle per our rules)
+- Components with heavy colored gradients (our palette is restrained)
+- Anything that feels like a developer tool rather than an editorial presentation
+
+---
+
+## 13. Comprehensive Do's and Don'ts
+
+### DO — Visual Quality
+- Pair data with a visual anchor on every slide (illustration, hero chart, dramatic layout)
+- Use the magazine split layout (45/55 or 40/60) when a slide has an illustration
+- Let hero stats be massive — they should be the first thing the eye hits
+- Use gold `#C9A84C` for the single most important element per slide
+- Add decorative finishing touches (accent lines, compass star, fine typography details)
+- Test: "would this slide look good in a premium business magazine?"
+
+### DO — Technical
 - Use navy-950 for headings on light backgrounds
-- Use opacity variants of navy-800 for text hierarchy (not different gray colors)
+- Use opacity variants of navy-800 for text hierarchy
 - Keep cards white with barely-visible borders
 - Stagger entrance animations in reading order
-- Use gold (#C9A84C) sparingly for premium moments
 - Source-cite every data point
-- Let stat numbers be the biggest element on any card
+- Use `font-body` (Inter) for everything
 
-### DON'T
-- Use colored card backgrounds (keep cards white/near-white)
-- Add drop shadows stronger than `rgba(0,0,0,0.06)`
-- Use serif fonts for headings or body copy
-- Add decorative borders, gradients, or patterns to cards
-- Make icons larger than their containers suggest
-- Use italic, underline, or strikethrough text
-- Add more than one illustration per slide
-- Skip the entrance animation — every element should fade in
+### DON'T — Visual Quality
+- Leave slides as "heading + grid of white cards on gray" — this is the anti-pattern
+- Use stock icons, clip art, or generic AI illustrations as visual anchors
+- Treat every slide the same way — the deck needs rhythm (quiet slides, dramatic slides, data slides)
+- Add visual interest through color (colored cards, gradients) — add it through layout, imagery, and typography instead
+- Skip the visual anchor because "this is just a data slide" — the data IS the story, present it beautifully
+
+### DON'T — Technical
+- Add shadows stronger than `rgba(0,0,0,0.06)`
+- Use serif fonts for headings
+- Use italic, underline, or strikethrough
+- Add colored backgrounds to standard cards
+- Use more than one illustration per slide
+- Skip entrance animations
 
 ---
 
-## Appendix: Tailwind Theme Block (Source of Truth)
+## 14. Slide Structure Reference
 
-```css
-@theme {
-  --color-navy-950: #0F1A2E;
-  --color-navy-900: #1A2744;
-  --color-navy-800: #243356;
-  --color-navy-700: #2E4068;
-  --color-navy-600: #3A5080;
-  --color-teal-500: #1B7A8A;
-  --color-teal-400: #239BAD;
-  --color-teal-300: #3CC0D4;
-  --color-amber-500: #E8913A;
-  --color-amber-400: #F0A85C;
-  --color-amber-300: #F5C080;
-  --color-offwhite: #F5F6FA;
-  --color-slate-300: #CBD5E1;
-  --color-slate-400: #94A3B8;
-  --color-slate-500: #64748B;
+### Act 1: The Anchor (Slides 1-2)
+- **Slide 1 — Title:** Dark. Full-bleed photo. Massive typography. Gold subtitle. ✅ Quality bar.
+- **Slide 2 — The Opportunity:** Light. Magazine split. Tree illustration. Stat cards. Compass star. ✅ Quality bar.
 
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+### Act 2: The Market (Slides 3-9)
+- Slides 3-9: Data-heavy. Currently cards-only. **Needs visual anchors.**
+
+### Act 3: The Strategy (Slides 10-14)
+- Slide 10: Section divider (gold line, centered title). Works well.
+- Slides 11-14: Process and relationship content. Currently cards-only. **Needs visual anchors.**
+
+### Act 4: Making It Real (Slides 15-19)
+- Slide 15: Section divider. Works well.
+- Slides 16-18: Compliance, recommendation, questions. Currently cards-only. **Needs visual anchors.**
+- Slide 19: Closing/blueprint. Two-column with subtle accent cards. Close to quality bar but could be elevated.
+
+### Future: Financial Dashboard
+- Interactive pro forma model. Light editorial direction. Chart is the visual anchor. Scenario toggling. One hero number per view.
+
+---
+
+## Appendix: Dependencies
+
+```json
+{
+  "react": "19.2.0",
+  "motion": "12.34.3",
+  "echarts": "6.0.0",
+  "echarts-for-react": "latest",
+  "lucide-react": "0.575.0",
+  "tailwindcss": "4.2.1",
+  "@tailwindcss/vite": "4.2.1",
+  "vite": "7.3.1"
 }
 ```
 
-### Non-Token Colors (hardcoded in components)
-
-| Hex | Where Used |
-|---|---|
-| `#C9A84C` | Gold accent — title subtitle, section divider lines, hero stat numbers, hero card accent strips |
-| `#9CA0A4` | Footer credit text on dark background |
-| `#E6E6EC` | Section divider gradient overlay base |
+Fonts: Google Fonts — `Playfair Display` (400-700) + `Inter` (300-700), preconnected in `index.html`.

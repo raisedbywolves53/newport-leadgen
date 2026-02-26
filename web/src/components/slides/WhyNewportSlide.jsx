@@ -1,5 +1,6 @@
 import { motion } from 'motion/react'
 import { Shield, Building2, TrendingDown, Truck } from 'lucide-react'
+import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 
 const pillars = [
   {
@@ -46,7 +47,7 @@ function HeroCard({ pillar }) {
       transition={{ duration: 0.5, delay: 0.3 }}
       className="row-span-2 rounded-2xl bg-white p-10 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/[0.04] flex flex-col justify-center relative overflow-hidden"
     >
-      {/* Subtle gold accent strip */}
+      {/* Gold accent strip */}
       <div className="absolute left-0 top-8 bottom-8 w-1 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
 
       <div className="pl-4">
@@ -91,14 +92,14 @@ function StatCard({ pillar, index }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.4 + index * 0.1 }}
-      className="rounded-2xl bg-white p-8 shadow-[0_1px_4px_rgba(0,0,0,0.05)] border border-black/[0.04] flex flex-col justify-center"
+      className="rounded-2xl bg-white/70 backdrop-blur-sm p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.06] flex flex-col justify-center"
     >
-      <div className="flex items-start gap-5">
+      <div className="flex items-start gap-4">
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-          style={{ backgroundColor: `${pillar.accent}12` }}
+          className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+          style={{ backgroundColor: `${pillar.accent}15` }}
         >
-          <Icon className="w-5 h-5" style={{ color: pillar.accent }} strokeWidth={1.8} />
+          <Icon className="w-5 h-5" style={{ color: pillar.accent }} strokeWidth={1.5} />
         </div>
         <div className="flex-1">
           <div className="flex items-baseline gap-2 mb-1">
@@ -129,14 +130,18 @@ export default function WhyNewportSlide() {
   const rest = pillars.slice(1)
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-20 pb-16">
+    <div className="w-full h-full flex flex-col justify-center px-20 pb-16 relative overflow-hidden">
+      {/* Background decorative rings */}
+      <BackgroundRing size={500} className="-top-40 -right-40" opacity={0.03} />
+      <BackgroundRing size={300} className="bottom-20 -right-20" opacity={0.025} />
+
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-[#1B7A8A] mb-3"
+          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-teal-500 mb-3"
         >
           Competitive Moat
         </motion.span>
@@ -157,25 +162,30 @@ export default function WhyNewportSlide() {
           A 30-year track record can't be manufactured. In the current post-fraud environment,
           agencies need vendors with auditable, transparent histories.
         </motion.p>
+
+        <GoldLine width={60} className="mt-4" delay={0.25} />
       </div>
 
       {/* Bento grid: hero left (2 rows) + 3 cards stacked right */}
-      <div className="grid grid-cols-[1fr_1fr] grid-rows-[1fr_1fr_1fr] gap-5" style={{ height: '460px' }}>
+      <div className="grid grid-cols-[1fr_1fr] grid-rows-[1fr_1fr_1fr] gap-5 relative z-10" style={{ height: '460px' }}>
         <HeroCard pillar={hero} />
         {rest.map((p, i) => (
           <StatCard key={p.headline} pillar={p} index={i} />
         ))}
       </div>
 
-      {/* Source */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.0 }}
-        className="text-[10px] text-navy-800/35 mt-4"
-      >
-        SBA.gov (Jan 28 2026) · DOJ OPA (Jun 12 2025) · USASpending FY2024
-      </motion.p>
+      {/* Source + compass star */}
+      <div className="flex items-center justify-between mt-4 relative z-10">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}
+          className="text-[10px] text-navy-800/35"
+        >
+          SBA.gov (Jan 28 2026) · DOJ OPA (Jun 12 2025) · USASpending FY2024
+        </motion.p>
+        <CompassStar size={16} opacity={0.2} delay={1.2} />
+      </div>
     </div>
   )
 }

@@ -1,136 +1,240 @@
-import { useEffect, useRef } from 'react'
-import * as echarts from 'echarts/core'
-import { BarChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
-import { CanvasRenderer } from 'echarts/renderers'
 import { motion } from 'motion/react'
-import SlideLayout, { SlideTitle, SlideSubtitle } from '../ui/SlideLayout'
 import SourceCitation from '../ui/SourceCitation'
-import { FL_TAM_CHANNELS } from '../../data/market'
 
-echarts.use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
+// Concentric circle layers — ordered outermost (largest) to innermost (smallest)
+// Sized using sqrt-of-cumulative scaling so ring widths reflect channel value
+const CONTAINER = 380
+const CIRCLE_LAYERS = [
+  { color: '#239BAD', size: 380 }, // State — outermost
+  { color: '#3CC0D4', size: 310 }, // Education
+  { color: '#E8913A', size: 240 }, // Micro-Purchase
+  { color: '#1B7A8A', size: 168 }, // Federal (FPDS)
+  { color: '#243356', size: 108 }, // Local — innermost (navy-800)
+]
 
-function fmtDollars(n) {
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(0)}M`
-  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`
-  return `$${n}`
-}
+// Channel breakdown — matches circle order (outside → inside)
+const CHANNELS = [
+  { name: 'State Agencies', amount: 'Est. $20-30M', detail: 'MFMP, corrections, state agencies', color: '#239BAD' },
+  { name: 'Education (67 Dist.)', amount: 'Est. $10-20M', detail: 'School districts, NSLP funded', color: '#3CC0D4' },
+  { name: 'Federal Micro-Purchase', amount: '$8-15M', detail: '83% invisible in public databases', color: '#E8913A' },
+  { name: 'Federal (FPDS Visible)', amount: '$6.4M', detail: '117 tracked contracts >$10K', color: '#1B7A8A' },
+  { name: 'County / Local', amount: 'Est. $3-7M', detail: 'Jails, municipal, local gov', color: '#243356' },
+]
+
+// Key insight callouts — the "so what" narrative
+const INSIGHTS = [
+  { value: '83%', label: 'Below Micro-Purchase', detail: 'No competitive bidding under $15K — fastest path to first contract', accent: '#E8913A' },
+  { value: '$6.4M', label: 'Visible in FPDS Today', detail: '117 FL contracts tracked — the tip of the iceberg', accent: '#1B7A8A' },
+  { value: '5', label: 'Procurement Portals', detail: 'Each channel has its own registration and bidding process', accent: '#C9A84C' },
+]
 
 export default function FloridaTamSlide() {
-  const chartRef = useRef(null)
-  const chartInstance = useRef(null)
-
-  useEffect(() => {
-    if (!chartRef.current) return
-    const chart = echarts.init(chartRef.current, null, { renderer: 'canvas' })
-    chartInstance.current = chart
-
-    const option = {
-      backgroundColor: 'transparent',
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' },
-        backgroundColor: '#ffffff',
-        borderColor: '#e2e8f0',
-        textStyle: { color: '#0F1A2E', fontSize: 12, fontFamily: 'Inter' },
-        formatter: (params) => {
-          const d = params[0]
-          const ch = FL_TAM_CHANNELS[d.dataIndex]
-          return `<strong>${ch.channel}</strong><br/>${ch.amountLabel || fmtDollars(ch.amount)}<br/><span style="color:#64748B;font-size:11px">${ch.description}</span>`
-        },
-      },
-      grid: { left: 200, right: 60, top: 10, bottom: 30 },
-      xAxis: {
-        type: 'value',
-        axisLabel: {
-          formatter: (v) => fmtDollars(v),
-          color: '#64748B',
-          fontFamily: 'Inter',
-          fontSize: 11,
-        },
-        splitLine: { lineStyle: { color: '#e2e8f0', type: 'dashed' } },
-        axisLine: { show: false },
-      },
-      yAxis: {
-        type: 'category',
-        data: FL_TAM_CHANNELS.map(c => c.channel).reverse(),
-        axisLabel: {
-          color: '#475569',
-          fontFamily: 'Inter',
-          fontSize: 12,
-          width: 180,
-          overflow: 'truncate',
-        },
-        axisLine: { show: false },
-        axisTick: { show: false },
-      },
-      series: [{
-        type: 'bar',
-        data: FL_TAM_CHANNELS.map(c => c.amount).reverse(),
-        barWidth: 28,
-        itemStyle: {
-          borderRadius: [0, 4, 4, 0],
-          color: (params) => {
-            const colors = ['#3A5080', '#E8913A', '#239BAD', '#1B7A8A', '#1B7A8A']
-            return colors.reverse()[params.dataIndex]
-          },
-        },
-        label: {
-          show: true,
-          position: 'right',
-          formatter: (p) => {
-            const ch = FL_TAM_CHANNELS[FL_TAM_CHANNELS.length - 1 - p.dataIndex]
-            return ch.amountLabel || fmtDollars(ch.amount)
-          },
-          color: '#0F1A2E',
-          fontFamily: 'Inter',
-          fontSize: 12,
-          fontWeight: 600,
-        },
-        animationDuration: 1200,
-        animationEasing: 'cubicOut',
-        animationDelay: (idx) => idx * 150,
-      }],
-    }
-
-    chart.setOption(option)
-
-    const handleResize = () => chart.resize()
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      chart.dispose()
-    }
-  }, [])
-
   return (
-    <SlideLayout>
-      <SlideTitle>Florida TAM by Procurement Channel</SlideTitle>
-      <SlideSubtitle>
-        $87M in federal food contracts alone — state, education, and local are additive.
-      </SlideSubtitle>
+    <div className="w-full h-full flex flex-col px-10 lg:px-16 pt-5 pb-24 max-w-7xl mx-auto relative">
 
+      {/* Title block — sized to command attention */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="flex-1 min-h-0"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <div ref={chartRef} className="w-full h-full min-h-[320px]" />
+        <span className="font-body text-[10px] font-semibold text-navy-800/40 uppercase tracking-widest">
+          Florida Total Addressable Market
+        </span>
+        <h2 className="font-body text-[2.75rem] leading-[1.1] font-bold tracking-tight text-navy-950 mt-1">
+          Five Channels to Market
+        </h2>
       </motion.div>
 
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="text-xs text-navy-800/50 mt-2 text-center"
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="font-body text-sm text-navy-800/50 mt-1 mb-2"
       >
-        Geographic expansion beyond FL depends on Newport's delivery capabilities — a key question for ownership.
+        Federal is the entry point — state, education, and local expand the opportunity.
+      </motion.p>
+
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{ width: 48 }}
+        transition={{ duration: 0.8, delay: 0.25 }}
+        className="h-px mb-3"
+        style={{ backgroundColor: '#C9A84C' }}
+      />
+
+      {/* Main content — 3-zone dashboard layout */}
+      <div className="flex-1 min-h-0 grid grid-cols-[165px_1fr_245px] gap-5 items-center">
+
+        {/* LEFT: Channel breakdown legend */}
+        <div className="flex flex-col gap-3">
+          {CHANNELS.map((ch, i) => (
+            <motion.div
+              key={ch.name}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 + i * 0.1, duration: 0.4 }}
+              className="flex items-start gap-2"
+            >
+              <div
+                className="w-2.5 h-2.5 rounded-full mt-[3px] shrink-0"
+                style={{ backgroundColor: ch.color }}
+              />
+              <div>
+                <span className="font-body text-[11px] font-semibold text-navy-950 block leading-tight">
+                  {ch.name}
+                </span>
+                <span
+                  className="font-body text-[13px] font-bold block mt-px"
+                  style={{ color: ch.color }}
+                >
+                  {ch.amount}
+                </span>
+                <span className="font-body text-[9px] text-navy-800/40 block mt-px leading-tight">
+                  {ch.detail}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CENTER: Concentric circles — the visual anchor */}
+        <div className="flex items-center justify-center">
+          <div className="relative" style={{ width: CONTAINER, height: CONTAINER }}>
+
+            {/* Circles — back to front, largest first */}
+            {CIRCLE_LAYERS.map((layer, i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  delay: 0.25 + i * 0.12,
+                  duration: 0.6,
+                  ease: [0.25, 0.1, 0.25, 1],
+                }}
+                className="absolute rounded-full"
+                style={{
+                  width: layer.size,
+                  height: layer.size,
+                  backgroundColor: layer.color,
+                  left: (CONTAINER - layer.size) / 2,
+                  top: (CONTAINER - layer.size) / 2,
+                }}
+              />
+            ))}
+
+            {/* Center hero: $87M */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.0, duration: 0.5 }}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ zIndex: 10 }}
+            >
+              <div className="text-center">
+                <span className="font-body text-[2.5rem] font-bold text-white tracking-tight block leading-none">
+                  $87M
+                </span>
+                <span className="font-body text-[9px] font-semibold text-white/50 uppercase tracking-widest block mt-1">
+                  Total TAM
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Ring amount labels — positioned on each visible ring area */}
+            {/* State ring — top */}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
+              className="absolute font-body text-[11px] font-bold text-white/80"
+              style={{ top: 14, left: '50%', transform: 'translateX(-50%)' }}
+            >
+              $20-30M
+            </motion.span>
+
+            {/* Education ring — upper right */}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.3 }}
+              className="absolute font-body text-[11px] font-bold text-white/80"
+              style={{ top: 52, right: 56 }}
+            >
+              $10-20M
+            </motion.span>
+
+            {/* Micro ring — right */}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.4 }}
+              className="absolute font-body text-[11px] font-bold text-white/90"
+              style={{ top: CONTAINER / 2 - 6, right: 78 }}
+            >
+              $8-15M
+            </motion.span>
+
+            {/* Federal ring — lower left */}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5 }}
+              className="absolute font-body text-[10px] font-bold text-white/70"
+              style={{ bottom: 88, left: 82 }}
+            >
+              $6.4M
+            </motion.span>
+          </div>
+        </div>
+
+        {/* RIGHT: Key insight cards */}
+        <div className="flex flex-col gap-3 justify-center">
+          {INSIGHTS.map((insight, i) => (
+            <motion.div
+              key={insight.label}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.45, delay: 0.6 + i * 0.15 }}
+              className={`rounded-xl p-4 ${
+                i === 0
+                  ? 'border border-amber-500/20 bg-amber-500/[0.06]'
+                  : i === 1
+                  ? 'border border-teal-500/20 bg-teal-500/[0.06]'
+                  : 'bg-white/60 backdrop-blur-sm border border-black/[0.05]'
+              }`}
+            >
+              <span
+                className="font-body text-2xl font-bold tracking-tight leading-none block mb-1"
+                style={{ color: insight.accent }}
+              >
+                {insight.value}
+              </span>
+              <span className="font-body text-xs font-semibold text-navy-950 block mb-0.5">
+                {insight.label}
+              </span>
+              <span className="font-body text-[11px] text-navy-800/50 leading-relaxed block">
+                {insight.detail}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Confidence footnote */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.6 }}
+        className="font-body text-[10px] text-navy-800/35 mt-2"
+      >
+        Federal: HIGH confidence (API data) · State/Education/Local: MEDIUM confidence (estimates)
       </motion.p>
 
       <SourceCitation>
-        Federal: USASpending API FY2024 (Feb 2026) | State: FL MFMP | Education: FL DOE 2024-25, USDA NSLP FY2024 | Local: County procurement data
+        Federal: USASpending API FY2024 (Feb 2026) | State: FL MFMP | Education: FL DOE, USDA NSLP | Local: County procurement
       </SourceCitation>
-    </SlideLayout>
+    </div>
   )
 }
