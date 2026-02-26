@@ -3,38 +3,34 @@ import { motion } from 'motion/react'
 import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 
 // Ring data — outside-in, sized proportional to dollar value midpoint
-// State $25M, Education $15M, Micro $12M, Federal $6.4M, Local $5M
-// Outer radii scaled so ring THICKNESS is proportional to value
+// Richer tooltip content per feedback v4
 const RING_CONFIG = [
-  { label: 'State', amount: '$20-30M', confidence: 'MEDIUM', detail: 'MFMP, corrections, FL agencies. Free registration.', color: 'rgba(201,168,76,0.20)', hoverColor: 'rgba(201,168,76,0.35)', accent: '#C9A84C', midVal: 25 },
-  { label: 'Education', amount: '$10-20M', confidence: 'MEDIUM', detail: '67 county districts, 2.8M students, NSLP funded.', color: 'rgba(201,168,76,0.35)', hoverColor: 'rgba(201,168,76,0.50)', accent: '#C9A84C', midVal: 15 },
-  { label: 'Micro-Purchase', amount: '$8-15M', confidence: 'HIGH', detail: '83% invisible in public databases.', color: 'rgba(27,122,138,0.40)', hoverColor: 'rgba(27,122,138,0.55)', accent: '#1B7A8A', midVal: 12 },
-  { label: 'Federal', amount: '$6.4M', confidence: 'HIGH', detail: '117 tracked contracts >$10K.', color: 'rgba(27,122,138,0.60)', hoverColor: 'rgba(27,122,138,0.75)', accent: '#1B7A8A', midVal: 6.4 },
-  { label: 'Local', amount: '$3-7M', confidence: 'MEDIUM', detail: 'County jails, municipal facilities, DemandStar.', color: 'rgba(27,122,138,0.80)', hoverColor: 'rgba(27,122,138,0.95)', accent: '#1B7A8A', midVal: 5 },
+  { label: 'State', amount: '$20-30M', confidence: 'MEDIUM', detail: 'MFMP + corrections + FL agencies. Free registration. Largest single channel.', color: 'rgba(201,168,76,0.20)', hoverColor: 'rgba(201,168,76,0.35)', accent: '#C9A84C', midVal: 25 },
+  { label: 'Education', amount: '$10-20M', confidence: 'MEDIUM', detail: '67 county districts, 2.8M students. NSLP funded. Second largest opportunity.', color: 'rgba(201,168,76,0.35)', hoverColor: 'rgba(201,168,76,0.50)', accent: '#C9A84C', midVal: 15 },
+  { label: 'Micro-Purchase', amount: '$8-15M', confidence: 'HIGH', detail: '83% invisible in public databases. Below $15K threshold — no competitive bidding required. Fastest path to first contract.', color: 'rgba(27,122,138,0.40)', hoverColor: 'rgba(27,122,138,0.55)', accent: '#1B7A8A', midVal: 12 },
+  { label: 'Federal FPDS', amount: '$6.4M', confidence: 'HIGH', detail: '117 tracked contracts >$10K. The visible tip of the iceberg.', color: 'rgba(27,122,138,0.60)', hoverColor: 'rgba(27,122,138,0.75)', accent: '#1B7A8A', midVal: 6.4 },
+  { label: 'Local / Municipal', amount: '$3-7M', confidence: 'MEDIUM', detail: 'County jails, municipal facilities. DemandStar + VendorLink portals.', color: 'rgba(27,122,138,0.80)', hoverColor: 'rgba(27,122,138,0.95)', accent: '#1B7A8A', midVal: 5 },
 ]
 
 // Compute ring outer radii so thickness ∝ dollar value
-// Total value = sum of midVals; outer ring = 250px radius
 const OUTER_R = 250
 const TOTAL_VAL = RING_CONFIG.reduce((s, r) => s + r.midVal, 0)
 const CENTER_R = 60
-const USABLE = OUTER_R - CENTER_R
+const RING_GAP = 2 // px gap between rings for visual separation
+const USABLE = OUTER_R - CENTER_R - RING_GAP * (RING_CONFIG.length - 1)
 const RING_RADII = (() => {
   const radii = []
   let r = OUTER_R
-  for (const ring of RING_CONFIG) {
+  for (let i = 0; i < RING_CONFIG.length; i++) {
     const outerR = r
-    const thickness = (ring.midVal / TOTAL_VAL) * USABLE
+    const thickness = (RING_CONFIG[i].midVal / TOTAL_VAL) * USABLE
     r -= thickness
-    radii.push({ outer: outerR, inner: r, thickness })
+    radii.push({ outer: outerR, inner: r })
+    r -= RING_GAP // gap before next ring
   }
   return radii
 })()
-const CONTAINER = OUTER_R * 2 + 20 // slight padding
-
-// Leader line endpoints — labels positioned outside the outermost ring
-// Angles spread evenly to avoid overlap: top-left, top-right, left, bottom-right, bottom-left
-const LABEL_ANGLES = [-125, -45, 190, 20, 155]
+const CONTAINER = OUTER_R * 2 + 20
 
 export default function FloridaTamSlide() {
   const [hoveredRing, setHoveredRing] = useState(null)
@@ -78,7 +74,7 @@ export default function FloridaTamSlide() {
       {/* Main: circles left (~60%) + channel cards right (~35%) */}
       <div className="flex gap-3 relative z-10 flex-1 min-h-0">
 
-        {/* Concentric circles with leader-line labels */}
+        {/* Concentric circles — no labels, hover-driven */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -87,29 +83,7 @@ export default function FloridaTamSlide() {
           style={{ width: '60%' }}
         >
           <div className="relative" style={{ width: CONTAINER, height: CONTAINER }}>
-            {/* SVG layer for leader lines */}
-            <svg className="absolute inset-0 pointer-events-none" width={CONTAINER} height={CONTAINER} style={{ zIndex: 6 }}>
-              {RING_CONFIG.map((ring, i) => {
-                const midR = (RING_RADII[i].outer + RING_RADII[i].inner) / 2
-                const angle = LABEL_ANGLES[i] * (Math.PI / 180)
-                const startX = cx + Math.cos(angle) * midR
-                const startY = cy + Math.sin(angle) * midR
-                const endX = cx + Math.cos(angle) * (OUTER_R + 40)
-                const endY = cy + Math.sin(angle) * (OUTER_R + 40)
-                return (
-                  <line
-                    key={`line-${i}`}
-                    x1={startX} y1={startY}
-                    x2={endX} y2={endY}
-                    stroke="rgba(36,51,86,0.20)"
-                    strokeWidth={1}
-                    strokeDasharray="3,3"
-                  />
-                )
-              })}
-            </svg>
-
-            {/* Rings — proportional thickness */}
+            {/* Rings — proportional thickness, 2px gap between each */}
             {RING_CONFIG.map((ring, i) => {
               const size = RING_RADII[i].outer * 2
               return (
@@ -132,46 +106,23 @@ export default function FloridaTamSlide() {
               )
             })}
 
-            {/* Leader-line labels — outside circle area */}
-            {RING_CONFIG.map((ring, i) => {
-              const angle = LABEL_ANGLES[i] * (Math.PI / 180)
-              const lx = cx + Math.cos(angle) * (OUTER_R + 48)
-              const ly = cy + Math.sin(angle) * (OUTER_R + 48)
-              // Anchor text left or right depending on which side
-              const isLeft = Math.cos(angle) < 0
-              return (
-                <motion.div
-                  key={`lbl-${ring.label}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 + i * 0.08, duration: 0.4 }}
-                  className="absolute pointer-events-none whitespace-nowrap"
-                  style={{
-                    left: lx,
-                    top: ly,
-                    transform: `translate(${isLeft ? '-100%' : '0'}, -50%)`,
-                    zIndex: 7,
-                  }}
-                >
-                  <span className="font-body text-[11px] font-semibold text-navy-950 block leading-tight">
-                    {ring.label}
-                  </span>
-                  <span className="font-body text-[11px] font-bold block leading-tight" style={{ color: '#1B7A8A' }}>
-                    {ring.amount}
-                  </span>
-                </motion.div>
-              )
-            })}
-
-            {/* Hover tooltip */}
+            {/* Hover tooltip — matches slide 5 bar chart style */}
             {hoveredRing !== null && (
               <div
-                className="absolute bg-navy-950/95 text-white rounded-lg px-3 py-2 pointer-events-none"
-                style={{ zIndex: 20, left: cx, top: cy - OUTER_R - 12, transform: 'translate(-50%, -100%)' }}
+                className="absolute pointer-events-none"
+                style={{ zIndex: 20, left: cx, top: cy - OUTER_R - 14, transform: 'translate(-50%, -100%)' }}
               >
-                <p className="font-body text-[12px] font-semibold">{RING_CONFIG[hoveredRing].label}</p>
-                <p className="font-body text-[11px] text-white/80">{RING_CONFIG[hoveredRing].amount} <span className="text-white/50">({RING_CONFIG[hoveredRing].confidence})</span></p>
-                <p className="font-body text-[11px] text-white/70">{RING_CONFIG[hoveredRing].detail}</p>
+                <div
+                  className="rounded-lg px-4 py-3 shadow-lg max-w-[280px]"
+                  style={{ backgroundColor: 'rgba(36,51,86,0.95)' }}
+                >
+                  <p className="font-body text-[13px] font-semibold text-white">{RING_CONFIG[hoveredRing].label}</p>
+                  <p className="font-body text-[12px] text-white/80 mt-0.5">
+                    {RING_CONFIG[hoveredRing].amount}
+                    <span className="text-white/50 ml-2">Confidence: {RING_CONFIG[hoveredRing].confidence}</span>
+                  </p>
+                  <p className="font-body text-[12px] text-white/70 mt-1 leading-snug">{RING_CONFIG[hoveredRing].detail}</p>
+                </div>
               </div>
             )}
 
@@ -195,7 +146,7 @@ export default function FloridaTamSlide() {
           </div>
         </motion.div>
 
-        {/* Right: 5 channel cards with colored left border */}
+        {/* Right: 5 channel cards — larger, with colored left border */}
         <div className="flex flex-col gap-2.5 justify-center" style={{ width: '35%' }}>
           {RING_CONFIG.map((ring, i) => (
             <motion.div
@@ -203,30 +154,34 @@ export default function FloridaTamSlide() {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: 0.45 + i * 0.08 }}
-              className="rounded-xl bg-white/80 backdrop-blur-sm px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.06] transition-all duration-200 relative overflow-hidden"
+              className="rounded-xl bg-white/80 backdrop-blur-sm px-4 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.06] transition-all duration-200 relative overflow-hidden"
               style={{
                 borderColor: hoveredRing === i ? ring.accent : undefined,
               }}
             >
-              {/* Left accent strip — 3px, matches ring color */}
+              {/* Left accent strip — thicker/brighter on hover */}
               <div
-                className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
-                style={{ backgroundColor: ring.accent }}
+                className="absolute left-0 top-2 bottom-2 rounded-full transition-all duration-200"
+                style={{
+                  backgroundColor: ring.accent,
+                  width: hoveredRing === i ? 4 : 3,
+                  opacity: hoveredRing === i ? 1 : 0.7,
+                }}
               />
               <div className="flex items-start gap-3 pl-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-body text-[13px] font-semibold text-navy-950">
+                    <span className="font-body text-sm font-semibold text-navy-950">
                       {ring.label}
                     </span>
                     <span
-                      className="font-body text-lg font-bold tracking-tight leading-none shrink-0"
+                      className="font-body text-2xl font-bold tracking-tight leading-none shrink-0"
                       style={{ color: '#1B7A8A' }}
                     >
                       {ring.amount}
                     </span>
                   </div>
-                  <p className="font-body text-[11px] text-navy-800/50 mt-0.5 leading-snug">
+                  <p className="font-body text-sm text-navy-800/50 mt-1 leading-snug">
                     {ring.detail}
                   </p>
                 </div>
