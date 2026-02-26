@@ -1,145 +1,176 @@
-import { useEffect, useRef } from 'react'
-import * as echarts from 'echarts/core'
-import { PieChart } from 'echarts/charts'
-import { TooltipComponent, LegendComponent } from 'echarts/components'
-import { CanvasRenderer } from 'echarts/renderers'
 import { motion } from 'motion/react'
-import { Candy } from 'lucide-react'
-import SourceCitation from '../ui/SourceCitation'
-import { GoldLine, BackgroundRing } from '../ui/DecorativeElements'
-import { useCountUp } from '../../hooks/useCountUp'
+import { Star, DollarSign, Package, Scale } from 'lucide-react'
+import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 
-echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer])
+const statCards = [
+  {
+    icon: DollarSign,
+    stat: '$55M',
+    unit: 'National',
+    headline: 'Massive, Underserved Market',
+    detail: 'Only $412K currently captured in Florida — 99% of national spend is untouched by regional distributors.',
+    accent: '#1B7A8A',
+  },
+  {
+    icon: Package,
+    stat: 'Segment E',
+    unit: 'Core Line',
+    headline: 'Existing Supplier Pricing',
+    detail: "Newport already wholesales confectionery at scale. Same products, same logistics — different buyer.",
+    accent: '#C9A84C',
+  },
+  {
+    icon: Scale,
+    stat: 'LPTA',
+    unit: 'Method',
+    headline: 'Lowest Price Wins',
+    detail: 'Government uses Lowest Price Technically Acceptable — directly rewards wholesale volume pricing.',
+    accent: '#1B7A8A',
+  },
+]
 
 export default function ConfectioneryGapSlide() {
-  const chartRef = useRef(null)
-  const soleSource = useCountUp(58, 1200, 400)
-  const awards = useCountUp(45, 1000, 600)
-
-  useEffect(() => {
-    if (!chartRef.current) return
-    const chart = echarts.init(chartRef.current, null, { renderer: 'canvas' })
-
-    chart.setOption({
-      backgroundColor: 'transparent',
-      tooltip: {
-        backgroundColor: '#0F1A2E',
-        borderColor: '#2E4068',
-        borderRadius: 8,
-        textStyle: { color: '#F5F6FA', fontSize: 12, fontFamily: 'Inter' },
-      },
-      series: [{
-        type: 'pie',
-        radius: ['55%', '80%'],
-        center: ['50%', '50%'],
-        startAngle: 90,
-        label: { show: false },
-        data: [
-          { value: 58, name: 'Sole-Source', itemStyle: { color: '#E8913A' } },
-          { value: 42, name: 'Competitive', itemStyle: { color: '#e2e8f0' } },
-        ],
-        animationDuration: 1200,
-        animationEasing: 'cubicOut',
-      }],
-    })
-
-    const handleResize = () => chart.resize()
-    window.addEventListener('resize', handleResize)
-    return () => { window.removeEventListener('resize', handleResize); chart.dispose() }
-  }, [])
-
   return (
-    <div className="w-full h-full flex flex-col justify-center px-8 md:px-16 lg:px-24 py-12 max-w-7xl mx-auto relative overflow-hidden">
-      <BackgroundRing size={450} className="-top-32 -right-32" opacity={0.025} color="#E8913A" />
+    <div className="w-full h-full flex flex-col px-16 lg:px-20 pt-6 pb-20 relative overflow-hidden">
+      {/* Background decorative rings — matching slide 3 */}
+      <BackgroundRing size={500} className="-top-40 -right-40" opacity={0.03} />
+      <BackgroundRing size={300} className="bottom-20 -right-20" opacity={0.025} />
 
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.05 }}
-        className="font-body text-xs font-semibold uppercase tracking-widest text-amber-500 mb-2"
-      >
-        Segment E Advantage
-      </motion.span>
-      <motion.h2
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="font-body text-3xl md:text-4xl font-bold tracking-tight text-navy-950 mb-2"
-      >
-        The Confectionery Gap
-      </motion.h2>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="font-body text-base text-navy-800/60 mb-1"
-      >
-        PSC 8925 — Newport's candy expertise meets the most underserved category in government food procurement.
-      </motion.p>
-      <GoldLine width={60} className="mb-6" delay={0.25} />
-
-      <div className="grid grid-cols-2 gap-8 flex-1 mt-2">
-        {/* Left — The story */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="flex flex-col gap-3"
+      {/* Header */}
+      <div className="mb-6 relative z-10">
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-navy-800/40 mb-3"
         >
-          {[
-            '$55M national spending, $412K in FL alone',
-            'Only 45 awards nationally — tiny, fragmented market',
-            '58% sole-source — incumbents rarely challenged',
-            "Newport's Segment E candy expertise = direct competitive advantage",
-            'Existing supplier relationships and wholesale pricing',
-            'Few competitors even know this category exists in gov procurement',
-          ].map((point, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08, duration: 0.3 }}
-              className="flex items-start gap-3"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-              <span className="text-navy-800/70 text-sm leading-relaxed">{point}</span>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Right — Chart (visual anchor) + stat callouts */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="flex flex-col items-center"
+          Beachhead Category
+        </motion.span>
+        <motion.h2
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="font-body text-4xl font-bold tracking-tight text-navy-950 mb-2"
         >
-          <div ref={chartRef} className="w-64 h-64" />
-          <div className="text-center -mt-2 mb-4">
-            <span className="font-body text-3xl font-bold" style={{ color: '#E8913A' }}>{soleSource}%</span>
-            <span className="text-navy-800/60 text-sm ml-2">sole-source</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 w-full">
-            <div className="rounded-xl border border-teal-500/20 bg-teal-500/8 p-3 text-center">
-              <span className="text-teal-400 font-body text-2xl font-bold block">{awards}</span>
-              <span className="text-navy-800/60 text-xs">National Awards</span>
-              <span className="text-navy-800/50 text-[10px] block">Lowest of all food PSCs</span>
-            </div>
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-3 text-center">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center mx-auto mb-1">
-                <Candy className="w-4 h-4 text-amber-400" strokeWidth={1.5} />
-              </div>
-              <span className="text-amber-400 font-semibold text-sm block">Segment E</span>
-              <span className="text-navy-800/60 text-xs">Newport core competency</span>
-            </div>
-          </div>
-        </motion.div>
+          Your First Win: Confectionery
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="font-body text-[15px] text-navy-800/60 max-w-2xl"
+        >
+          The lowest-competition category in government food — and you already have the suppliers.
+        </motion.p>
+        <GoldLine width={60} className="mt-4" delay={0.25} />
       </div>
 
-      <SourceCitation>
-        FPDS FY2024, PSC 8925 (Confectionery & Nuts) | USASpending FL awards
-      </SourceCitation>
+      {/* Bento grid: hero left (2 rows) + 3 cards stacked right */}
+      <div className="grid grid-cols-[1fr_1fr] grid-rows-[1fr_1fr_1fr] gap-5 relative z-10" style={{ height: '460px' }}>
+
+        {/* Hero card — "The Opportunity" */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="row-span-2 rounded-2xl bg-white p-10 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-black/[0.04] flex flex-col justify-center relative overflow-hidden"
+        >
+          {/* Gold accent strip */}
+          <div className="absolute left-0 top-8 bottom-8 w-1 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
+
+          <div className="pl-4">
+            {/* Icon pill */}
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mb-6"
+              style={{ backgroundColor: '#C9A84C15' }}
+            >
+              <Star className="w-6 h-6" style={{ color: '#C9A84C' }} strokeWidth={1.8} />
+            </div>
+
+            {/* Hero stat */}
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="font-body text-7xl font-bold tracking-tighter leading-none" style={{ color: '#C9A84C' }}>
+                58%
+              </span>
+              <span className="font-body text-lg font-medium text-navy-800/35 uppercase tracking-wide">
+                Sole Source
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h3 className="font-body text-xl font-semibold text-navy-950 mt-4 mb-3">
+              Virtually No Competition
+            </h3>
+
+            {/* Detail */}
+            <p className="font-body text-[15px] leading-relaxed text-navy-800/70">
+              PSC 8925 has the lowest vendor competition of any food category. Average 1.6 offers per award — most contracts go to the only bidder. Newport's Segment E pricing wins on day one.
+            </p>
+
+            {/* Footer */}
+            <div className="flex items-center gap-2 mt-5 pt-5 border-t border-black/[0.06]">
+              <span className="font-body text-xs font-medium text-navy-800/45">PSC 8925</span>
+              <span className="text-navy-800/25">·</span>
+              <span className="font-body text-xs font-medium text-navy-800/45">Confectionery & Nuts</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 3 StatCards — right column, stacked */}
+        {statCards.map((card, i) => {
+          const Icon = card.icon
+          return (
+            <motion.div
+              key={card.headline}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.4 + i * 0.1 }}
+              className="rounded-2xl bg-white/70 backdrop-blur-sm p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-black/[0.06] flex flex-col justify-center"
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: `${card.accent}15` }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: card.accent }} strokeWidth={1.5} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span
+                      className="font-body text-3xl font-bold tracking-tight leading-none"
+                      style={{ color: card.accent }}
+                    >
+                      {card.stat}
+                    </span>
+                    <span className="font-body text-[11px] font-medium text-navy-800/40 uppercase tracking-wide">
+                      {card.unit}
+                    </span>
+                  </div>
+                  <h3 className="font-body text-base font-semibold text-navy-950 mb-1.5">
+                    {card.headline}
+                  </h3>
+                  <p className="font-body text-sm leading-relaxed text-navy-800/65">
+                    {card.detail}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Source + compass star */}
+      <div className="flex items-center justify-between mt-4 relative z-10">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}
+          className="text-[10px] text-navy-800/35"
+        >
+          FPDS FY2024, PSC 8925 | USASpending FL awards | FAR 15.101-2 (LPTA)
+        </motion.p>
+        <CompassStar size={16} opacity={0.2} delay={1.2} />
+      </div>
     </div>
   )
 }
