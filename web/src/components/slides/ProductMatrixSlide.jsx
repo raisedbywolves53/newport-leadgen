@@ -102,7 +102,7 @@ export default function ProductMatrixSlide() {
         axisTick: { show: false },
         splitLine: {
           show: true,
-          lineStyle: { color: '#E2E8F0', opacity: 0.6, type: 'dashed' },
+          lineStyle: { color: '#E2E8F0', opacity: 0.3, type: 'dashed' },
         },
         axisLabel: {
           fontSize: 12,
@@ -202,15 +202,15 @@ export default function ProductMatrixSlide() {
           <div className="flex items-center gap-5 pt-2 border-t border-black/[0.06]">
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.80)' }} />
-              <span className="font-body text-[10px] text-navy-800/50">Tier 1 — Highest</span>
+              <span className="font-body text-[12px] text-navy-800/50">Tier 1 — Highest</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(27,122,138,0.70)' }} />
-              <span className="font-body text-[10px] text-navy-800/50">Tier 2 — Growth</span>
+              <span className="font-body text-[12px] text-navy-800/50">Tier 2 — Growth</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(36,51,86,0.15)' }} />
-              <span className="font-body text-[10px] text-navy-800/50">Avoid</span>
+              <span className="font-body text-[12px] text-navy-800/50">Avoid</span>
             </div>
           </div>
         </div>
@@ -223,15 +223,17 @@ export default function ProductMatrixSlide() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.45 }}
-          className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-6 py-5 flex flex-col justify-center relative overflow-hidden"
+          className="rounded-xl bg-white/70 backdrop-blur-sm border border-black/[0.06] px-6 py-5 flex flex-col justify-center relative overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
         >
+          {/* Gold left accent strip */}
+          <div className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ backgroundColor: '#C9A84C' }} />
           <span
-            className="absolute top-3 right-3 text-[9px] font-bold px-1.5 py-0.5 rounded-md"
+            className="absolute top-3 right-3 text-[11px] font-bold px-1.5 py-0.5 rounded-md"
             style={{ backgroundColor: 'rgba(201,168,76,0.1)', color: '#C9A84C' }}
           >
             HIGHEST FIT
           </span>
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 pl-2">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
               style={{ backgroundColor: '#C9A84C15' }}
@@ -297,9 +299,9 @@ export default function ProductMatrixSlide() {
             transition={{ delay: 0.8 }}
             className="flex items-center gap-3 mb-1"
           >
-            <span className="font-body text-[10px] text-navy-800/35">Deprioritized:</span>
+            <span className="font-body text-[11px] text-navy-800/40">Deprioritized:</span>
             {PRODUCT_TIERS.avoid.map(item => (
-              <span key={item.psc} className="font-body text-[10px] text-navy-800/30 line-through">
+              <span key={item.psc} className="font-body text-[11px] text-navy-800/35 line-through">
                 {item.name}
               </span>
             ))}
@@ -308,7 +310,7 @@ export default function ProductMatrixSlide() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.0 }}
-            className="text-[10px] text-navy-800/35"
+            className="text-[11px] text-navy-800/40"
           >
             FPDS FY2024 by PSC code | USASpending FL awards | FAR 15.101-2 (LPTA evaluation)
           </motion.p>
