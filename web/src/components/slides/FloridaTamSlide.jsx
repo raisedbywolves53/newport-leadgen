@@ -1,240 +1,265 @@
+import { useState } from 'react'
 import { motion } from 'motion/react'
-import SourceCitation from '../ui/SourceCitation'
+import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
+import { FL_TAM_CHANNELS } from '../../data/market'
 
-// Concentric circle layers — ordered outermost (largest) to innermost (smallest)
-// Sized using sqrt-of-cumulative scaling so ring widths reflect channel value
-const CONTAINER = 380
-const CIRCLE_LAYERS = [
-  { color: '#239BAD', size: 380 }, // State — outermost
-  { color: '#3CC0D4', size: 310 }, // Education
-  { color: '#E8913A', size: 240 }, // Micro-Purchase
-  { color: '#1B7A8A', size: 168 }, // Federal (FPDS)
-  { color: '#243356', size: 108 }, // Local — innermost (navy-800)
+function fmtM(n) {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(0)}M`
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`
+  return `$${n}`
+}
+
+// Five rings — outside-in: gold 20%, gold 35%, teal 40%, teal 60%, teal 80%
+// Map to channels: State (biggest estimate) → Education → Micro-Purchase → Federal → Local
+const RING_DATA = [
+  { channel: 'State (MFMP + FL Agencies)', label: 'State', amount: '$20-30M', color: 'rgba(201,168,76,0.20)', idx: 2 },
+  { channel: 'Education (67 Districts)', label: 'Education', amount: '$10-20M', color: 'rgba(201,168,76,0.35)', idx: 3 },
+  { channel: 'Federal Micro-Purchases', label: 'Micro-Purchase', amount: '$8-15M', color: 'rgba(27,122,138,0.40)', idx: 1 },
+  { channel: 'Federal (FPDS Visible)', label: 'Federal', amount: '$6.4M', color: 'rgba(27,122,138,0.60)', idx: 0 },
+  { channel: 'Local (County/Municipal)', label: 'Local', amount: '$3-7M', color: 'rgba(27,122,138,0.80)', idx: 4 },
 ]
 
-// Channel breakdown — matches circle order (outside → inside)
-const CHANNELS = [
-  { name: 'State Agencies', amount: 'Est. $20-30M', detail: 'MFMP, corrections, state agencies', color: '#239BAD' },
-  { name: 'Education (67 Dist.)', amount: 'Est. $10-20M', detail: 'School districts, NSLP funded', color: '#3CC0D4' },
-  { name: 'Federal Micro-Purchase', amount: '$8-15M', detail: '83% invisible in public databases', color: '#E8913A' },
-  { name: 'Federal (FPDS Visible)', amount: '$6.4M', detail: '117 tracked contracts >$10K', color: '#1B7A8A' },
-  { name: 'County / Local', amount: 'Est. $3-7M', detail: 'Jails, municipal, local gov', color: '#243356' },
+// Channel detail cards — one per ring, rich context
+const CHANNEL_CARDS = [
+  {
+    label: 'State Agencies',
+    amount: '$20-30M',
+    detail: 'MFMP, corrections, FL agencies. Free registration.',
+    dotColor: 'rgba(201,168,76,0.20)',
+    dotBorder: '#C9A84C',
+  },
+  {
+    label: 'Education',
+    amount: '$10-20M',
+    detail: '67 county districts, 2.8M students, NSLP funded.',
+    dotColor: 'rgba(201,168,76,0.35)',
+    dotBorder: '#C9A84C',
+  },
+  {
+    label: 'Micro-Purchase',
+    amount: '$8-15M',
+    detail: '83% invisible in public databases.',
+    dotColor: 'rgba(27,122,138,0.40)',
+    dotBorder: '#1B7A8A',
+  },
+  {
+    label: 'Federal FPDS',
+    amount: '$6.4M',
+    detail: '117 tracked contracts >$10K.',
+    dotColor: 'rgba(27,122,138,0.60)',
+    dotBorder: '#1B7A8A',
+  },
+  {
+    label: 'Local / Municipal',
+    amount: '$3-7M',
+    detail: 'County jails, municipal facilities, DemandStar.',
+    dotColor: 'rgba(27,122,138,0.80)',
+    dotBorder: '#1B7A8A',
+  },
 ]
 
-// Key insight callouts — the "so what" narrative
-const INSIGHTS = [
-  { value: '83%', label: 'Below Micro-Purchase', detail: 'No competitive bidding under $15K — fastest path to first contract', accent: '#E8913A' },
-  { value: '$6.4M', label: 'Visible in FPDS Today', detail: '117 FL contracts tracked — the tip of the iceberg', accent: '#1B7A8A' },
-  { value: '5', label: 'Procurement Portals', detail: 'Each channel has its own registration and bidding process', accent: '#C9A84C' },
-]
+// Concentric circle sizes — outermost to innermost
+const RING_SIZES = [380, 310, 240, 175, 115]
+const CONTAINER = 400
 
 export default function FloridaTamSlide() {
+  const [hoveredRing, setHoveredRing] = useState(null)
+
   return (
-    <div className="w-full h-full flex flex-col px-10 lg:px-16 pt-5 pb-24 max-w-7xl mx-auto relative">
+    <div className="w-full h-full flex flex-col justify-center px-20 pb-12 relative overflow-hidden">
+      {/* Background decorative rings */}
+      <BackgroundRing size={500} className="-top-40 -left-40" opacity={0.03} />
+      <BackgroundRing size={300} className="bottom-16 -right-24" opacity={0.025} />
 
-      {/* Title block — sized to command attention */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        <span className="font-body text-[10px] font-semibold text-navy-800/40 uppercase tracking-widest">
+      {/* Header */}
+      <div className="mb-5 relative z-10">
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-teal-500 mb-3"
+        >
           Florida Total Addressable Market
-        </span>
-        <h2 className="font-body text-[2.75rem] leading-[1.1] font-bold tracking-tight text-navy-950 mt-1">
-          Five Channels to Market
-        </h2>
-      </motion.div>
+        </motion.span>
+        <motion.h2
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="font-body text-4xl font-bold tracking-tight text-navy-950 mb-2"
+        >
+          $87M Market, Five Layers Deep
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="font-body text-[15px] text-navy-800/60 max-w-2xl"
+        >
+          Federal is the entry point — state, education, and local expand the opportunity.
+        </motion.p>
+        <GoldLine width={60} className="mt-4" delay={0.25} />
+      </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="font-body text-sm text-navy-800/50 mt-1 mb-2"
-      >
-        Federal is the entry point — state, education, and local expand the opportunity.
-      </motion.p>
+      {/* Main: circles left (~60%) + channel cards right (~35%) */}
+      <div className="flex gap-6 relative z-10" style={{ height: '420px' }}>
 
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: 48 }}
-        transition={{ duration: 0.8, delay: 0.25 }}
-        className="h-px mb-3"
-        style={{ backgroundColor: '#C9A84C' }}
-      />
-
-      {/* Main content — 3-zone dashboard layout */}
-      <div className="flex-1 min-h-0 grid grid-cols-[165px_1fr_245px] gap-5 items-center">
-
-        {/* LEFT: Channel breakdown legend */}
-        <div className="flex flex-col gap-3">
-          {CHANNELS.map((ch, i) => (
-            <motion.div
-              key={ch.name}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.1, duration: 0.4 }}
-              className="flex items-start gap-2"
-            >
-              <div
-                className="w-2.5 h-2.5 rounded-full mt-[3px] shrink-0"
-                style={{ backgroundColor: ch.color }}
-              />
-              <div>
-                <span className="font-body text-[11px] font-semibold text-navy-950 block leading-tight">
-                  {ch.name}
-                </span>
-                <span
-                  className="font-body text-[13px] font-bold block mt-px"
-                  style={{ color: ch.color }}
-                >
-                  {ch.amount}
-                </span>
-                <span className="font-body text-[9px] text-navy-800/40 block mt-px leading-tight">
-                  {ch.detail}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* CENTER: Concentric circles — the visual anchor */}
-        <div className="flex items-center justify-center">
+        {/* Concentric circles — float directly on background, no card */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex items-center justify-center"
+          style={{ width: '60%' }}
+        >
           <div className="relative" style={{ width: CONTAINER, height: CONTAINER }}>
-
-            {/* Circles — back to front, largest first */}
-            {CIRCLE_LAYERS.map((layer, i) => (
+            {RING_DATA.map((ring, i) => (
               <motion.div
-                key={i}
-                initial={{ scale: 0.5, opacity: 0 }}
+                key={ring.label}
+                initial={{ scale: 0.6, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  delay: 0.25 + i * 0.12,
-                  duration: 0.6,
-                  ease: [0.25, 0.1, 0.25, 1],
-                }}
-                className="absolute rounded-full"
+                transition={{ delay: 0.35 + i * 0.1, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                className="absolute rounded-full cursor-pointer transition-all duration-200"
                 style={{
-                  width: layer.size,
-                  height: layer.size,
-                  backgroundColor: layer.color,
-                  left: (CONTAINER - layer.size) / 2,
-                  top: (CONTAINER - layer.size) / 2,
+                  width: RING_SIZES[i],
+                  height: RING_SIZES[i],
+                  left: (CONTAINER - RING_SIZES[i]) / 2,
+                  top: (CONTAINER - RING_SIZES[i]) / 2,
+                  backgroundColor: ring.color,
+                  filter: hoveredRing === i ? 'brightness(1.3)' : 'brightness(1)',
                 }}
+                onMouseEnter={() => setHoveredRing(i)}
+                onMouseLeave={() => setHoveredRing(null)}
               />
             ))}
 
-            {/* Center hero: $87M */}
+            {/* Ring labels — positioned on each ring */}
+            {RING_DATA.map((ring, i) => {
+              // Position labels at different angles around each ring
+              const radius = RING_SIZES[i] / 2
+              // Angles: top-left, top-right, left, right, bottom-left
+              const angles = [-135, -45, 180, 0, 135]
+              const angle = angles[i] * (Math.PI / 180)
+              const labelRadius = radius * 0.72
+              const x = CONTAINER / 2 + Math.cos(angle) * labelRadius
+              const y = CONTAINER / 2 + Math.sin(angle) * labelRadius
+
+              // Skip label for innermost ring (too small)
+              if (i === 4) return null
+
+              return (
+                <motion.div
+                  key={`label-${ring.label}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 + i * 0.08, duration: 0.4 }}
+                  className="absolute pointer-events-none text-center"
+                  style={{
+                    left: x,
+                    top: y,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 5,
+                  }}
+                >
+                  <span className="font-body text-[10px] font-semibold text-white/90 block leading-tight drop-shadow-sm">
+                    {ring.label}
+                  </span>
+                  <span className="font-body text-[9px] text-white/70 block leading-tight drop-shadow-sm">
+                    {ring.amount}
+                  </span>
+                </motion.div>
+              )
+            })}
+
+            {/* Center: $87M */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.0, duration: 0.5 }}
+              transition={{ delay: 0.9, duration: 0.5 }}
               className="absolute inset-0 flex items-center justify-center"
               style={{ zIndex: 10 }}
             >
               <div className="text-center">
-                <span className="font-body text-[2.5rem] font-bold text-white tracking-tight block leading-none">
+                <span className="font-body text-4xl font-bold tracking-tight block leading-none text-white drop-shadow-sm">
                   $87M
                 </span>
-                <span className="font-body text-[9px] font-semibold text-white/50 uppercase tracking-widest block mt-1">
+                <span className="font-body text-[9px] font-semibold uppercase tracking-widest block mt-1 text-white/80 drop-shadow-sm">
                   Total TAM
                 </span>
               </div>
             </motion.div>
-
-            {/* Ring amount labels — positioned on each visible ring area */}
-            {/* State ring — top */}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="absolute font-body text-[11px] font-bold text-white/80"
-              style={{ top: 14, left: '50%', transform: 'translateX(-50%)' }}
-            >
-              $20-30M
-            </motion.span>
-
-            {/* Education ring — upper right */}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.3 }}
-              className="absolute font-body text-[11px] font-bold text-white/80"
-              style={{ top: 52, right: 56 }}
-            >
-              $10-20M
-            </motion.span>
-
-            {/* Micro ring — right */}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.4 }}
-              className="absolute font-body text-[11px] font-bold text-white/90"
-              style={{ top: CONTAINER / 2 - 6, right: 78 }}
-            >
-              $8-15M
-            </motion.span>
-
-            {/* Federal ring — lower left */}
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="absolute font-body text-[10px] font-bold text-white/70"
-              style={{ bottom: 88, left: 82 }}
-            >
-              $6.4M
-            </motion.span>
           </div>
-        </div>
+        </motion.div>
 
-        {/* RIGHT: Key insight cards */}
-        <div className="flex flex-col gap-3 justify-center">
-          {INSIGHTS.map((insight, i) => (
+        {/* Right: 5 compact channel cards */}
+        <div className="flex flex-col gap-2.5 justify-center" style={{ width: '35%' }}>
+          {CHANNEL_CARDS.map((card, i) => (
             <motion.div
-              key={insight.label}
-              initial={{ opacity: 0, x: 20 }}
+              key={card.label}
+              initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.45, delay: 0.6 + i * 0.15 }}
-              className={`rounded-xl p-4 ${
-                i === 0
-                  ? 'border border-amber-500/20 bg-amber-500/[0.06]'
-                  : i === 1
-                  ? 'border border-teal-500/20 bg-teal-500/[0.06]'
-                  : 'bg-white/60 backdrop-blur-sm border border-black/[0.05]'
-              }`}
+              transition={{ duration: 0.4, delay: 0.45 + i * 0.08 }}
+              className="rounded-xl bg-white/80 backdrop-blur-sm px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200"
+              style={{
+                borderWidth: 1,
+                borderStyle: 'solid',
+                borderColor: hoveredRing === i ? card.dotBorder : 'rgba(0,0,0,0.06)',
+              }}
             >
-              <span
-                className="font-body text-2xl font-bold tracking-tight leading-none block mb-1"
-                style={{ color: insight.accent }}
-              >
-                {insight.value}
-              </span>
-              <span className="font-body text-xs font-semibold text-navy-950 block mb-0.5">
-                {insight.label}
-              </span>
-              <span className="font-body text-[11px] text-navy-800/50 leading-relaxed block">
-                {insight.detail}
-              </span>
+              <div className="flex items-start gap-3">
+                <div
+                  className="w-3 h-3 rounded-full shrink-0 mt-1"
+                  style={{ backgroundColor: card.dotColor, border: `1.5px solid ${card.dotBorder}` }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-body text-sm font-semibold text-navy-950">
+                      {card.label}
+                    </span>
+                    <span
+                      className="font-body text-lg font-bold tracking-tight leading-none shrink-0"
+                      style={{ color: '#1B7A8A' }}
+                    >
+                      {card.amount}
+                    </span>
+                  </div>
+                  <p className="font-body text-xs text-navy-800/50 mt-0.5 leading-snug">
+                    {card.detail}
+                  </p>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
       </div>
 
-      {/* Confidence footnote */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6 }}
-        className="font-body text-[10px] text-navy-800/35 mt-2"
-      >
-        Federal: HIGH confidence (API data) · State/Education/Local: MEDIUM confidence (estimates)
-      </motion.p>
-
-      <SourceCitation>
-        Federal: USASpending API FY2024 (Feb 2026) | State: FL MFMP | Education: FL DOE, USDA NSLP | Local: County procurement
-      </SourceCitation>
+      {/* Bottom: channel dot legend + source + compass star */}
+      <div className="flex items-center justify-between mt-3 relative z-10">
+        <div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="flex items-center gap-4 mb-1"
+          >
+            {RING_DATA.map((ring) => (
+              <div key={ring.label} className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ring.color, border: `1px solid ${ring.idx < 2 ? '#C9A84C' : '#1B7A8A'}` }} />
+                <span className="font-body text-[10px] text-navy-800/40">{ring.label}</span>
+              </div>
+            ))}
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0 }}
+            className="text-[10px] text-navy-800/35"
+          >
+            USASpending API FY2024 | FL MFMP | FL DOE, USDA NSLP | County procurement
+          </motion.p>
+        </div>
+        <CompassStar size={16} opacity={0.2} delay={1.2} />
+      </div>
     </div>
   )
 }
