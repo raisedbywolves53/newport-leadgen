@@ -112,16 +112,13 @@ export default function FloridaTamSlide() {
                 className="absolute pointer-events-none"
                 style={{ zIndex: 20, left: cx, top: cy - OUTER_R - 14, transform: 'translate(-50%, -100%)' }}
               >
-                <div
-                  className="rounded-lg px-4 py-3 shadow-lg max-w-[280px]"
-                  style={{ backgroundColor: 'rgba(36,51,86,0.95)' }}
-                >
-                  <p className="font-body text-[13px] font-semibold text-white">{RING_CONFIG[hoveredRing].label}</p>
-                  <p className="font-body text-[12px] text-white/80 mt-0.5">
+                <div className="rounded-lg px-4 py-3 bg-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-black/[0.06] max-w-[280px]">
+                  <p className="font-body text-[13px] font-semibold text-navy-950">{RING_CONFIG[hoveredRing].label}</p>
+                  <p className="font-body text-[12px] text-navy-800/70 mt-0.5">
                     {RING_CONFIG[hoveredRing].amount}
-                    <span className="text-white/50 ml-2">Confidence: {RING_CONFIG[hoveredRing].confidence}</span>
+                    <span className="text-navy-800/40 ml-2">Confidence: {RING_CONFIG[hoveredRing].confidence}</span>
                   </p>
-                  <p className="font-body text-[12px] text-white/70 mt-1 leading-snug">{RING_CONFIG[hoveredRing].detail}</p>
+                  <p className="font-body text-[12px] text-navy-800/60 mt-1 leading-snug">{RING_CONFIG[hoveredRing].detail}</p>
                 </div>
               </div>
             )}
@@ -131,7 +128,7 @@ export default function FloridaTamSlide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.9, duration: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
               style={{ zIndex: 10 }}
             >
               <div className="text-center">
