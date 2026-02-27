@@ -9,8 +9,8 @@ Newport's competitive advantage: 30 years of continuous Florida operations, real
 ## Tech Stack
 
 - **Core Language**: Python 3.10+
-- **Presentation Generation**: pptxgenjs (Node.js) for PowerPoint
-- **Financial Model Generation**: openpyxl (Python) for Excel
+- **Web Presentation**: React 19 + Vite 7 + Tailwind CSS 4 (primary client deliverable)
+- **Data Visualization**: ECharts 6 (charts) + Motion 12 (animations)
 - **Data Storage**: Flat CSV files + JSON configs (no database)
 - **Pipeline Tracking**: Google Sheets API v4 (gspread)
 - **Notifications**: Slack webhooks + Resend email
@@ -21,19 +21,15 @@ Newport's competitive advantage: 30 years of continuous Florida operations, real
 ## Key Commands
 
 ```bash
+# Web Presentation (primary deliverable)
+cd web && npm run dev                                        # Dev server at localhost:5173
+cd web && npm run build                                      # Production build → web/dist/
+
 # GovCon Intelligence
 python govcon/scrapers/daily_monitor.py --dry-run           # Test daily monitor
 python govcon/scrapers/daily_monitor.py --score --push-to-sheet --max-pages 3  # Live run
 python govcon/scrapers/contract_scanner.py                   # Full market scan (10 reports)
 python govcon/deliverables/collect_market_data.py            # Generate market_data.json
-
-# GovCon Deliverables
-python govcon/deliverables/financials/build_proforma.py      # Generate Excel model (WIP v7 rewrite, canonical is data/*.xlsx)
-cd govcon/deliverables/presentation && node build_presentation.js  # Generate 18-slide v7 deck
-
-# Commercial Deliverables
-python commercial/deliverables/financials/build_commercial_model.py        # Generate SDR financial model (5 sheets, 3 scenarios)
-cd commercial/deliverables/presentation && node build_presentation.js      # Generate 12-slide commercial SDR deck
 
 # Commercial Prospecting
 python commercial/scrapers/apollo_prospector.py --segment A --max-pages 5  # Prospect by segment
@@ -46,13 +42,14 @@ python govcon/scoring/bid_no_bid.py --input data/final/opportunities.csv   # Sco
 ## Project Structure
 
 ```
+web/             # Primary client deliverable: React/Vite interactive GovCon presentation (20 slides)
 govcon/          # Channel 1: Government contracting (enrichment, scrapers, scoring, tracking, deliverables)
 commercial/      # Channel 2: Commercial SDR (enrichment, scrapers, outreach [future])
 config/          # Shared: ICP definitions, exclusions, government contract params
 specs/           # Blueprint specifications (this project's documentation)
 data/            # Runtime data — gitignored (raw/, enriched/, final/, cache/, contacts/)
 assets/          # Brand assets (backgrounds, logos)
-archive/         # Superseded files kept for reference
+archive/         # Superseded files: legacy PPTX builders, openpyxl scripts, v7 Excel model, old docs
 .github/         # GitHub Actions workflows
 .claude/         # Claude CLI commands
 ```
@@ -65,7 +62,7 @@ archive/         # Superseded files kept for reference
 - **API clients**: Follow `/govcon/enrichment/` pattern — `__init__` with env key, `requests.Session`, `_request()` with 429 retry + exponential backoff, `stats` property
 - **CLI scripts**: argparse, `--dry-run` mode, `load_config()`, `save_results()`
 - **Modules**: `__init__.py` in every directory with explicit imports
-- **Data flow**: `collect_market_data.py` → `market_data.json` → consumed by `build_proforma.py` + `build_presentation.js`
+- **Data flow**: `collect_market_data.py` → `market_data.json` → `web/src/data/*.js` → React slide components
 
 ## Spec Files
 
@@ -99,8 +96,9 @@ Reference these for detailed context:
 
 **Known gotchas:**
 - SAM.gov API has intermittent outages (experienced Feb 2026). System degrades gracefully — check logs.
-- The canonical GovCon financial model is `data/Newport_GovCon_Financial_Model_v7.xlsx` (built in Claude Desktop — 5 sheets, 176 formulas, zero errors, 7 charts). `build_proforma.py` contains a WIP v7 rewrite (~95% complete, runs successfully, generates all 5 sheets with 7 charts) but has not been validated against the .xlsx for output parity. Script completion deferred to Phase 5.
-- `build_presentation.js` generates an 18-slide v7 deck with Owner Earnings, Risk/Compliance, Key Questions, and competitive analysis. Financial data uses hardcoded fallbacks from v7 model; market data loads from market_data.json when available.
+- The GovCon web presentation (`web/`) is the primary client deliverable. 20 interactive slides, React 19 + Vite 7, deployed via Netlify. Design rules are in `web/DESIGN-SYSTEM.md` — read it before modifying any slide.
+- Financial data lives in `web/src/data/financials.js` (extracted from the v7 Excel model, now archived at `archive/govcon-financials-openpyxl/`). Market data in `web/src/data/market.js`, strategy data in `web/src/data/strategy.js`.
+- Legacy PPTX and Excel builders are archived in `archive/` subdirectories. The v7 .xlsx remains the reference for validating financial projections.
 - Google Sheets API requires a service account JSON file at the path specified in `GOOGLE_SHEETS_CREDS_PATH`. The spreadsheet must be shared with the service account email.
 - Apollo.io free tier has unlimited search but limited reveal credits. Budget reveals per segment.
 
@@ -122,47 +120,36 @@ Reference these for detailed context:
 - [x] WIP build_proforma.py v7 rewrite restored from stash (~95% complete, runs successfully, deferred to Phase 5)
 - [x] Decision: v7 .xlsx accepted as canonical model (Option A from dev plan)
 
-**Phase 2: GovCon Deck Rebuild** — COMPLETE
+**Phase 2: GovCon Deck Rebuild** — COMPLETE (PPTX ARCHIVED → superseded by web app)
 - [x] Full rewrite of build_presentation.js: 17 slides → 18 slides, v7 narrative arc
-- [x] Slide 2 leads with Newport's 30-year competitive moat + post-DOGE positioning
-- [x] Slide 4: Market waterfall visual (National $7.17B → FL $85M → Serviceable $6.4M)
-- [x] Slide 5: Standalone confectionery gap analysis (PSC 8925, Newport's Segment E edge)
-- [x] Slide 7: Top FL competitor table with Newport's $1-5M entry tier positioning
-- [x] Slides 8-10: How It Works expanded to 3 slides (Sourcing, Evaluation, Pipeline)
-- [x] Slide 12: Phased strategy visual (micro → simplified → incumbent advantage)
-- [x] Slide 13: 5-Year Financial Summary with Owner Earnings from v7 model
-- [x] Slide 14: Compounding flywheel stacked bar chart (new wins + renewals)
-- [x] Slide 15: Risk & Compliance two-column (required vs. $120-360K avoided)
-- [x] Slide 17: All 10 Key Questions from v7 model with priority levels
-- [x] Preserved: design system, color palette, fonts, helpers, data loading, fallback constants
+- [x] All slides implemented with v7 data and narrative
+- [x] PPTX builder and output archived to `archive/govcon-presentation-pptx/`
 
-**Phase 3: Commercial Financial Model** — COMPLETE
-- [x] `build_commercial_model.py`: 5 sheets, 3 scenarios (Free/Moderate/Aggressive), 3 charts
-- [x] Sheet 1 (Inputs): Newport business inputs (yellow), outreach params (blue), tool costs by scenario, capacity, weighted avg deal size
-- [x] Sheet 2 (ICP Segments): 5-segment economics (A-E) with reachable contacts, deal sizes, TAM, priority
-- [x] Sheet 3 (Funnel Model): 12-month projection × 3 scenarios with sales cycle lag, capacity caps, cumulative revenue
-- [x] Sheet 4 (Market Analysis): TAM by segment with pie chart, candy market data (NAICS 424450), tool comparison, Apollo coverage
-- [x] Sheet 5 (Key Questions): 10 decisions with priority levels (HIGHEST/HIGH/MEDIUM/INFO)
-- [x] All formulas reference Inputs sheet — changing any input recalculates everything
-- [x] Design system matches GovCon model (same colors, fonts, fills, helpers)
-- [x] Tool costs sourced from specs/09-INTEGRATIONS.md; candy market data from commercial/docs/candy_wholesaler_research.md
+**Phase 2.5: GovCon Web Presentation** — COMPLETE
+- [x] React 19 + Vite 7 + Tailwind CSS 4 + ECharts 6 + Motion 12
+- [x] 20 interactive slides across 4 acts (Anchor, Market, Strategy, Execution)
+- [x] Design system: editorial tone, gold + teal accents, card-based layouts
+- [x] All market data from `web/src/data/market.js`, strategy from `strategy.js`, financials from `financials.js`
+- [x] Password-gated, Netlify-deployed
+- [x] This is now the primary client-facing deliverable
 
-**Phase 4: Commercial Deck + Reference Docs** — COMPLETE
-- [x] Specs updated: 01-VISION, 02-REQUIREMENTS, 04-USER-STORIES, 05-DEVELOPMENT-PLAN, 09-INTEGRATIONS, GLOSSARY
-- [x] Post-fraud crisis quantified: 1,091 firms suspended, $550M DOJ scheme, SBA audit dates
-- [x] Competition density data: win rates 25-40% low, 12-18% moderate, +5-10% post-fraud tailwind
-- [x] New procurement platforms: Unison Marketplace, MFMP, BidNet Direct, DemandStar, VendorLink
-- [x] FPDS deprecation warning: ezSearch decommissioned Feb 24, 2026
-- [x] FL TAM updated: $85M → $87M with $17-20M biddable
-- [x] All 6 .claude/commands/ refined with DOGE/fraud context
-- [x] `build_presentation.js` (commercial): 12-slide deck, same design system as GovCon
-- [x] Slide 4: Five Growth Segments table (5 ICP segments with priority indicators)
-- [x] Slides 5-8: How It Works — Find, Enrich, Reach, Convert (4-slide sequence)
-- [x] Slide 7: Three scenarios side-by-side (Free/Moderate/Aggressive with costs and capacity)
-- [x] Slide 9: Economics table — 3-scenario 12-month summary with Net Contribution
-- [x] Slide 10: Two Channels, One Strategy — GovCon ($87M TAM) + Commercial (7,531 companies)
-- [x] Slide 11: All 10 Key Questions from commercial model with priority levels
+**Phase 3: Commercial Financial Model** — COMPLETE (ARCHIVED)
+- [x] `build_commercial_model.py`: 5 sheets, 3 scenarios, 3 charts — v1 complete
+- [x] Script and output archived to `archive/commercial-financials-openpyxl/`
+- [x] Commercial web slides are a future item (GovCon web presentation is the current priority)
 
-**Next**: Phase 5 (Script Completion)
+**Phase 4: Commercial Deck + Reference Docs** — COMPLETE (PPTX ARCHIVED)
+- [x] Commercial PPTX deck (12 slides) and financial model built and archived
+- [x] Specs updated with post-fraud crisis data, competition density, procurement platforms
+- [x] PPTX builder and output archived to `archive/commercial-presentation-pptx/`
+- [x] Commercial web integration is a future item
+
+**Next**: Phase 5 (Operational Hardening)
+- Fine-tune daily monitor scoring weights
+- Prepare bid template library
+- Set up direct portal monitoring for top FL school districts
+- Build Notion pipeline tracker
+- FPDS migration (ezSearch decommissioned Feb 24, 2026)
+- Platform registrations (Unison Marketplace, BidNet, DemandStar, VendorLink)
 
 See `/specs/05-DEVELOPMENT-PLAN.md` for full phase details and completion criteria.

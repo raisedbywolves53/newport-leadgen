@@ -19,30 +19,31 @@ User stories for this engagement cover two types of flows: (1) deliverable creat
 ### Happy Path
 
 1. Still Mind runs `collect_market_data.py` → generates fresh `market_data.json` with latest FPDS/USASpending data
-2. Still Mind reviews and finalizes the Excel model (5 sheets). Validates: formulas resolve, charts render, blue cells are clearly editable, Key Questions tab complete
-3. Still Mind generates or finalizes the PowerPoint deck (~17–20 slides). Validates: narrative arc (Newport's Advantage → Market Opportunity → How It Works → Two Routes → Projections → Key Questions → Next Steps), data matches Excel, tone is professional assessment not sales pitch
-4. Still Mind sends Key Questions as a pre-read to Newport ownership — "answer these before the meeting so we can discuss with your numbers"
-5. Still Mind presents deck in person or video. Deck is the sell, Excel is the brass tacks. Walk through the Two Routes decision together.
-6. Newport takes the Excel model, plugs in their actual numbers (COGS, margin, delivery radius, certifications, order minimums)
-7. Still Mind recalibrates projections based on Newport's answers and delivers updated model
-8. **End State**: Newport makes a go/no-go decision. If go, Still Mind begins operational phase immediately (registrations, first bids).
+2. Still Mind reviews the web presentation (`cd web && npm run dev`). Validates: all 20 slides render correctly, data is current in `web/src/data/*.js`, animations work, ECharts visualizations display
+3. Still Mind sends the presentation URL to Newport with the Key Questions section highlighted — "review these before the meeting so we can discuss with your context"
+4. Still Mind presents via the web app URL (Netlify-deployed, password-gated). Walk through the 4-act narrative: Anchor → Market → Strategy → Execution. The Key Questions slide drives the conversation.
+5. Still Mind captures Newport's answers to the 10 Key Questions, updates `web/src/data/financials.js` with Newport's actual inputs, and refreshes projections
+6. **End State**: Newport makes a go/no-go decision. If go, Still Mind begins operational phase immediately (registrations, first bids).
 
 ### Error Paths
 
-- **If market data is stale**: Use hardcoded fallback values (built into `build_presentation.js`). Note data date in footnotes. All core research was validated Feb 2026 and federal food markets don't shift dramatically quarter to quarter.
+- **If market data is stale**: Data in `web/src/data/*.js` includes source citations with dates. All core research was validated Feb 2026 and federal food markets don't shift dramatically quarter to quarter.
 - **If Newport can't answer a Key Question immediately**: Show the sensitivity — "if yes, the model looks like X. If no, it looks like Y. Take your time, we'll update when you decide."
 - **If Newport pushes back on win rates**: Point to the data — three stats: (1) 93% sole source for NAICS 424490 at DoD, 117 awards, bases can't find vendors; (2) 1 registered federal confectionery contractor nationally under NAICS 424450; (3) 15 low-competition NAICS/agency combos worth $64.8M — nearly half the biddable market has almost no one bidding. Then the DOGE/fraud context: 1,091 firms suspended in January 2026 (25% of the 8(a) program), agencies are actively losing vendors to fraud investigations and need replacements with auditable histories for recurring food supply. Newport isn't a stranger knocking on doors — they're a 30-year answer to a problem agencies are having right now. The model's win rates are competition-density-informed, not generic assumptions.
 - **If Newport wants to start free and upgrade later**: Model supports both paths. Show Year 2 upgrade scenario.
+- **If Newport wants to manipulate financial inputs directly**: The archived v7 Excel model (`archive/govcon-financials-openpyxl/Newport_GovCon_Financial_Model_v7.xlsx`) remains fully functional with editable blue cells.
 
 ### UI Notes (Deliverable Design)
 
-- **Deck**: 16:9, ocean gradient palette (#065A82, #1C7293, #21295C). Charts and tables primary, text supplemental. Short sentences, Buffett tone.
-- **Excel**: Standard financial model color coding. Simplicity over complexity — if Newport needs a tutorial, it's too complicated.
-- **Opening slide must hit immediately**: Newport's competitive advantage is the headline. "30 years. Clean books. Real infrastructure. The exact vendor agencies need right now." Then back it with the research.
+- **Web App**: Editorial design per `web/DESIGN-SYSTEM.md`. Gold + teal accents, card-based layouts, Playfair Display + Inter typography. ECharts for data viz, Motion for animations.
+- **Financial Data**: Embedded in presentation via `web/src/data/financials.js`. Archived v7 .xlsx available if Newport wants to manipulate inputs directly.
+- **Opening slides must hit immediately**: Newport's competitive advantage is the headline. "30 years. Clean books. Real infrastructure. The exact vendor agencies need right now." Then back it with the research.
 
 ---
 
 ## Flow 2: Commercial SDR Proposal Delivery
+
+> **Note**: The commercial PPTX deck (12 slides) and Excel model (5 sheets) are v1 complete and archived at `archive/commercial-presentation-pptx/` and `archive/commercial-financials-openpyxl/`. Commercial web integration is a future item — GovCon web presentation is the current priority.
 
 **Actor**: Still Mind
 **Trigger**: GovCon package is delivered (or in parallel)

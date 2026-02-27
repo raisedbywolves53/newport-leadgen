@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document defines the technical architecture for the Newport engagement. Unlike a typical SaaS application, this system is a consulting intelligence platform with three layers: (1) data collection and analysis (Python), (2) client-facing deliverables (Excel + PowerPoint, built programmatically), and (3) operational automation (daily monitoring, pipeline tracking, outreach). All components live in a single monorepo organized by channel.
+This document defines the technical architecture for the Newport engagement. Unlike a typical SaaS application, this system is a consulting intelligence platform with three layers: (1) data collection and analysis (Python), (2) client-facing deliverables (React/Vite interactive web presentation), and (3) operational automation (daily monitoring, pipeline tracking, outreach). All components live in a single monorepo organized by channel.
 
 ---
 
@@ -15,8 +15,10 @@ This document defines the technical architecture for the Newport engagement. Unl
 | Layer | Technology | Version | Why This Choice |
 |-------|-----------|---------|-----------------|
 | **Core Language** | Python | 3.10+ | All API clients, scrapers, scoring, data pipelines. Widely supported by Claude CLI. |
-| **Presentation Generation** | pptxgenjs (Node.js) | Latest | Programmatic PowerPoint creation. JavaScript because pptxgenjs is the best slide-generation library available. |
-| **Financial Model Generation** | openpyxl (Python) | Latest | Programmatic Excel creation with formulas, charts, formatting. |
+| **Web Presentation** | React 19 + Vite 7 | Latest | Interactive client-facing GovCon presentation. Primary deliverable. |
+| **Styling** | Tailwind CSS 4 | Latest | Utility-first CSS framework for slide layouts. |
+| **Data Visualization** | ECharts 6 | Latest | Charts and graphs in web slides. |
+| **Animation** | Motion (Framer) 12 | Latest | Slide transitions and data animations. |
 | **Data Storage** | CSV files + JSON configs | N/A | Flat files in `data/` directory. No database needed — this is a pipeline tool, not a web app. |
 | **Pipeline Tracking** | Google Sheets API | v4 | Newport can view and interact with pipeline data in a familiar tool. `gspread` Python library. |
 | **Notifications** | Slack webhooks + Resend email | N/A | Daily monitor alerts. Slack for real-time, email for formal notifications. |
@@ -34,14 +36,18 @@ This document defines the technical architecture for the Newport engagement. Unl
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        CLIENT DELIVERABLES                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌─────────────────────────┐   │
-│  │ GovCon Deck  │  │ GovCon Excel │  │ Commercial Deck + Excel │   │
-│  │ (pptxgenjs)  │  │ (openpyxl)   │  │ (NOT YET BUILT)         │   │
-│  └──────┬───────┘  └──────┬───────┘  └─────────────────────────┘   │
-│         │                  │                                         │
-│         └────────┬─────────┘                                         │
-│                  │                                                    │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ GovCon Web Presentation (React 19 + Vite 7)                 │   │
+│  │ 20 interactive slides — web/src/components/slides/          │   │
+│  │ Data: web/src/data/{market,strategy,financials}.js          │   │
+│  │ Design: web/DESIGN-SYSTEM.md                                │   │
+│  └──────────────────────────┬───────────────────────────────────┘   │
+│                              │                                       │
 │           market_data.json ◄── collect_market_data.py                │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │ ARCHIVED: PPTX builders + Excel models → archive/           │   │
+│  └──────────────────────────────────────────────────────────────┘   │
 └──────────────────┼──────────────────────────────────────────────────┘
                    │
 ┌──────────────────┼──────────────────────────────────────────────────┐
@@ -107,8 +113,8 @@ This document defines the technical architecture for the Newport engagement. Unl
    SAM.gov + USASpending + FPDS + Grants.gov → contract_scanner.py → 10 CSV reports → data/final/
 
 3. DELIVERABLES PIPELINE (manual, for Newport presentation)
-   collect_market_data.py → market_data.json → build_proforma.py → Excel
-                                              → build_presentation.js → PowerPoint
+   collect_market_data.py → market_data.json → web/src/data/*.js → React slide components
+   Dev: cd web && npm run dev    Build: cd web && npm run build
 
 4. BID SCORING (manual, when evaluating specific opportunities)
    CSV of opportunities → bid_no_bid.py → scored + ranked output → decision support
@@ -149,20 +155,20 @@ This document defines the technical architecture for the Newport engagement. Unl
 - **Trade-offs**: No query optimization, no relationships, no concurrent write safety
 - **Alternatives Considered**: Supabase/Postgres — premature for a pipeline tool used by one person
 
-### Decision 3: Programmatic Deliverables Over Manual Creation
+### Decision 3: Web-Based Interactive Presentation
 
-- **Context**: Presentation decks and financial models need to be iterated as data and assumptions change
-- **Decision**: Python (openpyxl) for Excel, JavaScript (pptxgenjs) for PowerPoint, both reading from shared data sources
-- **Rationale**: When Newport answers the Key Questions and we need to regenerate projections, we run a script instead of manually editing 20 slides. The `market_data.json` intermediate file decouples data collection from presentation generation.
-- **Trade-offs**: Initial build is slower than manual creation. Design flexibility is limited by the libraries.
-- **Alternatives Considered**: Manual creation in Excel/PowerPoint — works for one-time delivery but doesn't scale to iteration. Claude Desktop was actually used for the v7 Excel model, which suggests hybrid approach (Desktop for creative iteration, CLI for reproducible generation).
+- **Context**: Presentation decks and financial models need to be iterated as data and assumptions change. PPTX generation was limiting in design flexibility.
+- **Decision**: React 19 + Vite 7 web application with Tailwind CSS 4, ECharts 6, and Motion 12 for the GovCon presentation. Data separated into JS modules (`market.js`, `strategy.js`, `financials.js`). Legacy PPTX builders and Excel scripts archived.
+- **Rationale**: Web app enables interactive data visualizations, animated transitions, responsive design, and instant iteration via hot reload. Shareable via URL (Netlify-deployed, password-gated). The `market_data.json` intermediate file still decouples data collection from presentation.
+- **Trade-offs**: Requires Node.js toolchain. Offline viewing requires a build step. Excel model no longer directly editable by Newport — financial data is presentation-only.
+- **Alternatives Considered**: PPTX generation (pptxgenjs) — completed and archived, but design flexibility was too constrained. The web app delivers a materially better client experience.
 
 ### Decision 4: Claude Desktop for Financial Models, CLI for Everything Else
 
 - **Context**: The financial model went through 7 iterations (v1 → v7) requiring conversational refinement
 - **Decision**: Use Claude Desktop for iterative document/model work, Claude CLI for code changes
 - **Rationale**: Desktop excels at "help me think through this model structure" conversations. CLI excels at "create this Python file, run this command, fix this bug" workflows. The v7 model is demonstrably better than what `build_proforma.py` generates.
-- **Trade-offs**: v7 model may not be reproducible from code. If we need to regenerate it, we either update the build script or re-create via Desktop.
+- **Trade-offs**: v7 model is not reproducible from code — it was accepted as canonical and key data extracted to `web/src/data/financials.js`. The archived .xlsx at `archive/govcon-financials-openpyxl/` serves as the reference.
 - **Alternatives Considered**: CLI-only — resulted in v4-quality output. Desktop-only — can't run Python scripts or manage the codebase.
 
 ### Decision 5: Free APIs First, Paid Platforms as Recommendations
@@ -201,7 +207,7 @@ This document defines the technical architecture for the Newport engagement. Unl
 | API calls | `--dry-run` flag on all scrapers | Live API calls |
 | Notifications | Disabled or test channel | Live Slack + email |
 | Scheduling | Manual execution | GitHub Actions cron |
-| Excel output | `deliverables/` directory | Same (shared with Newport) |
+| Web presentation | `cd web && npm run dev` | Netlify deployment (password-gated) |
 
 ---
 
@@ -215,4 +221,4 @@ When working on this codebase:
 4. **API clients**: Follow the existing pattern in `enrichment/` — `__init__` with key from env, `requests.Session`, `_request()` with 429 retry + exponential backoff, `stats` property.
 5. **CLI pattern**: All scrapers use argparse with `--dry-run` mode, `load_config()`, `save_results()`.
 6. **Never commit API keys** — they go in `.env` (gitignored).
-7. **The deliverables pipeline flows**: `collect_market_data.py` → `market_data.json` → consumed by both `build_proforma.py` and `build_presentation.js`. Don't break this chain.
+7. **The deliverables pipeline flows**: `collect_market_data.py` → `market_data.json` → `web/src/data/*.js` → React slide components. Don't break this chain.

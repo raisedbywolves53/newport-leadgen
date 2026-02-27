@@ -33,7 +33,7 @@ Still Mind Creative LLC is building a comprehensive growth strategy and operatio
 
 **Channel 2 — Commercial SDR Agent:** An AI-powered outbound prospecting system for Newport's core wholesale business. The system identifies ideal customer profile (ICP) buyers and suppliers, enriches contact data, and creates personalized outreach sequences. This runs in parallel with the government channel, generates faster and larger wins because it extends Newport's existing business, and requires Newport's input primarily on value proposition and messaging.
 
-**What we deliver to Newport ownership:** Two presentation decks (one per channel) that tell a compelling, research-backed story — not a sales pitch, but a professional strategic assessment. Each deck is supplemented by an interactive financial model (Excel) where Newport can adjust their own inputs (COGS, margins, delivery radius, certifications) to see how scenarios change. The decks sell the vision; the spreadsheets prove the economics.
+**What we deliver to Newport ownership:** An interactive web-based presentation (React/Vite) for the GovCon channel that tells a compelling, research-backed story — not a sales pitch, but a professional strategic assessment with 20 animated, data-driven slides. Financial projections are embedded directly in the presentation with full source citations. Key Questions are presented as an interactive section where Newport can see how their answers change every number. The commercial SDR channel has a separate PPTX deck and Excel model (archived, with web integration planned as a future item).
 
 ---
 
@@ -120,8 +120,9 @@ We are both the strategists and the operators. The documentation and systems we 
 
 **GovCon Deliverables:**
 - Comprehensive research foundation (TAM, competition, buyer universe, data sources) — DONE
-- Interactive financial model (Excel, 5 sheets, dynamic inputs) — v7 DONE, may need refinement
-- Professional presentation deck (PowerPoint, ~17 slides) — needs rebuild to match v7 narrative
+- Interactive web presentation (React/Vite, 20 slides, ECharts visualizations) — DONE (primary deliverable)
+- Financial projections embedded in web app via `web/src/data/financials.js` — DONE (extracted from v7 Excel model, now archived)
+- V7 Excel model archived at `archive/govcon-financials-openpyxl/` for reference/validation
 - Operational intelligence system (Python): contract scanner, daily monitor, bid scoring, pipeline tracker — DONE
 - Bid preparation support: capability statement template, sources sought response template — DONE
 - Two-routes comparison (free vs. paid tools) with defensible impact analysis
@@ -130,8 +131,9 @@ We are both the strategists and the operators. The documentation and systems we 
 - ICP definition and Apollo.io search configuration for 5 segments — DONE
 - Prospect sourcing and enrichment pipeline — DONE (basic)
 - Market research (candy/LATAM, enterprise buyers/suppliers) — DONE
-- Financial model for commercial channel — NOT STARTED
-- Presentation deck for commercial channel — NOT STARTED
+- Financial model for commercial channel (Excel, 5 sheets, 3 scenarios) — DONE (archived at `archive/commercial-financials-openpyxl/`)
+- Presentation deck for commercial channel (PPTX, 12 slides) — DONE (archived at `archive/commercial-presentation-pptx/`)
+- Commercial web integration — FUTURE (GovCon web presentation is the current priority)
 - Outreach automation framework (Instantly, Twilio, Retell AI) — NOT STARTED
 
 **Cross-Channel:**

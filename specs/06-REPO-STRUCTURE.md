@@ -6,7 +6,7 @@
 
 ## Overview
 
-The `newport-leadgen` monorepo contains the complete intelligence system for both channels (GovCon + Commercial SDR), client deliverables (decks + financial models), research documentation, and operational tooling. Top-level directories separate concerns by channel, with shared configuration at the root.
+The `newport-leadgen` monorepo contains the complete intelligence system for both channels (GovCon + Commercial SDR), the interactive web presentation (primary client deliverable), research documentation, and operational tooling. Top-level directories separate concerns by channel, with shared configuration at the root. Legacy PPTX and Excel builders are archived.
 
 ---
 
@@ -20,6 +20,58 @@ newport-leadgen/
 ├── .gitignore                             # Excludes data/, .env, node_modules/
 ├── .env.example                           # Environment variable template (NEVER actual values)
 │
+├── web/                                   # PRIMARY CLIENT DELIVERABLE: GovCon Web Presentation
+│   ├── package.json                       # React 19, Vite 7, ECharts 6, Motion 12, Tailwind 4
+│   ├── vite.config.js                     # Vite build configuration
+│   ├── netlify.toml                       # Netlify deployment config
+│   ├── index.html                         # HTML template
+│   ├── DESIGN-SYSTEM.md                   # Core design rules (THE BIBLE for slide design)
+│   ├── src/
+│   │   ├── App.jsx                        # Root component
+│   │   ├── main.jsx                       # Entry point
+│   │   ├── index.css                      # Tailwind + custom styles
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   │   ├── Navigation.jsx         # Slide navigation bar
+│   │   │   │   ├── PasswordGate.jsx       # Authentication wrapper
+│   │   │   │   └── SlideContainer.jsx     # Slide wrapper/viewport
+│   │   │   ├── slides/                    # 20 individual slide components
+│   │   │   │   ├── TitleSlide.jsx
+│   │   │   │   ├── ExecutiveSummarySlide.jsx
+│   │   │   │   ├── WhyNewportSlide.jsx
+│   │   │   │   ├── FloridaTamSlide.jsx
+│   │   │   │   ├── ProductMatrixSlide.jsx
+│   │   │   │   ├── ConfectioneryGapSlide.jsx
+│   │   │   │   ├── TargetAgenciesSlide.jsx
+│   │   │   │   ├── CompetitionSlide.jsx
+│   │   │   │   ├── B2bFastTrackSlide.jsx
+│   │   │   │   ├── HowItWorksSlide.jsx
+│   │   │   │   ├── ContractExamplesSlide.jsx
+│   │   │   │   ├── PortfolioEvolutionSlide.jsx
+│   │   │   │   ├── BdStrategySlide.jsx
+│   │   │   │   ├── RiskComplianceSlide.jsx
+│   │   │   │   ├── RecommendationSlide.jsx
+│   │   │   │   ├── KeyQuestionsSlide.jsx
+│   │   │   │   ├── BlueprintSlide.jsx
+│   │   │   │   └── PlaceholderSlide.jsx
+│   │   │   └── ui/                        # Reusable UI components
+│   │   │       ├── DecorativeElements.jsx # GoldLine, CompassStar, HeroStat, BackgroundRing
+│   │   │       ├── SectionDivider.jsx     # Divider slides (strategy, execution)
+│   │   │       ├── SlideLayout.jsx        # Base layout wrapper
+│   │   │       └── SourceCitation.jsx     # Bottom-of-slide citations
+│   │   ├── data/
+│   │   │   ├── slides.js                  # Slide registry (20 slides, 4 acts)
+│   │   │   ├── market.js                  # Market data constants (TAM, agencies, competitors)
+│   │   │   ├── strategy.js                # Strategy data (pipeline, contracts, compliance, questions)
+│   │   │   └── financials.js              # Financial projections (from v7 Excel model)
+│   │   └── hooks/
+│   │       ├── useCountUp.js              # Animated number counter
+│   │       └── useSlideNavigation.js      # Slide navigation logic
+│   ├── public/                            # Static assets
+│   │   ├── newport_background.jpg
+│   │   └── animated_under_tree.png
+│   └── dist/                              # Production build output
+│
 ├── .github/
 │   └── workflows/
 │       └── daily-scan.yml                 # GitHub Actions: SAM.gov daily monitor at 6 AM ET
@@ -29,8 +81,8 @@ newport-leadgen/
 │       ├── scaffold.md                    # Set up project from scratch
 │       ├── new-feature.md                 # Spec-first feature implementation
 │       ├── debug.md                       # Diagnose-before-fix debugging
-│       ├── rebuild-deck.md                # Regenerate presentation from data
-│       ├── rebuild-proforma.md            # Regenerate financial model from data
+│       ├── rebuild-deck.md                # Web presentation development guide
+│       ├── rebuild-proforma.md            # Financial data update guide
 │       └── run-scanner.md                 # Execute contract scanner with reports
 │
 ├── config/                                # Shared configuration (both channels)
@@ -83,14 +135,8 @@ newport-leadgen/
 │   │   ├── sources_sought_response_template.docx
 │   │   └── legitimacy_package_checklist.docx
 │   │
-│   ├── deliverables/                      # Client-facing output generation
-│   │   ├── collect_market_data.py         # Aggregates API data → market_data.json
-│   │   ├── financials/
-│   │   │   └── build_proforma.py          # openpyxl: generates Excel financial model
-│   │   └── presentation/
-│   │       ├── build_presentation.js      # pptxgenjs: generates PowerPoint deck
-│   │       ├── package.json               # Node.js deps for pptxgenjs
-│   │       └── package-lock.json
+│   ├── deliverables/                      # Data collection for web presentation
+│   │   └── collect_market_data.py         # Aggregates API data → market_data.json
 │   │
 │   └── docs/                              # Research and strategy documentation
 │       ├── strategy.md                    # Buyer universe, platforms, entry strategy (31K)
@@ -121,6 +167,8 @@ newport-leadgen/
 │   │   ├── retell_client.py              # (FUTURE) AI voice via Retell AI
 │   │   └── campaign_orchestrator.py       # (FUTURE) Multi-channel sequence manager
 │   │
+│   ├── deliverables/                      # (empty — scripts archived)
+│   │
 │   └── docs/                              # Market research
 │       ├── icp_segments.md                # 5 segment definitions and rationale
 │       ├── candy_wholesaler_research.md   # US + LATAM candy market (40K)
@@ -138,6 +186,10 @@ newport-leadgen/
 │   └── market_data.json                   # Aggregated market data for deliverables
 │
 └── archive/                               # Superseded files (kept for reference)
+    ├── govcon-presentation-pptx/          # GovCon PPTX builder + output (build_presentation.js)
+    ├── govcon-financials-openpyxl/        # GovCon Excel builder + v7 model (build_proforma.py, .xlsx)
+    ├── commercial-presentation-pptx/      # Commercial PPTX builder + output
+    ├── commercial-financials-openpyxl/    # Commercial Excel builder + output
     ├── dashboard/                         # Old dashboard generation scripts
     ├── pitchbook/                         # Early deck iterations
     ├── sheets_crm_v1.py                   # V1 Google Sheets integration
@@ -153,7 +205,7 @@ newport-leadgen/
 | File | Purpose |
 |------|---------|
 | `CLAUDE.md` | The first file Claude CLI reads. Project overview, tech stack, conventions, guardrails, current phase. Updated as project progresses. |
-| `requirements.txt` | Python dependencies. Key packages: `requests`, `pandas`, `openpyxl`, `gspread`, `google-auth`, `fpds`, `python-dotenv` |
+| `requirements.txt` | Python dependencies. Key packages: `requests`, `pandas`, `gspread`, `google-auth`, `fpds`, `python-dotenv` |
 | `.env.example` | Template for environment variables. Lists every required key with description and where to obtain it. Never contains actual values. |
 | `.gitignore` | Excludes: `data/`, `.env`, `node_modules/`, `*.pyc`, `__pycache__/` |
 
@@ -193,9 +245,9 @@ newport-leadgen/
 
 | File | Purpose |
 |------|---------|
-| `collect_market_data.py` | Aggregates data from all API clients into `market_data.json`. This is the single data source consumed by both the financial model builder and the presentation builder. |
-| `financials/build_proforma.py` | Generates Excel financial model via openpyxl. Currently produces v4-era 4-sheet output. Needs update to match v7 structure (5 sheets). |
-| `presentation/build_presentation.js` | Generates PowerPoint deck via pptxgenjs. Reads `market_data.json`. Currently produces v4-era narrative. Needs rebuild per Phase 2 of development plan. |
+| `collect_market_data.py` | Aggregates data from all API clients into `market_data.json`. This is the data source consumed by `web/src/data/*.js` for the web presentation. |
+
+**Note:** The PPTX builder and Excel builder have been archived to `archive/govcon-presentation-pptx/` and `archive/govcon-financials-openpyxl/` respectively. The web app (`web/`) supersedes them.
 
 ### /commercial/enrichment/
 
@@ -250,14 +302,6 @@ These files are referenced in the specs but don't exist yet:
 
 | File | Phase | Purpose |
 |------|-------|---------|
-| `/specs/*.md` | Phase 0 | This spec directory |
-| `/.claude/commands/scaffold.md` | Phase 0 | Project setup command |
-| `/.claude/commands/new-feature.md` | Phase 0 | Spec-first feature command |
-| `/.claude/commands/debug.md` | Phase 0 | Diagnose-before-fix command |
-| `/.claude/commands/rebuild-deck.md` | Phase 0 | Deck regeneration command |
-| `/.claude/commands/rebuild-proforma.md` | Phase 0 | Financial model regeneration command |
-| `/.claude/commands/run-scanner.md` | Phase 0 | Contract scanner execution command |
-| `/commercial/outreach/__init__.py` | Phase 6 | Outreach module placeholder |
 | `/commercial/outreach/instantly_client.py` | Phase 6 | Instantly email integration |
 | `/commercial/outreach/twilio_client.py` | Phase 6 | Twilio SMS integration |
 | `/commercial/outreach/retell_client.py` | Phase 6 | Retell AI voice integration |

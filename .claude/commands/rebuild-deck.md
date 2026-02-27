@@ -1,24 +1,35 @@
-Rebuild the GovCon presentation deck.
+Modify or rebuild slides in the GovCon web presentation.
 
-Before building:
-1. Read /specs/02-REQUIREMENTS.md FR-007 for deck acceptance criteria
-2. Read /specs/05-DEVELOPMENT-PLAN.md Phase 2 for the slide-by-slide outline
-3. Read /specs/04-USER-STORIES.md Flow 1 for the delivery narrative and error paths
-4. Run `python govcon/deliverables/collect_market_data.py` to generate fresh market_data.json
-5. Verify the v7 Excel model data matches what will go into the deck
+The web app lives at `/web/` — React 19 + Vite 7 + Tailwind CSS 4 + ECharts 6 + Motion 12.
 
-Slide outline is in /specs/05-DEVELOPMENT-PLAN.md Phase 2 (19 slides).
+Before making changes:
+1. Read `/web/DESIGN-SYSTEM.md` — this is the design bible. Follow it exactly.
+2. Read `/web/src/data/slides.js` — the slide registry (20 slides, 4 acts)
+3. Read the specific slide component in `/web/src/components/slides/`
+4. Read data files: `/web/src/data/market.js`, `strategy.js`, `financials.js`
 
-Key requirements:
-- 16:9 widescreen, ocean gradient palette: #065A82, #1C7293, #21295C
-- Opening slide leads with Newport's competitive advantage + DOGE/fraud receipts
-- Three headline competition stats: DoD 93% sole source, confectionery 1 contractor nationally, 15 low-competition combos worth $64.8M
-- TAM waterfall: $87M → filters → $17-20M SAM
-- All financial data must match v7 Excel model exactly
-- Professional, grounded — never hard-sell
-- Charts from market_data.json with hardcoded fallbacks
+Key rules from the design system:
+- Card DNA: `rounded-2xl bg-white/70 backdrop-blur-sm border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.04)]`
+- Two-accent discipline: gold `#C9A84C` + teal `#1B7A8A` only
+- Slide container: `w-full h-full flex flex-col px-16 lg:px-20 pt-6 pb-20 relative overflow-hidden`
+- Typography: Playfair Display (title only), Inter (everything else)
+- Animation sequence < 2 seconds total, use `motion/react`
 
-Build path: cd govcon/deliverables/presentation && node build_presentation.js
-Or build manually in Claude Desktop if iterative refinement needed.
+Reusable components (import from `/web/src/components/ui/`):
+- `GoldLine` — animated gold divider after subtitles
+- `CompassStar` — 4-pointed decorative star
+- `HeroStat` — oversized metric display
+- `SourceCitation` — bottom-of-slide citation
+- `SlideLayout` — base layout wrapper
+- `SectionDivider` — divider slides between acts
 
-Reference specs: 02-REQUIREMENTS.md (FR-007), 05-DEVELOPMENT-PLAN.md (Phase 2), 04-USER-STORIES.md (Flow 1)
+Data imports — never hardcode numbers:
+- Market data: `import { HEADLINE_STATS, FL_TAM_CHANNELS, ... } from '../../data/market'`
+- Strategy data: `import { KEY_QUESTIONS, COMPLIANCE_REQUIRED, ... } from '../../data/strategy'`
+- Financial data: `import { FIVE_YEAR_PROJECTIONS, SCENARIO_COMPARISON, ... } from '../../data/financials'`
+
+Development workflow:
+- `cd web && npm run dev` — hot reload at localhost:5173
+- `cd web && npm run build` — production build (zero errors required)
+
+Reference specs: 02-REQUIREMENTS.md (FR-007), web/DESIGN-SYSTEM.md

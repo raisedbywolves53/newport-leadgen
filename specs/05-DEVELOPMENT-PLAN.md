@@ -15,15 +15,15 @@ This plan sequences the remaining work to get both proposal packages (GovCon + C
 | Component | Status | What Remains |
 |-----------|--------|-------------|
 | GovCon Research | ✅ Complete | TAM, competition, buyer universe, live API validation — all done |
-| GovCon Financial Model (Excel) | ✅ v7 Complete | Review for consistency with latest research. May need minor refinements after Newport answers Key Questions |
-| GovCon Presentation Deck | ⚠️ Needs Rebuild | Existing `build_presentation.js` generates v4-era deck. Must be rebuilt to match v7 narrative arc |
+| GovCon Financial Model (Excel) | ✅ v7 Complete, ARCHIVED | Key data extracted to `web/src/data/financials.js`. v7 .xlsx archived at `archive/govcon-financials-openpyxl/` |
+| GovCon Web Presentation | ✅ Complete | 20 interactive slides, React 19 + Vite 7, deployed via Netlify |
 | GovCon Intelligence System | ✅ Operational | Daily monitor, bid scoring, pipeline tracker, templates — all working |
 | Commercial ICP Definitions | ✅ Complete | 5 segments defined, Apollo configs tested |
 | Commercial Market Research | ✅ Complete | Candy/LATAM research, enterprise buyer analysis |
-| Commercial Financial Model | ❌ Not Started | Needs full build — funnel economics, tool costs, scenario modeling |
-| Commercial Presentation Deck | ❌ Not Started | Needs full build — ICP story, proof of capability, SDR economics |
+| Commercial Financial Model | ✅ v1 Complete, ARCHIVED | 5 sheets, 3 scenarios. Archived at `archive/commercial-financials-openpyxl/` |
+| Commercial Presentation Deck | ✅ v1 Complete (PPTX), ARCHIVED | 12 slides. Archived at `archive/commercial-presentation-pptx/`. Web integration future. |
 | Commercial Outreach Automation | ❌ Not Started | Instantly/Twilio/Retell integration — deferred to post-presentation |
-| CLAUDE.md + CLI Commands | ⚠️ Outdated | Existing CLAUDE.md needs update to reflect current state and specs |
+| CLAUDE.md + CLI Commands | ✅ Updated | Reflects web-first deliverable, archived legacy builders |
 
 ---
 
@@ -33,9 +33,10 @@ This plan sequences the remaining work to get both proposal packages (GovCon + C
 |-------|------|-------------|--------------|
 | 0 | Spec Finalization & Repo Cleanup | Updated CLAUDE.md, CLI commands, repo structure confirmed | None |
 | 1 | GovCon Excel Model Validation | Presentation-ready v7 (or v8) Excel file | Phase 0 |
-| 2 | GovCon Deck Rebuild | Presentation-ready PowerPoint (~17–20 slides) | Phase 1 (financial numbers must be locked) |
+| 2 | GovCon Deck Rebuild | PPTX archived; superseded by web app | Phase 1 |
+| 2.5 | GovCon Web Presentation | 20-slide React/Vite web app (COMPLETE) | Phase 1 |
 | 3 | Commercial Financial Model | Presentation-ready Excel (5 sheets, same design language as GovCon) | Phase 0 |
-| 4 | Commercial Presentation Deck | Presentation-ready PowerPoint (~10–15 slides) | Phase 3 |
+| 4 | Commercial Presentation Deck | v1 PPTX complete, archived. Web integration future. | Phase 3 |
 | 5 | Operational Hardening | Pipeline tracker, notification tuning, bid templates finalized | Phases 1–2 |
 | 6 | Commercial Outreach Automation | Instantly + Twilio + Retell integration | Phase 4 (post-presentation) |
 
@@ -128,60 +129,33 @@ List any issues found.
 
 ---
 
-## Phase 2: GovCon Deck Rebuild
+## Phase 2: GovCon Deck Rebuild — COMPLETE (PPTX ARCHIVED)
+
+> **Status**: The PPTX builder (`build_presentation.js`) generated an 18-slide v7 deck. It has been **superseded by the web application** (Phase 2.5) and archived to `archive/govcon-presentation-pptx/`.
+
+---
+
+## Phase 2.5: GovCon Web Presentation — COMPLETE
 
 ### Objective
-Produce a presentation-ready PowerPoint deck that matches the v7 model's narrative arc and positions Newport's 30-year history as the lead story.
+Interactive web-based presentation that delivers the GovCon story with animated data visualizations, responsive design, and URL-based sharing.
 
-### Tasks
-1. Define slide-by-slide outline (see below)
-2. Rebuild `build_presentation.js` to generate the new deck structure OR build manually in Claude Desktop
-3. Ensure all data points in the deck match the v7 Excel model exactly
-4. Apply professional design: ocean gradient palette, clean typography, chart-forward layout
-5. Test: open in PowerPoint, verify no rendering issues, all charts display correctly
+### What Was Built
+- React 19 + Vite 7 + Tailwind CSS 4 + ECharts 6 + Motion 12
+- 20 interactive slides across 4 acts (Anchor, Market, Strategy, Execution)
+- Design system documented in `web/DESIGN-SYSTEM.md`
+- Data separated into `web/src/data/{market,strategy,financials}.js`
+- Password-gated, Netlify-deployed
+- Slide components in `web/src/components/slides/`
 
-### Slide Outline
-
-| # | Slide Title | Content |
-|---|------------|---------|
-| 1 | Title Slide | Newport Wholesalers — Government Contracting Growth Strategy |
-| 2 | Newport's Competitive Advantage | 30 years. Clean books. Real infrastructure. American workforce. The vendor agencies need NOW. Hard data: 1,091 firms suspended Jan 2026 (25% of 8(a) program), $550M DOJ fraud case, DoW auditing $80B+ in set-asides. Agencies need replacement vendors for recurring food contracts — Newport is exactly what they're looking for. (Cite: SBA.gov Jan 28, 2026) |
-| 3 | The Opportunity | Federal food procurement = $7.17B national. FL = $87M under $350K (39,857 awards). Three stats that tell the story: (1) DoD food purchasing: 93% sole source, bases literally can't find vendors. (2) Confectionery: 1 registered federal contractor nationally. (3) Overall: 15 low-competition NAICS/agency combos worth $64.8M. Half the biddable market has almost no one bidding. |
-| 4 | TAM Waterfall | Visual: $87M FL total → filter locked SPV contracts → filter product mismatches → filter geography → **$17–20M biddable by Newport**. Shows disciplined market sizing. |
-| 5 | The Confectionery Gap | $55.5M national, $412K FL competition. **1 registered federal confectionery contractor nationally** (NAICS 424450). Newport's beachhead category — virtually zero competition. |
-| 6 | Who's Buying | Target agencies with FL-specific detail: BOP 6 facilities ($5–7M/yr, facility breakdown), VA 7 medical centers ($3–5M/yr in bread/milk/produce excluded from SPV), DoD 6 bases (93% sole source), School Districts top 10 by spend, County Jails ($45M/yr, separate from FL DOC). FL DOC explicitly marked NOT biddable (Aramark through 2027). |
-| 7 | The Competition | Top 10 FL food contractors. Newport slots into the $1–5M tier. Competition density pyramid: 15 LOW combos ($64.8M) → 11 MODERATE ($55.3M) → 4 HIGH ($25.4M, avoid). Big players don't compete for micro. Post-fraud: 1,091 fewer competitors in the market, agencies actively need replacements for recurring food supply. |
-| 8 | How It Works: Sourcing | How we find opportunities: SAM.gov, Unison Marketplace (BOP), state portals, SLED platforms, small business set-asides, low-competition contracts. |
-| 9 | How It Works: Evaluation & Bidding | Bid scoring, proposal preparation, capability statement, compliance docs. |
-| 10 | How It Works: Pipeline & Relationships | Dashboard tracking, decision-maker outreach, account-based approach to contracting officers AND front-line operators (kitchen managers, nutrition directors). VA pitch: "You buy everything through US Foods except bread, milk, produce. We deliver those." |
-| 11 | Two Routes | Free ($0–$2K) vs. Paid ($11K–$47K). Side-by-side costs, market coverage, expected outcomes. |
-| 12 | The Strategy | Year 1: micro for credibility (loss leader) + simultaneous simplified/SLED bids. Year 2–3: portfolio shifts to larger contracts. Year 4–5: compounding renewal base. |
-| 13 | 5-Year Financial Summary | Revenue trajectory chart, owner earnings, cumulative return. From v7 model. |
-| 14 | The Compounding Flywheel | Active contracts chart: renewals + new wins = exponential growth. 70% renewal rate = money machine. |
-| 15 | SLED Deep Dive | FL school districts: $1.04B/yr total ($358/student). Top 10 districts individually sized. County/municipal: $45M/yr. Entry via MyFloridaMarketPlace + individual district portals. |
-| 16 | Risk & Compliance | What it takes: SAM.gov registration, food safety, insurance, legal review. What it DOESN'T take: DCAA, CMMC, CAS, bonding. Cost-avoided section. |
-| 17 | Your Investment | What Newport pays (tools, certs, legal). What Still Mind handles (monitoring, bids, compliance, admin). Newport focuses on relationships and delivery. |
-| 18 | Key Questions | The 10 questions that calibrate the model. "We built this on research. Your answers make it real." |
-| 19 | Next Steps | Immediate actions: answer Key Questions, register SAM.gov + Unison Marketplace, prepare capability statement, first bids within 30 days. |
-
-### Claude CLI Prompt
-```
-Read /specs/02-REQUIREMENTS.md FR-007 for deck acceptance criteria.
-Read the slide outline in /specs/05-DEVELOPMENT-PLAN.md Phase 2.
-Read /govcon/deliverables/presentation/build_presentation.js for the existing structure.
-Rebuild the slide generation to match the new outline.
-Use market_data.json for data, with hardcoded fallbacks.
-Apply ocean gradient palette: #065A82, #1C7293, #21295C.
-```
-
-### Done When
-- [ ] 17–20 slides, 16:9 format
-- [ ] Opening slide leads with Newport's competitive advantage, not generic market stats
-- [ ] All financial data matches v7 Excel model
-- [ ] "How It Works" section demonstrates operational capability (sourcing, scoring, relationships)
-- [ ] Risk section shows we've done our homework on compliance — and that most expensive compliance requirements DON'T apply
-- [ ] No hard-sell language. Professional, optimistic, grounded.
-- [ ] Charts are clean, readable, match the Buffett visual style
+### Done
+- [x] 20 slides with animated transitions and data visualizations
+- [x] Opening slides lead with Newport's competitive advantage
+- [x] All financial data from v7 model extracted to `financials.js`
+- [x] "How It Works" section demonstrates operational capability
+- [x] Risk & Compliance section with required vs. avoided costs
+- [x] Key Questions slide with all 10 questions and priority levels
+- [x] Professional, grounded tone throughout
 
 ---
 
@@ -212,41 +186,13 @@ Build an interactive Excel model for the commercial SDR channel, same design phi
 
 ---
 
-## Phase 4: Commercial Presentation Deck
+## Phase 4: Commercial Presentation Deck — v1 COMPLETE (PPTX ARCHIVED)
 
-### Objective
-Professional deck positioning the AI SDR as a growth accelerator for Newport's existing successful business.
-
-### Tasks
-1. Define slide outline (10–15 slides)
-2. Build deck — either programmatically or Claude Desktop
-3. Key narrative: Newport is already successful through relationships. The SDR adds systematic scale to what's already working. The uncle's excitement about tech-enabled growth = the story.
-4. Include: ICP visual, sample enriched data (anonymized), funnel economics, integration with existing sales process
-5. Same design language as GovCon deck
-
-### Slide Outline (Draft)
-
-| # | Slide Title | Content |
-|---|------------|---------|
-| 1 | Title | Newport Wholesalers — Commercial Growth Engine |
-| 2 | Where Newport Stands | 30 years of relationship-built success. Strong book of business. Now: systematic growth. |
-| 3 | The Opportunity | [Segment-specific market sizing — how many companies fit each ICP] |
-| 4 | Five Growth Segments | Visual: ICP A through E with company profiles and why they're targets |
-| 5 | How It Works: Find | AI-powered prospecting across all 5 segments. Show: volume, accuracy, coverage |
-| 6 | How It Works: Enrich | Contact data enrichment. Show: sample prospect card with verified data |
-| 7 | How It Works: Reach | Personalized outreach at scale. Show: email sequence example |
-| 8 | How It Works: Convert | Qualified meetings delivered to Newport sales team. They do what they're best at. |
-| 9 | The Economics | Cost per lead, meetings per month, expected deal pipeline |
-| 10 | Two Channels, One Strategy | GovCon + Commercial SDR running in parallel. Long plays that compound. |
-| 11 | Key Questions | What we need from Newport to calibrate |
-| 12 | Next Steps | Pilot: one segment, 30-day sprint, measure results |
-
-### Done When
-- [ ] 10–15 slides, same design language as GovCon deck
-- [ ] Positions SDR as growth accelerator, not a replacement for Newport's existing approach
-- [ ] Proof of capability: shows we can actually do what we're proposing (sample data, sample outreach)
-- [ ] Financial data matches commercial Excel model
-- [ ] Feels like a natural companion to the GovCon deck — together they tell a complete growth story
+### What Was Built
+- 12-slide PPTX deck using same design system as GovCon deck
+- 5 ICP segments, How It Works (Find/Enrich/Reach/Convert), 3-scenario economics, Two Channels One Strategy
+- PPTX builder and output archived to `archive/commercial-presentation-pptx/`
+- Commercial web integration is a future item (GovCon web presentation is the current priority)
 
 ---
 
@@ -256,13 +202,12 @@ Professional deck positioning the AI SDR as a growth accelerator for Newport's e
 Tighten the operational system for daily use after Newport gives the go-ahead.
 
 ### Tasks
-1. Update `build_proforma.py` to generate v7-equivalent output (if needed for regeneration)
-2. Fine-tune daily monitor scoring weights based on initial bidding experience
-3. Prepare bid template library: capability statement (customized), sources sought response, RFQ response, simplified proposal
-4. Set up direct portal monitoring for top 5 FL school districts and top 3 counties
-5. Build Notion pipeline tracker consolidating all opportunity sources
-6. **FPDS Migration**: FPDS ezSearch decommissioned Feb 24, 2026. The ATOM feed (used by `fpds_client.py`) survives through later FY2026, but must be migrated to SAM.gov contract awards search API before then. Update competition density analysis scripts accordingly.
-7. **Platform Registrations**: Ensure Newport is registered on Unison Marketplace (BOP reverse auction platform), BidNet Direct, DemandStar, and VendorLink (Broward County) — in addition to SAM.gov and MyFloridaMarketPlace.
+1. Fine-tune daily monitor scoring weights based on initial bidding experience
+2. Prepare bid template library: capability statement (customized), sources sought response, RFQ response, simplified proposal
+3. Set up direct portal monitoring for top 5 FL school districts and top 3 counties
+4. Build Notion pipeline tracker consolidating all opportunity sources
+5. **FPDS Migration**: FPDS ezSearch decommissioned Feb 24, 2026. The ATOM feed (used by `fpds_client.py`) survives through later FY2026, but must be migrated to SAM.gov contract awards search API before then. Update competition density analysis scripts accordingly.
+6. **Platform Registrations**: Ensure Newport is registered on Unison Marketplace (BOP reverse auction platform), BidNet Direct, DemandStar, and VendorLink (Broward County) — in addition to SAM.gov and MyFloridaMarketPlace.
 
 ### Done When
 - [ ] Still Mind can process a new opportunity from detection to submission with no ad-hoc scripting
@@ -310,10 +255,10 @@ Build the automated outreach pipeline for commercial SDR.
 | Phase | Test Approach |
 |-------|--------------|
 | 0 | Run all scripts with `--dry-run`. Verify outputs match expected format. |
-| 1 | Open Excel in Microsoft Excel (not Google Sheets). Change every input cell. Verify no formula breaks. |
-| 2 | Open deck in PowerPoint. Verify rendering on both Windows and Mac. Check all charts display. |
-| 3 | Same as Phase 1 for commercial model. |
-| 4 | Same as Phase 2 for commercial deck. |
+| 1 | v7 Excel model archived. Validated before archival: zero formula errors, all charts render. |
+| 2/2.5 | `cd web && npm run build` — zero build errors. `npm run dev` — all 20 slides render in Chrome/Firefox/Safari. |
+| 3 | Commercial Excel model archived. Validated before archival. |
+| 4 | Commercial PPTX archived. Validated before archival. |
 | 5 | End-to-end: mock opportunity → score → pipeline → bid template → submission-ready package. |
 | 6 | Pilot test: send 50 outreach emails to Segment E. Measure delivery rate, open rate, reply rate. |
 

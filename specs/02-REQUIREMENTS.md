@@ -137,43 +137,37 @@ These requirements must be complete before presenting to Newport ownership.
 
 ---
 
-#### FR-007: GovCon Presentation Deck
+#### FR-007: GovCon Presentation — Interactive Web App ✅ COMPLETE
 
-**As** Newport ownership, **I need to** see a professionally designed PowerPoint presentation that tells the complete GovCon story, **so that** I can evaluate the opportunity and make a go/no-go decision.
+**As** Newport ownership, **I need to** see a professionally designed interactive presentation that tells the complete GovCon story, **so that** I can evaluate the opportunity and make a go/no-go decision.
 
 **Acceptance Criteria:**
-- [ ] ~17–20 slides, 16:9 widescreen format
-- [ ] Professional design (ocean gradient palette: #065A82, #1C7293, #21295C — matching existing brand)
-- [ ] Opening slide immediately highlights Newport's competitive advantage backed by research — 30-year track record as a moat in the post-fraud-crackdown era
-- [ ] Visual-first design: charts, tables, graphs are primary; text supplements (short sentences, bullet points — Buffett tone)
-- [ ] Slide flow: Newport's Advantage → Market Opportunity → How It Works (process) → Two Routes → Financial Projections → Key Questions → Next Steps
-- [ ] "How It Works" section shows: how we source opportunities (SAM.gov, state portals, SLED platforms), how we evaluate (bid scoring), how we bid, how pipeline is tracked, how we find decision-makers (account-based approach)
-- [ ] Evidence that the operational system exists: we can find opportunities across channels including small-business set-asides and low-competition contracts, generate appropriate documents, track pipeline, source contact points for relationship building
-- [ ] Risk mitigation section: compliance requirements, insurance, legal review, food safety — shows we've done our homework
-- [ ] No hard-sell language. Tone: professional assessment of an exceptional opportunity
-- [ ] Charts pull from market_data.json (live API data) with hardcoded fallbacks
-- [ ] Generated programmatically via `build_presentation.js` (pptxgenjs) OR Claude Desktop
+- [x] 20 interactive slides, responsive web app (React 19 + Vite 7)
+- [x] Professional design: editorial tone per `web/DESIGN-SYSTEM.md` — gold + teal accents, card-based layouts, Playfair Display + Inter typography
+- [x] Opening slides immediately highlight Newport's competitive advantage — 30-year track record as a moat in the post-fraud-crackdown era
+- [x] Visual-first design: ECharts 6 for data visualization, Motion 12 for animations, Tailwind CSS 4 for layout
+- [x] 4-act narrative: Anchor (title + executive summary) → Market (opportunity, TAM, products, agencies, competition) → Strategy (how it works, examples, portfolio, BD) → Execution (risk, recommendation, key questions, blueprint)
+- [x] "How It Works" section shows sourcing, pipeline, bid scoring, relationship building
+- [x] Risk & Compliance section with required vs. avoided costs
+- [x] No hard-sell language. Tone: professional assessment of an exceptional opportunity
+- [x] All data from `web/src/data/{market,strategy,financials}.js` — sourced from live API data with citations
+- [x] Password-gated, Netlify-deployed, shareable via URL
 
-**Notes:** The existing `build_presentation.js` generates a 17-slide deck but was built against v4-era data/narrative. It needs to be rebuilt to match v7's "Owner Earnings" narrative arc and the strategic framing described here.
+**Notes:** The PPTX builder (`build_presentation.js`) has been archived to `archive/govcon-presentation-pptx/`. The web app supersedes it as the primary client deliverable.
 
 ---
 
-#### FR-008: GovCon Financial Model (Excel)
+#### FR-008: GovCon Financial Model — ARCHIVED (data extracted to web app)
 
-**As** Newport ownership, **I need to** see an interactive financial model where I can adjust my own numbers, **so that** I trust the projections and can evaluate viability based on my actual business metrics.
+**Status:** v7 Excel model COMPLETE and validated (5 sheets, 176 formulas, zero errors, 7 charts). Key financial projections extracted to `web/src/data/financials.js` for the web presentation. The v7 .xlsx is archived at `archive/govcon-financials-openpyxl/Newport_GovCon_Financial_Model_v7.xlsx` for reference and validation.
 
-**Acceptance Criteria:**
-- [ ] 5 sheets: Inputs, Two Routes, 5-Year Model, Market Analysis, Key Questions
-- [ ] Color coding convention: Blue = editable inputs, Yellow background = Newport needs to provide, Black = calculated, Green = linked from other tabs
-- [ ] All calculations use Excel formulas (not hardcoded Python math)
-- [ ] Dynamic inputs for: gross margin, delivery radius, food safety cert status, set-aside eligibility, minimum order size, bid prep costs, fulfillment overhead
-- [ ] Newport can change any blue cell and all projections update automatically
-- [ ] Three scenarios embedded in the model or selectable via toggle (Free vs. Paid route at minimum)
-- [ ] Charts: revenue step-up (stacked showing compound growth from renewals), owner earnings (annual + cumulative), active contracts (compounding flywheel), portfolio shift (micro phases out)
-- [ ] Simplicity > complexity. Ownership should be able to navigate without a tutorial.
-- [ ] Zero formula errors (#REF!, #DIV/0!, #VALUE!) when opened in Excel
+**What was delivered:**
+- [x] 5 sheets: Inputs, Two Routes, 5-Year Model, Market Analysis, Key Questions
+- [x] Three scenarios (Conservative/Moderate/Aggressive) with competition-density-informed win rates
+- [x] Owner Earnings calculation, compounding renewal flywheel, portfolio evolution
+- [x] Zero formula errors
 
-**Notes:** v7 is the current best version. Evaluate whether it needs refinement or is ready for presentation. Key question: does the `build_proforma.py` script in the repo need to be updated to generate v7, or was v7 built entirely in Claude Desktop? If Desktop, we may need to document the model spec so it can be reproduced or iterated.
+**Notes:** The `build_proforma.py` script (WIP v7 rewrite) is also archived. Financial data is now consumed from `web/src/data/financials.js` by the web presentation. If Newport needs to manipulate inputs directly, the archived v7 .xlsx remains functional.
 
 ---
 
@@ -200,40 +194,31 @@ These requirements must be complete before presenting the commercial channel to 
 
 ---
 
-#### FR-010: Commercial SDR Financial Model (Excel)
+#### FR-010: Commercial SDR Financial Model — v1 COMPLETE, ARCHIVED
 
-**As** Newport ownership, **I need to** see the economics of adding an AI-powered SDR system to our sales process, **so that** I can evaluate the cost vs. additional revenue generated.
+**Status:** v1 complete. Script and output archived at `archive/commercial-financials-openpyxl/`.
 
-**Acceptance Criteria:**
-- [ ] Inputs: cost of tools (Apollo, Instantly, Clay, Twilio, Retell AI), cost per lead, conversion rates by segment
-- [ ] Funnel model: prospects sourced → contacts enriched → outreach sent → replies → meetings booked → deals closed
-- [ ] Revenue per deal by segment (wholesale deals are larger than government micro-purchases)
-- [ ] Comparison: current manual prospecting vs. AI-assisted SDR (volume, accuracy, cost per meeting)
-- [ ] Three scenarios (conservative/moderate/aggressive) based on tool investment and outreach volume
-- [ ] Dynamic inputs for Newport's actual deal sizes, margins, close rates
-- [ ] Key Questions tab mirroring the GovCon model's approach — what do we need from Newport to refine?
-- [ ] Simplicity > complexity. Same design language as the GovCon model.
+**What was delivered:**
+- [x] 5 sheets: Inputs, ICP Segments, Funnel Model, Market Analysis, Key Questions
+- [x] Three scenarios (Free/Moderate/Aggressive) with 12-month projections
+- [x] Same design language as GovCon model
 
-**Notes:** This does not exist yet. It should follow the same design philosophy as v7 GovCon model: Owner Earnings focus, Buffett tone, visual-first.
+**Notes:** Commercial web integration is a future item. The archived .xlsx remains functional for standalone use.
 
 ---
 
-#### FR-011: Commercial SDR Presentation Deck
+#### FR-011: Commercial SDR Presentation Deck — v1 COMPLETE (PPTX), ARCHIVED
 
-**As** Newport ownership, **I need to** see how an AI SDR agent would integrate into our existing sales process, **so that** I understand the value without needing to understand the technology.
+**Status:** v1 PPTX deck complete (12 slides). Archived at `archive/commercial-presentation-pptx/`. Commercial web integration is a future item.
 
-**Acceptance Criteria:**
-- [ ] ~10–15 slides, same design language as GovCon deck (ocean gradient, professional)
-- [ ] Opens with Newport's commercial growth opportunity — expanding buyer base and supplier relationships
-- [ ] Shows the ICP segments visually (who we're targeting and why)
-- [ ] Demonstrates the data pipeline: find prospects → enrich data → personalize outreach → automate → measure
-- [ ] Proof of capability: we can show sample enriched prospect lists, sample outreach messaging
-- [ ] Economics: cost per lead, meetings per month, expected revenue lift
-- [ ] Integration story: this slots into Newport's existing sales process, salespeople focus on relationships and closing
-- [ ] Runs in parallel with GovCon — two growth engines simultaneously
-- [ ] Same quality standards: no hard sell, professional assessment, research-backed
+**What was delivered:**
+- [x] 12 slides, same design language as GovCon deck
+- [x] 5 ICP segments with priority indicators
+- [x] How It Works: Find → Enrich → Reach → Convert
+- [x] Three scenarios side-by-side with economics
+- [x] Two Channels, One Strategy slide linking GovCon + Commercial
 
-**Notes:** This does not exist yet. Lower complexity than GovCon deck because the SDR story is more straightforward.
+**Notes:** When commercial slides are added to the web app, they should follow the same design system in `web/DESIGN-SYSTEM.md`.
 
 ---
 
@@ -243,31 +228,15 @@ These requirements improve the operational system but aren't needed for the init
 
 ---
 
-#### FR-012: GovCon Deck Rebuild (Programmatic)
+#### FR-012: GovCon Deck Rebuild — SUPERSEDED by Web App
 
-**As** Still Mind, **I need to** regenerate the GovCon presentation deck programmatically from updated data, **so that** I can iterate quickly when Newport provides their inputs and I need to refresh the projections.
-
-**Acceptance Criteria:**
-- [ ] `build_presentation.js` updated to match v7 narrative arc
-- [ ] Reads `market_data.json` for live API data with hardcoded fallbacks
-- [ ] Reads financial model outputs (or a summary JSON) for projection charts
-- [ ] Can be regenerated with a single command: `cd govcon/deliverables/presentation && node build_presentation.js`
-- [ ] Output matches the quality of a manually designed deck
+**Status:** SUPERSEDED. The GovCon presentation is now a React/Vite web app (`web/`). The PPTX builder has been archived to `archive/govcon-presentation-pptx/`. Iteration happens by editing React components in `web/src/components/slides/` and data in `web/src/data/`. Run `cd web && npm run dev` to preview changes instantly.
 
 ---
 
-#### FR-013: Pro Forma Rebuild (Programmatic)
+#### FR-013: Pro Forma Rebuild — SUPERSEDED, Script Archived
 
-**As** Still Mind, **I need to** regenerate the financial model programmatically, **so that** I can update projections when assumptions change without manually editing Excel.
-
-**Acceptance Criteria:**
-- [ ] `build_proforma.py` generates v7-equivalent output (5 sheets, all formulas, charts)
-- [ ] All assumptions are parameterized (can be overridden via config file or CLI args)
-- [ ] Charts are embedded in Excel (not just data tables)
-- [ ] Output passes formula recalculation with zero errors
-- [ ] Can be run with: `python govcon/deliverables/financials/build_proforma.py`
-
-**Notes:** The current `build_proforma.py` generates a 4-sheet model that doesn't match v7. If v7 was built in Claude Desktop, this script needs a significant rewrite.
+**Status:** SUPERSEDED. The v7 Excel model was accepted as canonical (Option A from dev plan). Key financial data has been extracted to `web/src/data/financials.js` for the web presentation. The `build_proforma.py` script (WIP v7 rewrite, ~95% complete) is archived at `archive/govcon-financials-openpyxl/`. To update financial projections, edit `web/src/data/financials.js` directly.
 
 ---
 

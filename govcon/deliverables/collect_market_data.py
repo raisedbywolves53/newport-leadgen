@@ -2,7 +2,7 @@
 """Collect market data from FPDS + USASpending for deliverables.
 
 Pulls live data from existing API clients and writes deliverables/market_data.json,
-consumed by both build_proforma.py and build_presentation.js.
+consumed by web/src/data/*.js for the React web presentation.
 
 Data collected:
   A. FPDS competition density by NAICS (10 primary food codes)

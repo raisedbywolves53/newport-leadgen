@@ -1,9 +1,21 @@
-Rebuild or validate the GovCon financial model.
+Update financial projections in the web presentation.
 
-Before building:
-1. Read /specs/02-REQUIREMENTS.md FR-003 and FR-008 for model acceptance criteria
-2. Read /specs/05-DEVELOPMENT-PLAN.md Phase 1 for validation checklist
-3. Read /specs/04-USER-STORIES.md Flow 4 and Flow 5 for win rate context
+Financial data lives in `/web/src/data/financials.js` — extracted from the v7 Excel model.
+The archived v7 .xlsx at `archive/govcon-financials-openpyxl/Newport_GovCon_Financial_Model_v7.xlsx` is the canonical reference for validation.
+
+Data modules:
+- `financials.js` — 5-year projections, scenario comparison, win rates, portfolio evolution, owner earnings
+- `market.js` — TAM, agencies, competitors, product tiers (don't duplicate here)
+- `strategy.js` — compliance costs, key questions, route comparison (don't duplicate here)
+
+What's in financials.js:
+- `MODEL_INPUTS` — gross margin, renewal rate, bid prep costs, fulfillment overhead
+- `WIN_RATES` — competition-density-informed rates (low/moderate/high + post-fraud tailwind)
+- `FIVE_YEAR_PROJECTIONS` — Moderate scenario: bids, wins, renewals, revenue, owner earnings per year
+- `SCENARIO_COMPARISON` — Conservative/Moderate/Aggressive summary
+- `TWO_ROUTES` — Free vs. Paid route cost detail
+- `PORTFOLIO_EVOLUTION` — bid mix shift (micro → simplified → SLED) over 5 years
+- `OE_WATERFALL` — Owner Earnings calculation breakdown
 
 Critical: Win rates must be competition-density-informed (NOT generic assumptions):
 - Low-competition (DoD 424490, confectionery 424450): 25-40% Year 1
@@ -13,16 +25,12 @@ Critical: Win rates must be competition-density-informed (NOT generic assumption
 
 The competition density data is in /govcon/docs/research.md Section 3 (FPDS analysis).
 
-Three scenarios:
-- Conservative (free tools, broad bidding): ~$50K Year 1 revenue
-- Moderate (paid tools, low-competition targeting): ~$100-150K Year 1
-- Aggressive (full stack + relationship building): ~$150-250K Year 1
+To refresh market data upstream:
+- `python govcon/deliverables/collect_market_data.py` → generates `market_data.json`
+- Then update `web/src/data/market.js` with any new figures
 
-5 sheets: Inputs, Two Routes, 5-Year Model, Market Analysis, Key Questions
-Color coding: Blue = editable, Yellow = Newport provides, Black = calculated, Green = linked
+After updating financials.js, verify:
+- `cd web && npm run build` — zero build errors
+- `cd web && npm run dev` — check affected slides render correctly
 
-NOTE: v7 model (built in Claude Desktop) is the canonical deliverable.
-build_proforma.py generates a v4-era 4-sheet output that needs updating.
-If validating v7, open the Excel file directly. If rebuilding programmatically, update the script.
-
-Reference specs: 02-REQUIREMENTS.md (FR-003, FR-008), 05-DEVELOPMENT-PLAN.md (Phase 1)
+Reference specs: 02-REQUIREMENTS.md (FR-003, FR-008), web/src/data/financials.js
