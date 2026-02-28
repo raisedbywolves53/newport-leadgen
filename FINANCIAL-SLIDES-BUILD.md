@@ -1,6 +1,7 @@
-# Financial Slide Build — Claude CLI Execution Guide
+# Financial Slide Build — Claude CLI Technical Spec
 
 > **Purpose:** Add 1 interactive financial slide to the Newport GovCon web presentation.
+> **Context:** Read `FINANCIAL-SLIDES-PROMPT.md` FIRST for business logic and model architecture.
 > **Stack:** React 19 + Vite 7.3 + Tailwind CSS 4.2 + ECharts 6 + Motion
 > **Working directory:** `newport-leadgen/web/`
 
@@ -8,69 +9,36 @@
 
 ## Design Reference
 
-Use https://ui.shadcn.com/blocks as visual and structural inspiration for the component layout — particularly the dashboard blocks with KPI cards, charts, and tables. We are NOT installing shadcn/ui as a dependency. Instead, replicate the design patterns (spacing, card proportions, typography hierarchy, control placement) using our existing Tailwind classes. The goal is that polished, investment-dashboard aesthetic.
+Use https://ui.shadcn.com/blocks as visual inspiration — particularly dashboard blocks with KPI cards, charts, and tables. We are NOT installing shadcn/ui. Replicate the design patterns (spacing, card proportions, typography hierarchy) using existing Tailwind classes.
 
 ---
 
 ## Pre-Read (Do This First)
 
-Before writing ANY code, read these files to understand the data, assumptions, and patterns:
+Before writing ANY code, read these files:
 
 ```
-govcon/docs/research.md          — TAM, win rates, competition density, contract values
-govcon/docs/strategy.md          — cost breakdowns, company profile, entry strategy
+FINANCIAL-SLIDES-PROMPT.md               — Business context, model logic, variable definitions (READ THIS FIRST)
+govcon/docs/research.md                  — TAM, win rates, competition density, contract values
+govcon/docs/strategy.md                  — cost breakdowns, company profile, two routes
 govcon/docs/phases/PHASE-4-FINANCIALS.md — financial model spec
 .claude/commands/rebuild-proforma.md     — scenario definitions, win rate methodology
-web/src/data/market.js           — existing market data exports (pattern reference)
-web/src/data/strategy.js         — existing strategy data exports (pattern reference)
-web/src/data/slides.js           — slide registry (you'll modify this)
-web/src/App.jsx                  — component registration (you'll modify this)
+web/src/data/market.js                   — existing data export pattern
+web/src/data/strategy.js                 — existing data export pattern
+web/src/data/slides.js                   — slide registry (you'll modify this)
+web/src/App.jsx                          — component registration (you'll modify this)
 web/src/components/slides/PortfolioEvolutionSlide.jsx — ECharts integration pattern
 web/src/components/ui/DecorativeElements.jsx          — reusable UI components
 ```
 
 ---
 
-## Design System Reference
+## Design System
 
 - **Palette:** zinc base + Gold `#C9A84C`, Teal `#1B7A8A`, Light Teal `#239BAD`, Orange `#E8913A`
 - **Card pattern:** `rounded-xl bg-white border border-zinc-200 shadow-sm`
-- **Bottom padding:** Always use `pb-14` on slide outer container (progress bar clearance)
-- **Animations:** Motion for enter/exit transitions, ECharts built-in for chart animations
-- **ECharts pattern:** `useRef` for DOM node, `useEffect` for init/update, window resize handler, `chart.setOption()` for reactive updates
-
----
-
-## Architecture
-
-This is ONE slide with two interconnected halves:
-
-```
-┌─────────────────────────────────────────────────────┐
-│  TOP HALF: Executive Dashboard                      │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐ │
-│  │ Y1 Rev   │ │ Y5 Rev   │ │Breakeven │ │5Y Total│ │
-│  │ $XXX,XXX │ │ $X.XM    │ │ Year X   │ │ $X.XM  │ │
-│  └──────────┘ └──────────┘ └──────────┘ └────────┘ │
-│  [GovCon % of Rev: X%]  [EBITDA Contribution: $XX] │
-├─────────────────────────────────────────────────────┤
-│  BOTTOM HALF: 5-Year Pro Forma                      │
-│  ┌─ Controls ─────────────────────────────────────┐ │
-│  │ [Conservative] [Moderate] [Aggressive]         │ │
-│  │ Margin [===o===] Volume [===o===] Win [===o==] │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌─ Table (60%) ──────┐ ┌─ Chart (40%) ──────────┐ │
-│  │ Metric Y1 Y2 .. Y5 │ │  ███  Stacked area     │ │
-│  │ Revenue    ...      │ │  ███  showing all 3    │ │
-│  │ COGS       ...      │ │  ███  scenarios with   │ │
-│  │ Net Income ...      │ │  ██   component layers │ │
-│  │ Cash Flow  ...      │ │  █                     │ │
-│  │ ...                 │ │                        │ │
-│  └─────────────────────┘ └────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-```
-
-**Key interaction:** When the user toggles scenarios or adjusts sliders, BOTH halves update simultaneously — KPI cards animate to new values, the table recalculates, and the chart redraws.
+- **Bottom padding:** Always `pb-14` on slide outer container (progress bar clearance)
+- **ECharts pattern:** `useRef` for DOM, `useEffect` for init/update, resize handler, `chart.setOption()` for reactive updates
 
 ---
 
@@ -78,271 +46,294 @@ This is ONE slide with two interconnected halves:
 
 Pure computation engine. No React, no UI — just math.
 
-### Export: `computeProForma(scenarioKey, overrides)`
+### Two Axes
 
-**Scenarios (scenarioKey = 'conservative' | 'moderate' | 'aggressive'):**
+**Axis 1 — Route** (`routeKey = 'free' | 'paid'`):
 
+| Parameter | Free | Paid |
+|---|---|---|
+| Platform cost/yr | $0 | $13,000 |
+| Insurance/compliance/yr | $500 | $1,500 |
+| Conference/membership/yr | $0 | $2,000 |
+| Market coverage | ~45% | ~90% |
+| Bid capacity multiplier | 1.0× | 2.5× |
+
+**Axis 2 — Scenario** (`scenarioKey = 'conservative' | 'moderate' | 'aggressive'`):
+
+Base bid volumes (before route multiplier):
 | Parameter | Conservative | Moderate | Aggressive |
 |---|---|---|---|
-| Annual tool cost | $0 (free only) | $13,000/yr | $13,000/yr |
-| Bids per month | 1.5 | 3 | 5 |
-| Avg contract value | $8,000 (micro only) | $25,000 (mixed tiers) | $40,000 (mixed + SLED) |
-| Win rate Y1 (months 1-6) | 15% | 20% | 25% |
-| Win rate Y1 (months 7-12) | 25% | 30% | 35% |
-| Win rate Y2 | 30% | 35% | 40% |
-| Win rate Y3-5 | 30% | 40% | 45% |
-| Admin cost/yr | $0 (DIY) | $15,000 | $25,000 |
-| DSO (days sales outstanding) | 45 | 45 | 45 |
+| Base bids/month | 1 | 2 | 3 |
+| Win rate Y1 (mo 1-6) | 15% | 20% | 25% |
+| Win rate Y1 (mo 7-12) | 23% | 28% | 33% |
+| Win rate Y2 | 28% | 33% | 38% |
+| Win rate Y3-5 | 33% | 38% | 43% |
 
-**Overrides (sliders):**
-- `grossMargin`: 0.08–0.15, default 0.11
-- `bidVolumeMultiplier`: 0.5–2.0, default 1.0
-- `winRateAdjustment`: -0.10 to +0.10, default 0.0
+Actual bids/month = base × route bid capacity multiplier
 
-**Key assumptions (hardcoded from research):**
-- 70% contract renewal rate (compounds yearly)
-- Contract tiers: Micro $8K avg, Simplified $50K, SLED $75K, Sealed Bid $150K
-- Platform costs breakdown: CLEATUS $3K + HigherGov $3.5K + GovSpend $6.5K = $13K/yr
-- COGS = revenue × (1 - grossMargin)
-- Newport baseline revenue: $50M (for revenue concentration % calculation)
-- Cash flow impact: revenue delayed by DSO days; approximate as (revenue / 12) × (DSO / 30) for working capital tied up
+**Contract tier mix evolves by year:**
+| Tier | Avg Value | Y1 Mix | Y2 Mix | Y3 Mix | Y4-5 Mix |
+|---|---|---|---|---|---|
+| Micro (<$15K) | $8K | 80% | 55% | 35% | 25% |
+| Simplified ($15K-$250K) | $50K | 15% | 30% | 35% | 30% |
+| SLED | $75K | 5% | 10% | 20% | 25% |
+| Sealed Bid ($250K+) | $150K | 0% | 5% | 10% | 20% |
 
-### Export: `computeAllScenarios(routeKey, overrides)`
+Weighted avg contract value = sum(tierMix × tierAvgValue) per year.
 
-Runs `computeProForma` for ALL THREE scenarios with the same route + overrides. Returns `{ conservative: {...}, moderate: {...}, aggressive: {...} }`. This is needed for the 3-scenario area chart that compares all scenarios simultaneously.
+### Overrides (management input sliders)
 
-**Return shape (per scenario):**
+- `grossMargin`: 0.08–0.15, step 0.005, default 0.11
+- `deliveryCostPct`: 0.02–0.08, step 0.005, default 0.04
+- `adminOverhead`: 0–50000, step 1000, default 5000
+
+### Exports
+
+**`ROUTE_CONFIGS`** — Object with 'free' and 'paid' keys, each containing { label, platformCost, insuranceCost, conferenceCost, bidMultiplier, color }
+
+**`SCENARIO_CONFIGS`** — Object with scenario keys, each containing { label, baseBidsPerMonth, winRates: { y1h1, y1h2, y2, y3to5 }, color }
+
+**`SLIDER_CONFIGS`** — Array of { key, label, min, max, step, default, format }
+
+**`computeProForma(routeKey, scenarioKey, overrides)`** — Returns:
+
 ```js
 {
+  route: 'paid',
   scenario: 'moderate',
-  overrides: { grossMargin: 0.11, bidVolumeMultiplier: 1.0, winRateAdjustment: 0 },
+  overrides: { grossMargin: 0.11, deliveryCostPct: 0.04, adminOverhead: 5000 },
   years: [
     {
       year: 1,
-      bidsSubmitted: 36,
-      newWins: 9,
-      renewals: 0,
-      activeContracts: 9,
-      revenue: 225000,
-      cogs: 200250,
-      grossProfit: 24750,
-      toolCost: 13000,
-      adminCost: 15000,
-      totalOperatingCosts: 28000,
-      netIncome: -3250,
-      cumulativeRevenue: 225000,
-      roi: -0.12,
-      workingCapitalTiedUp: 28125,    // cash flow: revenue/12 * DSO/30
-      revenueConcentration: 0.0045,   // revenue / 50M baseline
-      ebitdaContribution: -3250,      // netIncome (simplified; no depreciation/amortization for this model)
+      bidsPerMonth: 5,           // base 2 × paid multiplier 2.5
+      bidsSubmitted: 60,         // bidsPerMonth × 12
+      winRate: 0.24,             // weighted avg of H1 and H2
+      newWins: 14,               // bidsSubmitted × winRate
+      renewals: 0,               // prior year active × 0.70
+      activeContracts: 14,
+
+      // Revenue breakdown by tier
+      tierBreakdown: [
+        { tier: 'Micro', count: 11, avgValue: 8000, revenue: 88000 },
+        { tier: 'Simplified', count: 2, avgValue: 50000, revenue: 100000 },
+        { tier: 'SLED', count: 1, avgValue: 75000, revenue: 75000 },
+      ],
+      revenue: 263000,
+
+      // Costs
+      cogs: 234070,              // revenue × (1 - grossMargin)
+      grossProfit: 28930,
+      deliveryCost: 10520,       // revenue × deliveryCostPct
+      platformCost: 13000,       // from route config
+      insuranceCost: 1500,
+      conferenceCost: 2000,
+      adminOverhead: 5000,
+      totalCosts: 266090,
+
+      // Bottom line
+      netIncome: -3090,
+      cumulativeRevenue: 263000,
+      cumulativeNetIncome: -3090,
+      roi: -0.01,               // netIncome / totalCosts (excl COGS)
     },
     // ... years 2-5
   ],
   summary: {
     breakevenYear: 2,
-    y5Revenue: 850000,
-    y5CumulativeRevenue: 2750000,
-    y5ActiveContracts: 35,
-    peakWorkingCapital: 106250,       // max workingCapitalTiedUp across 5 years
-    y5RevenueConcentration: 0.017,    // Y5 revenue / baseline
-    y5EbitdaContribution: 93500,
+    y5Revenue: 0,               // computed
+    y5CumulativeRevenue: 0,     // computed
+    y5ActiveContracts: 0,       // computed
+    y5NetIncome: 0,             // computed
+    totalInvestment: 0,         // sum of all non-COGS costs over 5 years
+    totalReturn: 0,             // cumulative net income
   }
 }
 ```
 
-**Implementation notes:**
-- Year-over-year: renewals = prior year activeContracts × 0.70
+**`computeAllScenarios(routeKey, overrides)`** — Runs `computeProForma` for all 3 scenarios with same route + overrides. Returns `{ conservative: {...}, moderate: {...}, aggressive: {...} }`.
+
+### Implementation Notes
+
+- renewals = prior year activeContracts × 0.70
 - activeContracts = newWins + renewals
-- revenue = activeContracts × avgContractValue
-- Use weighted average win rate across the year (blend months 1-6 and 7-12 rates for Y1)
-- Export individual scenario configs as `SCENARIOS` for UI labels/colors
-- Export slider configs as `SLIDER_CONFIGS` array with { key, label, min, max, step, default, format }
+- newWins by tier: distribute newWins across tiers using that year's tier mix %
+- revenue = sum of (tier count × tier avg value) across all tiers
+- For Y1 win rate: use weighted average of H1 (months 1-6) and H2 (months 7-12)
+- Aggressive scenario win rates are capped at 45% (max credible for new entrant by Y5)
+- tier counts should be whole numbers (Math.round), ensure they sum to total newWins
 
 ---
 
 ## Step 2 — Create Shared UI Components
 
+### `/web/src/components/ui/RouteToggle.jsx`
+
+Two-button toggle: Free Route / Paid Route. Props: `{ active, onChange }`
+
+- Free: zinc/slate styling, show "$0/yr" subtitle
+- Paid: teal styling, show "$13K/yr" subtitle
+- Active gets filled bg, inactive gets outline
+
 ### `/web/src/components/ui/ScenarioToggle.jsx`
 
-Three pill buttons in a row. Props: `{ active, onChange, className }`
+Three pill buttons. Props: `{ active, onChange }`
 
-```
-active = 'conservative' | 'moderate' | 'aggressive'
-onChange = (scenarioKey) => void
-```
-
-- Conservative: zinc/slate color
-- Moderate: teal color (#1B7A8A)
-- Aggressive: gold color (#C9A84C)
-- Active button gets filled bg, inactive gets outline
-- Use Motion for smooth background transition
+- Conservative: zinc color
+- Moderate: teal (#1B7A8A)
+- Aggressive: gold (#C9A84C)
 
 ### `/web/src/components/ui/AnimatedNumber.jsx`
 
 Smooth number transitions. Props: `{ value, format, duration, className }`
-
-```
-format = 'currency' | 'percent' | 'number' | 'compact'
-duration = 0.6 (default)
-```
-
-- Use Motion's `useMotionValue` + `useTransform` + `animate` for smooth counting
-- Currency: $XXX,XXX format
-- Compact: $850K, $2.7M format
-- Percent: XX.X% format
+Formats: 'currency' ($XXX,XXX), 'compact' ($850K, $2.7M), 'percent' (XX.X%), 'number' (plain)
 
 ### `/web/src/components/ui/Slider.jsx`
 
-Clean range input. Props: `{ label, value, onChange, min, max, step, format, className }`
-
-- Label on left, formatted value on right
-- Tailwind-styled track (zinc-200) with teal thumb
-- Compact layout — these sit in a row of 3
+Range input. Props: `{ label, value, onChange, min, max, step, format }`
+Label left, formatted value right. Teal thumb on zinc track. Compact.
 
 ---
 
 ## Step 3 — Create Slide 18: `FinancialOutlookSlide.jsx`
 
-**File:** `/web/src/components/slides/FinancialOutlookSlide.jsx`
+Single slide, two interconnected halves sharing state. Every input change cascades through the entire dashboard.
 
-This is ONE slide with two interconnected halves sharing the same state. The controls sit between the halves and drive everything.
-
-### Shared State (at component root level)
+### State
 
 ```js
+const [route, setRoute] = useState('free')
 const [scenario, setScenario] = useState('moderate')
 const [overrides, setOverrides] = useState({
   grossMargin: 0.11,
-  bidVolumeMultiplier: 1.0,
-  winRateAdjustment: 0,
+  deliveryCostPct: 0.04,
+  adminOverhead: 5000,
 })
 
-// Active scenario model (for KPI cards + table)
-const model = useMemo(() => computeProForma(scenario, overrides), [scenario, overrides])
+const model = useMemo(
+  () => computeProForma(route, scenario, overrides),
+  [route, scenario, overrides]
+)
 
-// All scenarios (for stacked area chart comparison)
-const allModels = useMemo(() => computeAllScenarios(overrides), [overrides])
+const allScenarios = useMemo(
+  () => computeAllScenarios(route, overrides),
+  [route, overrides]
+)
 ```
 
-### TOP HALF — Executive Dashboard KPIs
+### Layout
 
-**Layout:** Slide title → KPI cards row → strategic metrics row
+```
+┌─────────────────────────────────────────────────────────┐
+│ FINANCIAL PROJECTIONS                                   │
+│ Financial Outlook                                       │
+│                                                         │
+│ [Free Route] [Paid Route]  [Cons] [Mod] [Agg]          │
+│ Margin [===o===]  Delivery [===o===]  Admin [===o===]   │
+│                                                         │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐  │
+│ │ Y1 Rev   │ │ Y5 Rev   │ │Breakeven │ │ 5Y Net Inc │  │
+│ │ $263K    │ │ $2.1M    │ │ Year 2   │ │ $485K      │  │
+│ └──────────┘ └──────────┘ └──────────┘ └────────────┘  │
+│                                                         │
+│ ┌─ Table (55%) ────────────┐ ┌─ Chart (45%) ─────────┐ │
+│ │ Metric   Y1  Y2 .. Y5   │ │  Overlapping area      │ │
+│ │ Revenue       ...        │ │  3 scenarios            │ │
+│ │ COGS          ...        │ │  active highlighted     │ │
+│ │ Gross Profit  ...        │ │                         │ │
+│ │ Platform      ...        │ │  ┌── opt. 2nd chart ──┐│ │
+│ │ Delivery      ...        │ │  │ Stacked bar: tier  ││ │
+│ │ Admin         ...        │ │  │ composition Y1→Y5  ││ │
+│ │ Net Income    ...        │ │  └────────────────────┘│ │
+│ └──────────────────────────┘ └────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+```
 
-**Title:** "Financial Outlook" — small, left-aligned, text-zinc-500 subtitle "Five-year GovCon revenue projections"
+### TOP — Controls + KPI Cards
 
-**KPI Cards (4 across, equal width):**
-| Card | Value | Subtitle |
+**Controls row:** RouteToggle (left) → ScenarioToggle (center) → 3 Sliders (right, compact)
+
+**KPI Cards (4 across):**
+| Card | Value | Source |
 |---|---|---|
-| Year 1 Revenue | AnimatedNumber (currency) | "First-year projected" |
-| Year 5 Revenue | AnimatedNumber (compact) | "Fifth-year projected" |
-| Breakeven | "Year X" | "First profitable year" |
-| 5-Year Cumulative | AnimatedNumber (compact) | "Total five-year revenue" |
+| Year 1 Revenue | AnimatedNumber (currency) | `model.years[0].revenue` |
+| Year 5 Revenue | AnimatedNumber (compact) | `model.years[4].revenue` |
+| Breakeven Year | "Year X" or "Year 1" | `model.summary.breakevenYear` |
+| 5-Year Net Income | AnimatedNumber (compact) | `model.summary.totalReturn` |
 
-Each card: white bg, `rounded-xl border border-zinc-200 shadow-sm`, colored left border or top border using scenario color.
+Cards: white bg, rounded-xl, border, shadow-sm. Net Income card: green border if positive, red if negative.
 
-**Strategic Metrics Row (smaller, secondary emphasis):**
-Two compact inline metrics below the KPI cards:
-- "GovCon % of Revenue: X.X%" — `revenueConcentration` from Y5, formatted as percent
-- "Y5 EBITDA Contribution: $XXK" — `y5EbitdaContribution`, compact currency
+### BOTTOM LEFT — Pro Forma Table
 
-These use AnimatedNumber but smaller text (text-sm), zinc-600 color. Think of these as contextual footnotes that answer "how meaningful is this to the overall business?"
+Shows data for the ACTIVE route + scenario combination only.
 
-### DIVIDER — Controls Strip
+| Row | Y1 | Y2 | Y3 | Y4 | Y5 | Notes |
+|---|---|---|---|---|---|---|
+| Bids Submitted | | | | | | number |
+| New Wins | | | | | | number |
+| Renewals | | | | | | number |
+| Active Contracts | | | | | | number |
+| **Revenue** | | | | | | **bold**, currency |
+| COGS | | | | | | currency, zinc-400 |
+| **Gross Profit** | | | | | | **bold** |
+| Platform & Insurance | | | | | | currency |
+| Delivery Costs | | | | | | currency |
+| Admin Overhead | | | | | | currency |
+| **Net Income** | | | | | | **bold**, green/red |
+| Cumulative Net Income | | | | | | currency |
 
-Between top and bottom halves. Visually distinct row that contains:
-- **ScenarioToggle** (left side)
-- **3 Sliders** (right side, compact inline)
-  - Gross Margin (8%–15%, step 0.5%, default 11%)
-  - Bid Volume (0.5×–2.0×, step 0.1×, default 1.0×)
-  - Win Rate Adj (-10% to +10%, step 1%, default 0%)
+- AnimatedNumber on all value cells for smooth transitions
+- Zebra striping: bg-zinc-50 on alternate rows
+- Compact: text-sm values, text-xs labels
 
-Style: `bg-zinc-50 rounded-lg px-4 py-2` — subtle background to visually separate from the white card areas above and below. Compact vertical height.
+### BOTTOM RIGHT — Chart(s)
 
-### BOTTOM HALF — 5-Year Pro Forma
+**Primary: 3-Scenario Overlapping Area Chart**
 
-**Two-column layout:**
-- **LEFT (60%):** Interactive data table
-- **RIGHT (40%):** Stacked area chart comparing all 3 scenarios
+Shows all 3 scenarios for the selected route. NOT additive stacking — each series shows absolute revenue. Render order: Aggressive (back), Moderate (middle), Conservative (front).
 
-#### Table
+- Conservative: zinc (#71717a) line + fill
+- Moderate: teal (#1B7A8A) line + fill
+- Aggressive: gold (#C9A84C) line + fill
+- Active scenario: full opacity (0.35), thick line (3px), dot markers
+- Inactive: faded (0.08 opacity), thin line (1.5px), no markers
 
-| Metric | Year 1 | Year 2 | Year 3 | Year 4 | Year 5 |
-|---|---|---|---|---|---|
-| Bids Submitted | | | | | |
-| New Wins | | | | | |
-| Renewals | | | | | |
-| Active Contracts | | | | | |
-| **Revenue** | | | | | |
-| COGS | | | | | |
-| **Gross Profit** | | | | | |
-| Tool Costs | | | | | |
-| Admin Costs | | | | | |
-| **Net Income** | | | | | |
-| Working Capital Req | | | | | |
-| Cumulative Revenue | | | | | |
-| ROI | | | | | |
+**Tooltip (critical — must show the math):**
 
-- The table shows data for the ACTIVE SCENARIO only (whichever toggle is selected)
-- Row labels: left column, text-zinc-700
-- Values: AnimatedNumber for smooth transitions on scenario/slider change
-- Revenue, Gross Profit, Net Income rows are **bold**
-- Net Income row: `text-emerald-600` if positive, `text-red-500` if negative
-- Subtle zebra striping: `bg-zinc-50` on alternate rows
-- Compact: `text-sm` for values, `text-xs` for row labels
-
-#### 3-Scenario Area Chart (THE KEY VISUAL) — IMPLEMENTED
-
-This chart shows ALL THREE scenarios simultaneously so the viewer can visually compare them. This is different from the table which only shows the active scenario.
-
-**Chart type:** ECharts overlapping area chart (LineChart with areaStyle)
-**X-axis:** Year 1 → Year 5 (boundaryGap: false)
-**Y-axis:** Revenue (dollar amounts)
-
-**Three overlapping area series (NOT additive stacking):**
-Each series shows its absolute revenue value. Render order: Aggressive (back), Moderate (middle), Conservative (front). This naturally creates a "fan" that widens over 5 years.
-1. **Conservative**: zinc (#71717a) line + fill
-2. **Moderate**: teal (#1B7A8A) line + fill
-3. **Aggressive**: gold (#C9A84C) line + fill
-
-**Active scenario highlight:** The selected scenario gets full opacity fill (0.35), thick line (3px), visible dot markers (symbolSize: 6), and z-index 10. Inactive scenarios fade to opacity 0.08, thin line (1.5px), no markers.
-
-**Tooltip:** On hover, shows all 3 scenario values with the active one highlighted (▸ arrow, bold). Below a divider, shows the active scenario's bid/win/renewal math and per-tier breakdown:
 ```
-Year 3
-─────────────────────
+Year 2 — Moderate (Paid Route)
+───────────────────────────────
   Aggressive:    $780K
-▸ Moderate:      $425K   (active, bold)
-  Conservative:  $180K
+▸ Moderate:      $420K   ← active, bold
+  Conservative:  $145K
 
-Bids: 36 | Wins: 12 | Renewals: 8
-  SLED: 2 × $500K = $1.0M
-  Federal Micro: 3 × $8K = $22K
+Bids: 60 | Wins: 16 | Renewals: 10
+  Micro (8):       8 × $8K  = $64K
+  Simplified (5):  5 × $50K = $250K
+  SLED (3):        3 × $75K = $225K
 ```
 
-**Reactivity:** `chart.setOption()` called on `[allModels, scenario]` changes. Slider changes recompute all 3 curves. Scenario toggle updates opacity/lineWidth highlight. Smooth morphing via ECharts built-in animation.
+Tooltip data comes from `model.years[yearIndex].tierBreakdown` for the active scenario. The 3-scenario comparison values come from `allScenarios`.
 
-**Legend:** Inline in the chart card header — 3 scenario-colored dots with labels. Active scenario at full opacity, inactive at 40%. No external ECharts legend.
+**Optional secondary chart (if space permits):**
+
+Small stacked bar chart showing contract tier composition shifting Y1→Y5. Each bar is one year, segments are tier percentages. This makes the "buying a track record → graduating up → flywheel" narrative visual. Place below the area chart or as a toggle view.
 
 ---
 
-## Step 4 — Register New Slide
+## Step 4 — Register Slide
 
-### Modify `/web/src/data/slides.js`
+### `/web/src/data/slides.js`
 
-Add ONE entry before the 'blueprint' entry (currently last):
+Add before 'blueprint' (currently last):
 ```js
 { id: 'financial-outlook', label: 'Financial Outlook', section: 'execution' },
 ```
 
-### Modify `/web/src/App.jsx`
+### `/web/src/App.jsx`
 
-Add import:
 ```js
 import FinancialOutlookSlide from './components/slides/FinancialOutlookSlide'
-```
-
-Add to `SLIDE_COMPONENTS` object:
-```js
+// in SLIDE_COMPONENTS:
 'financial-outlook': FinancialOutlookSlide,
 ```
 
@@ -350,22 +341,21 @@ Add to `SLIDE_COMPONENTS` object:
 
 ## Verification Checklist
 
-After building, verify all of these:
-
 - [ ] Dev server runs without errors (`npm run dev`)
-- [ ] Navigate to slide 18 (Financial Outlook) — displays correctly
-- [ ] TOP HALF: KPI cards show correct values for selected scenario
-- [ ] BOTTOM HALF table: shows data for selected scenario, updates on toggle/slider
-- [x] BOTTOM HALF chart: shows ALL 3 scenarios as overlapping areas, highlights active one
-- [ ] Toggle between scenarios — KPIs, table, AND chart all update smoothly together
-- [ ] Adjust each slider — everything recalculates in real time
-- [ ] Strategic metrics (GovCon % of Rev, EBITDA) update with scenario changes
-- [ ] Numbers align with research ranges:
-  - Conservative Y1 revenue: ~$50K–$150K
-  - Moderate Y1 revenue: ~$150K–$350K
-  - Aggressive Y1 revenue: ~$350K–$750K
-- [ ] Stacked area chart "fans out" over 5 years showing growing scenario gap
-- [ ] All content clears the progress bar (pb-14 bottom padding)
+- [ ] Slide 18 renders with all components visible
+- [ ] Route toggle switches between Free and Paid — all values update
+- [ ] Scenario toggle switches — KPIs, table, chart highlight all update
+- [ ] Each slider adjusts values in real time across all components
+- [ ] Tooltip on chart hover shows tier breakdown math
+- [ ] Numbers are credible:
+  - Free/Conservative Y1: ~$15K-$40K revenue
+  - Free/Moderate Y1: ~$40K-$100K revenue
+  - Paid/Conservative Y1: ~$80K-$180K revenue
+  - Paid/Moderate Y1: ~$200K-$400K revenue
+  - Paid/Aggressive Y1: ~$400K-$750K revenue
+- [ ] Net Income row is red when negative, green when positive
+- [ ] Year 1 shows mostly micro contracts, Year 5 shows larger mix
+- [ ] All content clears progress bar (pb-14)
 - [ ] No regressions on existing 17 slides
 - [ ] Production build succeeds (`npm run build`)
 
@@ -373,13 +363,14 @@ After building, verify all of these:
 
 ## File Checklist
 
-**Create (5 files):**
+**Create (6 files):**
 - [ ] `web/src/data/financials.js`
+- [ ] `web/src/components/ui/RouteToggle.jsx`
 - [ ] `web/src/components/ui/ScenarioToggle.jsx`
 - [ ] `web/src/components/ui/AnimatedNumber.jsx`
 - [ ] `web/src/components/ui/Slider.jsx`
 - [ ] `web/src/components/slides/FinancialOutlookSlide.jsx`
 
 **Modify (2 files):**
-- [ ] `web/src/data/slides.js` — add 1 slide entry
+- [ ] `web/src/data/slides.js` — add 1 entry
 - [ ] `web/src/App.jsx` — import + register 1 component

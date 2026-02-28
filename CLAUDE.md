@@ -134,16 +134,16 @@ Reference these for detailed context:
 - [x] Password-gated, Netlify-deployed
 - [x] This is now the primary client-facing deliverable
 - [x] Multiple rounds of visual polish (font sizing, spacing, progress bar clearance)
-- [ ] **IN PROGRESS**: 1 interactive financial slide (combined Executive Dashboard + Pro Forma)
-  - Build spec: `FINANCIAL-SLIDES-BUILD.md` (root of repo)
-  - Custom build using existing stack (ECharts + Tailwind + Motion), no new dependencies
-  - Pure computation engine: `computeProForma(scenarioKey, overrides)` + `computeAllScenarios(overrides)`
-  - Slide 18 (FinancialOutlookSlide): Single slide, two interconnected halves
-    - TOP: KPI cards (Y1 Rev, Y5 Rev, Breakeven, 5Y Cumulative) + strategic metrics (GovCon % of Rev, EBITDA)
-    - CONTROLS: Scenario toggle + 3 sliders (Gross Margin, Bid Volume, Win Rate Adj)
-    - BOTTOM: Interactive pro forma table (active scenario) + stacked area chart (all 3 scenarios compared)
-  - Stacked area chart shows all scenarios simultaneously, highlights active one
-  - Includes DSO/working capital, revenue concentration %, EBITDA contribution
+- [ ] **IN PROGRESS**: 1 interactive financial slide (Slide 18: Financial Outlook)
+  - Strategic brief: `FINANCIAL-SLIDES-PROMPT.md` — business context, Goldman Sachs IB framing, model logic
+  - Technical spec: `FINANCIAL-SLIDES-BUILD.md` — component architecture, data model, verification checklist
+  - Two-axis model: Route (Free $0/yr vs Paid $13K/yr) × Scenario (Conservative/Moderate/Aggressive)
+  - `computeProForma(routeKey, scenarioKey, overrides)` — pure computation engine
+  - Still Mind handles all BD/bidding/admin; Newport only handles relationship mgmt + delivery
+  - Still Mind consulting fee intentionally excluded from model (separate conversation)
+  - Management input sliders: Gross Margin, Delivery Cost %, Admin Overhead
+  - Portfolio evolution: Y1 micro-purchases → Y2 simplified → Y3-5 SLED/sealed bid + renewal flywheel
+  - Chart tooltips must show tier breakdown math (bids × win rate = wins, per-tier revenue)
   - Research data sources: `govcon/docs/research.md`, `govcon/docs/strategy.md`, `govcon/docs/phases/PHASE-4-FINANCIALS.md`
 
 **Phase 3: Commercial Financial Model** — COMPLETE (ARCHIVED)
