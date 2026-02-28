@@ -45,7 +45,7 @@
 - Government-wide: 4.5 avg, 44% receive only 1 bid (Carnegie Mellon, HIGH)
 
 ### Existing Model Constants
-- Renewal rate: 70% (federal incumbent rate)
+- Renewal rate: 70% (federal incumbent rate, validated: Fed-Spend 70-75%, Shipley 70% cap, HIGH confidence)
 - Fulfillment overhead: 5% of revenue (in MODEL_INPUTS but NOT wired into computeProForma)
 
 ### Channel Requirements & Entry Barriers (by tier)
@@ -76,12 +76,44 @@
 - SBA 8(a) application: $0
 - Bonding: 1-3% of bond amount (when needed)
 
-## PENDING RESEARCH
+### Win Rates by Channel and Year
+- Federal micro: Y1 H1 15-25%, Y1 H2 30-45%, Y2 40-55%, Y3+ 50-60% (MEDIUM confidence)
+- Federal simplified: Y1 H1 5-10%, Y1 H2 15-20%, Y2 25-35%, Y3+ 35-45% (MEDIUM)
+- FL school districts (small): Y1 H2 30-50%, Y2 35-50%, Y3+ 35-50% (MEDIUM)
+- County jails: Y1 H2 25-50%, Y2 35-50%, Y3+ 35-50% (MEDIUM)
+- DLA sub: 15-30% probability of onboarding within 12-18 months (MEDIUM)
+- FSMC sub: 40-60% probability of approval within 6-12 months (MEDIUM)
+- Cooperative (BuyBoard): Y1 5-15% of districts, Y2 15-25%, Y3+ 20-30% (LOW)
+- Key finding: LPTA evaluation treats neutral PP identically to Exceptional — price wins
+- Full details in win-rates-progression.md
 
-### Win Rates by Tier and Year
-- Need to derive from competition density data + past performance accumulation
-- Current model uses stepped rates (Y1 H1/H2, Y2, Y3+) — likely needs per-tier differentiation
-- Now informed by channel requirements: micro has no past performance eval, simplified is neutral, large requires 3+ refs
+### Past Performance Accumulation
+- CPARS mandatory only above $350K (FAR 42.1502)
+- Micro-purchases do NOT generate CPARS entries
+- Self-reported references citable immediately upon successful delivery
+- Commercial experience (35yr) IS citable on federal bids (FAR 15.305(a)(2)(ii))
+- SLED contracts count as federal past performance (same FAR citation)
+- Subcontract experience citable under 13 CFR 125.2(g)
+- Month 0: 35yr commercial; Month 6-12: 5-10 micro + 1-2 SLED; Month 18-24: approaching $350K threshold
+
+### SBA Certification Strategy
+- 8(a): DEPRIORITIZE — 97% reduction in acceptances under Trump SBA (65 firms in 2025 vs 2,100+)
+- HUBZone: CHECK IMMEDIATELY — 10% LPTA price preference is devastating in food; Plantation FL likely doesn't qualify but adjacent areas may
+- Mentor-Protege: BEST ACCELERATOR — no socioeconomic cert needed, JV uses mentor PP, unlimited contracts in 2yr window
+- Plain small business: AUTOMATIC — 23% of federal spending set aside, Newport qualifies now
+
+### Revenue Growth Shape
+- S-curve: Foundation (Y1, loss leader phase) → Acceleration (Y2-4, 2-3x YoY) → Maturation (Y5+, 15-25% YoY)
+- 5 compounding loops: PP accumulation, renewals (70%), contract value escalation, portfolio diversification, relationship/directed awards
+- Minimum time in loss leader phase via: parallel channels, SLED wins for federal PP, HUBZone/Mentor-Protege accelerators
+
+### Paid vs Free Route Impact
+- Tools multiply opportunity volume (5-7x), not win rate per bid
+- Free: 3-8 bids/month, micro-purchases invisible, SLED invisible
+- Paid: 29-55 bids/month, full micro visibility (GovSpend), SLED monitoring (HigherGov), AI proposals (CLEATUS)
+- Paid route incremental revenue: $120-400K/yr vs $13,860/yr cost (8.7-29x ROI)
+
+## PENDING RESEARCH
 
 ### Gross Margin
 - MODEL_INPUTS says 22% blended (Newport actual)
@@ -98,10 +130,11 @@
 - Decision needed: include in model or keep separate?
 
 ### Revenue Ramp / Portfolio Evolution
-- Current PORTFOLIO_EVOLUTION percentages may need revision given new universe data
-- Now informed by realistic access timeline from channel requirements
-- Year 1 should be almost entirely micro + some simplified + DLA subs
-- SLED entry timing: school districts Y1 H2, county jails Y2, cooperatives Y2
+- Current PORTFOLIO_EVOLUTION percentages need revision given win rates + access timeline data
+- Now informed by: win rates per tier, time-to-first-win per channel, past performance accumulation model
+- Year 1: micro + simplified + small school districts + DLA subs
+- Year 2: county jails + cooperatives + FSMC subs
+- Year 3+: Mentor-Protege JV + set-asides + large
 
 ### Contract Duration / Overlap
 - No concept of multi-year contracts in current model
@@ -115,5 +148,5 @@
 
 ### Subcontracting Revenue
 - Not in current model at all
-- Now informed by channel requirements: DLA subs ($250K-$1M), FSMC subs ($500K-$5M), Mentor-Protege JV ($1M-$5M)
+- DLA subs ($250K-$1M), FSMC subs ($500K-$5M), Mentor-Protege JV ($1M-$5M)
 - Separate revenue stream with different cost structure
