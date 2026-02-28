@@ -249,8 +249,41 @@
 - Different cost structure: GPO fees 3-7% for FSMC subs, lower compliance overhead (prime handles most), lower fulfillment overhead (2.5% vs 5% for direct)
 - Full tables in revenue-ramp-model.md
 
-## ALL VARIABLES LOCKED — Ready for Model Implementation
+## OPERATIONAL CAPACITY CONSTRAINT LAYER — NEW
 
-**Status: 12 locked variables + 1 owner input (gross margin). All research complete.**
+**The revenue ramp model shows market opportunity. Operational capacity is the binding constraint.**
 
-Next step: Rebuild `computeProForma()` in `web/src/data/financials.js` using all validated research data.
+### Key Corrections
+- Newport's business model is UNKNOWN — may be brokerage/arbitrage, not integrated distributor
+- ~10 employees total (estimated) — IFDA benchmarks ($757K/employee) don't apply to broker model
+- Liquidity position UNKNOWN — do not assume constraint
+- Fleet situation UNKNOWN — may use contract haulers, not owned trucks
+
+### Capacity-Constrained Revenue Projections (pending Newport readiness answers)
+| Year | Market Opportunity (Paid) | Capacity-Constrained Range |
+|---|---|---|
+| Y1 | $1.04M | $100K-$500K |
+| Y2 | $11.48M | $500K-$2M |
+| Y3 | $25.59M | $2M-$5M |
+| Y4 | $34.88M | $4M-$8M |
+| Y5 | $42.41M | $6M-$12M |
+
+### Newport Readiness Questions (must answer before model is finalized)
+1. How does a typical transaction work? (broker/arbitrage vs distributor vs hybrid)
+2. Physical infrastructure? (warehouse owned/leased/none, cold chain control)
+3. Fleet? (owned vs contract haulers — affects compliance documentation chain)
+4. Current headcount — who does what?
+5. Liquidity / credit facility / risk tolerance
+6. Current gross margin (owner input for model)
+7. ERP/inventory system capabilities (lot tracking, WAWF, EDI)
+8. Existing food safety infrastructure (HACCP, FDA, FDACS, temperature monitoring)
+9. Insurance coverage levels
+10. Strategic commitment level (try-and-see vs all-in)
+
+Full details in operational-capacity-constraints.md
+
+## ALL RESEARCH VARIABLES LOCKED — Ready for Model Implementation
+
+**Status: 12 locked variables + 1 owner input (gross margin) + 1 constraint layer (operational capacity). Research complete.**
+
+Next step: Rebuild `computeProForma()` in `web/src/data/financials.js` using validated research data, with capacity-constrained projections as the presentation default.
