@@ -6,6 +6,12 @@
 
 ---
 
+## Design Reference
+
+Use https://ui.shadcn.com/blocks as visual and structural inspiration for the component layout — particularly the dashboard blocks with KPI cards, charts, and tables. We are NOT installing shadcn/ui as a dependency. Instead, replicate the design patterns (spacing, card proportions, typography hierarchy, control placement) using our existing Tailwind classes. The goal is that polished, investment-dashboard aesthetic.
+
+---
+
 ## Pre-Read (Do This First)
 
 Before writing ANY code, read these files to understand the data, assumptions, and patterns:
