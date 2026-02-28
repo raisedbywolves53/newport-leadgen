@@ -115,7 +115,7 @@ export default function RecommendationSlide() {
               </div>
             </div>
             <div className="text-right">
-              <span className="font-mono text-2xl font-bold block" style={{ color: '#1B7A8A' }}>$13K<span className="text-sm font-normal opacity-60">/yr</span></span>
+              <span className="font-mono text-2xl font-bold block" style={{ color: '#1B7A8A' }}>$13.9K<span className="text-sm font-normal opacity-60">/yr</span></span>
               <span
                 className="text-[10px] font-semibold px-2.5 py-0.5 rounded text-white uppercase tracking-wider inline-block mt-0.5"
                 style={{ backgroundColor: '#C9A84C' }}

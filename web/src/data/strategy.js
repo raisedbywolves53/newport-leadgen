@@ -1,6 +1,6 @@
 /**
  * Strategy & execution data — slides 11-20.
- * All figures fact-checked Feb 25, 2026.
+ * All figures fact-checked Feb 28, 2026.
  */
 
 // ── How It Works — Pipeline Stages (Slide 12) ──
@@ -26,7 +26,7 @@ export const SOURCING_CHANNELS = [
   {
     title: 'Micro-Purchases: GovSpend',
     description: '83% of food awards are micro-purchases invisible on SAM.gov. GovSpend reveals $8-15M/yr in FL transactions.',
-    cost: '$6.5K/yr (recommended)',
+    cost: '$7-12K/yr (negotiated)',
   },
   {
     title: 'Set-Asides & Portals',
@@ -127,17 +127,17 @@ export const ROUTE_COMPARISON = [
   {
     feature: 'Federal Monitoring',
     free: 'SAM.gov API — 117 FL contracts visible',
-    paid: '+ CLEATUS AI scoring ($3K/yr)',
+    paid: '+ CLEATUS AI scoring ($3.4K/yr)',
   },
   {
-    feature: 'State/Local (FL $600M+)',
+    feature: 'State/Local (FL $1.0-1.2B)',
     free: 'Manual portal checking',
-    paid: 'HigherGov — 40K+ agencies ($3.5K/yr)',
+    paid: 'HigherGov — 40K+ agencies ($500/yr)',
   },
   {
     feature: 'Micro-Purchases (83% invisible)',
     free: 'Cannot see $8-15M/yr in FL',
-    paid: 'GovSpend — 1,500+ FL transactions ($6.5K/yr)',
+    paid: 'GovSpend — 1,500+ FL transactions ($7-12K/yr)',
   },
   {
     feature: 'Competitive Intel',
@@ -156,7 +156,7 @@ export const ROUTE_COMPARISON = [
   },
 ]
 
-export const ROUTE_SOURCE = 'CLEATUS ($3K/yr); HigherGov ($3.5K/yr); GovSpend ($6.5K/yr) — pricing from specs/09-INTEGRATIONS.md'
+export const ROUTE_SOURCE = 'CLEATUS ($3,360/yr); HigherGov ($500/yr Starter); GovSpend ($7-12K/yr negotiated) — pricing validated Feb 28, 2026'
 
 // ── Key Questions (Slide 19) ──
 export const KEY_QUESTIONS = [
@@ -176,8 +176,8 @@ export const KEY_QUESTIONS = [
   {
     category: 'Will This Work?',
     priority: 'HIGH',
-    question: 'Can you handle NET 30-60 payment terms on government contracts?',
-    whyItMatters: 'Federal averages NET 30; state/local can be NET 60-90. Limits contract size until cash position supports the float.',
+    question: 'Can you handle NET 30-45 payment terms on government contracts?',
+    whyItMatters: 'Federal food pays in 7-15 days (Prompt Payment Act). State/local is NET 30-45. Blended DSO ~25 days — faster than most commercial.',
   },
   {
     category: 'Will This Work?',
@@ -202,7 +202,7 @@ export const KEY_QUESTIONS = [
     category: 'What Are the Risks?',
     priority: 'MEDIUM',
     question: 'What is your current gross margin on wholesale distribution?',
-    whyItMatters: 'Determines if government margins (18-25%) are accretive or dilutive to your business. We don\'t assume — we ask.',
+    whyItMatters: 'Food wholesale operates at 1-3% net margin (Damodaran). Government margins are similar — we model at your actual number.',
   },
   // How Much Bigger Could This Be?
   {

@@ -1,5 +1,5 @@
 /**
- * Market data — all figures fact-checked Feb 25, 2026.
+ * Market data — all figures fact-checked Feb 28, 2026.
  * Every number has a source citation. CONFIRMED = verified against original source.
  */
 
@@ -54,7 +54,7 @@ export const FL_TAM_CHANNELS = [
     amount: 12000000, // midpoint of $8-15M estimate
     amountLabel: '$8-15M',
     description: '83% of awards invisible in public databases',
-    accessibility: 'Paid — GovSpend reveals these ($6.5K/yr)',
+    accessibility: 'Paid — GovSpend reveals these ($7-12K/yr)',
     source: 'GovSpend coverage estimate; USASpending contract size distribution',
   },
   {
@@ -63,7 +63,7 @@ export const FL_TAM_CHANNELS = [
     amountLabel: 'Est. $20-30M',
     description: 'FL state procurement portal, corrections, state agencies',
     accessibility: 'Free registration — MyFloridaMarketPlace',
-    source: 'FL MFMP portal; $600M-$1.2B total FL state procurement',
+    source: 'FL MFMP portal; $1.0-1.2B FL SLED food procurement',
   },
   {
     channel: 'Education (67 Districts)',
@@ -179,7 +179,7 @@ export const TARGET_AGENCIES = [
   },
   {
     name: 'School Districts (SLED)',
-    stat: '$500M-$1B FL',
+    stat: 'FL $1.0-1.2B SLED',
     description: '67 county districts, 2.8M students. Not in federal data — separate portals (BidNet, VendorLink). Miami-Dade, Broward, Palm Beach.',
     color: 'amber',
     source: 'FL DOE 2024-25; USDA NSLP $17.7B national FY2024',

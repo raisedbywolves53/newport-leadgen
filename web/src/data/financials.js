@@ -1,397 +1,406 @@
 /**
- * Financial projections — extracted from v7 GovCon Excel model.
- * Canonical source: archive/govcon-financials-openpyxl/Newport_GovCon_Financial_Model_v7.xlsx
- * All figures cross-checked Feb 27, 2026.
+ * Newport GovCon Financial Model — Computation Engine
  *
- * Three scenarios: Conservative (free tools), Moderate (paid tools), Aggressive (full stack).
- * Win rates are competition-density-informed per FPDS analysis (not generic assumptions).
+ * Source: Validated research (Feb 28, 2026) — govcon/docs/
+ * All inputs from 12 locked research variables.
+ *   Win rates: FPDS FY2024 (537 awards, 32 NAICS/agency combos)
+ *   Contract values: USASpending FL food procurement
+ *   Retention: Fed-Spend 2025, food industry benchmarks
+ *   Tool pricing: cleat.ai, highergov.com, govspend.com (Feb 2026)
+ *   Costs: BD/marketing benchmarks, consultant retainer, fulfillment overhead
+ *
+ * Architecture:
+ *   10 contract tiers × 6 computation periods (Y1H1, Y1H2, Y2, Y3, Y4, Y5)
+ *   2 routes: Free ($0 tools) vs Paid ($13.9K/yr tools)
+ *   3 scenarios: Conservative (65%) / Moderate (70%) / Aggressive (85% renewal)
+ *   Mechanical: bids × winRate = wins, priorActive × renewal = renewals
+ *   Sliders adjust proportionally from research baselines
  */
 
-// ── Model Inputs (from v7 Inputs sheet) ──
-export const MODEL_INPUTS = {
-  grossMargin: 0.22,            // 22% blended (18-25% range, Newport validates)
-  renewalRate: 0.70,            // 70% incumbent renewal rate
-  bidPrepCostMicro: 250,        // Per-bid cost: micro-purchase
-  bidPrepCostSimplified: 1500,  // Per-bid cost: simplified acquisition
-  bidPrepCostSLED: 1000,        // Per-bid cost: SLED
-  fulfillmentOverhead: 0.05,    // 5% of revenue
-  source: 'V7 Excel model Inputs sheet, validated Feb 2026',
-}
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIER DEFINITIONS — 10 internal tiers
+// Source: govcon/docs/revenue-ramp-model.md (locked ACVs)
+// ═══════════════════════════════════════════════════════════════════════════════
 
-// ── Win Rates by Competition Density ──
-export const WIN_RATES = {
-  lowCompetition: {
-    year1: 0.30,  // 25-40% range, midpoint
-    year3: 0.45,  // 40-55% range
-    year5: 0.55,
-    examples: 'DoD NAICS 424490 (93% sole source), Confectionery NAICS 424450 (1 registered contractor nationally)',
-    source: 'FPDS FY2024: 15 NAICS/agency combos, 233 awards, $64.8M',
-  },
-  moderateCompetition: {
-    year1: 0.15,  // 12-18% range
-    year3: 0.25,  // 20-30% range
-    year5: 0.35,
-    examples: 'BOP NAICS 424490 (avg 3.2 offers), DoD NAICS 424410 (avg 2.4 offers)',
-    source: 'FPDS FY2024: 11 NAICS/agency combos, 258 awards, $55.3M',
-  },
-  highCompetition: {
-    year1: 0.07,  // 5-8% range
-    year3: 0.12,
-    year5: 0.18,
-    examples: 'Avoid initially — 4 combos, $25.4M, 33 awards',
-    source: 'FPDS FY2024',
-  },
-  postFraudTailwind: 0.075,  // +5-10% midpoint, applied months 1-18
-  blendedYear1: 0.22,        // ~20-25% weighted toward low-competition targets
-}
-
-// ── 5-Year Revenue Projections (Moderate Scenario — primary presentation) ──
-export const FIVE_YEAR_PROJECTIONS = {
-  scenario: 'Moderate',
-  description: 'Paid tools ($13K/yr), targeted low-competition bidding, SLED portals active',
-  years: [
-    {
-      year: 1,
-      newBids: 55,
-      newWins: 12,
-      renewals: 0,
-      activeContracts: 12,
-      revenue: 125000,
-      ownerEarnings: -28000,
-      note: 'Investment year — credibility building',
-    },
-    {
-      year: 2,
-      newBids: 65,
-      newWins: 16,
-      renewals: 8,
-      activeContracts: 36,
-      revenue: 385000,
-      ownerEarnings: 42000,
-      note: 'Breakeven mid-year — renewals kick in',
-    },
-    {
-      year: 3,
-      newBids: 50,
-      newWins: 15,
-      renewals: 25,
-      activeContracts: 76,
-      revenue: 780000,
-      ownerEarnings: 135000,
-      note: 'Renewals dominate — portfolio shifts to simplified/SLED',
-    },
-    {
-      year: 4,
-      newBids: 40,
-      newWins: 14,
-      renewals: 53,
-      activeContracts: 143,
-      revenue: 1450000,
-      ownerEarnings: 265000,
-      note: 'Compound growth — micro-purchases near zero',
-    },
-    {
-      year: 5,
-      newBids: 35,
-      newWins: 12,
-      renewals: 100,
-      activeContracts: 255,
-      revenue: 2800000,
-      ownerEarnings: 520000,
-      note: 'Mature portfolio — 80% renewal base',
-    },
-  ],
-  cumulativeOwnerEarnings: 934000,
-  source: 'V7 Excel model 5-Year Model sheet, Moderate scenario',
-}
-
-// ── All Three Scenarios Summary ──
-export const SCENARIO_COMPARISON = [
-  {
-    name: 'Conservative',
-    description: 'Free tools only, broad bidding',
-    toolCost: 0,
-    year1Revenue: 55000,
-    year5Revenue: 1200000,
-    cumulativeOE: 380000,
-    year1Bids: 30,
-    year1WinRate: 0.15,
-  },
-  {
-    name: 'Moderate',
-    description: 'Paid tools ($13K/yr), targeted low-competition',
-    toolCost: 13000,
-    year1Revenue: 125000,
-    year5Revenue: 2800000,
-    cumulativeOE: 934000,
-    year1Bids: 55,
-    year1WinRate: 0.22,
-  },
-  {
-    name: 'Aggressive',
-    description: 'Full stack ($47K/yr) + relationship building',
-    toolCost: 47000,
-    year1Revenue: 200000,
-    year5Revenue: 4200000,
-    cumulativeOE: 1450000,
-    year1Bids: 80,
-    year1WinRate: 0.28,
-  },
+const TIERS = [
+  { key: 'fedMicro',       acv: 7500,    group: 'fedMicro',      isSub: false },
+  { key: 'fedSimplified',  acv: 85000,   group: 'fedSimplified', isSub: false },
+  { key: 'schoolDistrict', acv: 500000,  group: 'sled',          isSub: false },
+  { key: 'countyJail',     acv: 3000000, group: 'sled',          isSub: false },
+  { key: 'dlaSub',         acv: 625000,  group: 'sub',           isSub: true },
+  { key: 'fsmcSub',        acv: 2750000, group: 'sub',           isSub: true },
+  { key: 'cooperative',    acv: 150000,  group: 'sled',          isSub: false },
+  { key: 'mentorProtege',  acv: 2000000, group: 'setAside',      isSub: false },
+  { key: 'fedSetAside',    acv: 500000,  group: 'setAside',      isSub: false },
+  { key: 'fedLarge',       acv: 750000,  group: 'setAside',      isSub: false },
 ]
 
-// ── Two Routes Comparison (cost detail from v7 Two Routes sheet) ──
-export const TWO_ROUTES = {
-  free: {
-    label: 'Free Route',
-    year1Cost: '$0-$2K',
-    toolCosts: [
-      { tool: 'SAM.gov API', cost: 0, note: 'Built — daily monitoring operational' },
-      { tool: 'USASpending + FPDS', cost: 0, note: 'Built — competitive intel operational' },
-      { tool: 'Manual portal monitoring', cost: 0, note: 'Time cost only' },
-    ],
-    marketCoverage: '40-50%',
-    year1Bids: '25-35',
-    year5Revenue: '$1.2M',
-    cumulativeOE: '$380K',
-  },
-  paid: {
-    label: 'Paid Route',
-    year1Cost: '$11K-$47K',
-    toolCosts: [
-      { tool: 'CLEATUS (AI proposal scoring)', cost: 3000, note: '$3K/yr' },
-      { tool: 'HigherGov (SLED visibility)', cost: 3500, note: '$3.5K/yr — 40K+ agencies' },
-      { tool: 'GovSpend (micro-purchase intel)', cost: 6500, note: '$6.5K/yr — 1,500+ FL transactions' },
-    ],
-    additionalOptional: [
-      { tool: 'Food safety cert (SQF/GFSI)', cost: 23500, note: '$0 if already certified' },
-      { tool: 'Legal review (GSA terms)', cost: 3750, note: 'One-time' },
-      { tool: 'Insurance', cost: 2250, note: '$1.5-3K/yr' },
-    ],
-    marketCoverage: '90%+',
-    year1Bids: '50-80',
-    year5Revenue: '$2.8M-$4.2M',
-    cumulativeOE: '$934K-$1.45M',
-  },
-  source: 'V7 Excel model Two Routes sheet; tool pricing from specs/09-INTEGRATIONS.md',
-}
+// ═══════════════════════════════════════════════════════════════════════════════
+// GROUPED TIER CONFIGS — 5 display tiers for chart
+// Source: govcon/docs/revenue-ramp-model.md "Portfolio Evolution (Grouped)"
+// ═══════════════════════════════════════════════════════════════════════════════
 
-// ── Portfolio Evolution (bid mix shift over 5 years) ──
-export const PORTFOLIO_EVOLUTION = [
-  { year: 1, micro: 70, simplified: 15, sled: 10, setAside: 5, label: 'Credibility building' },
-  { year: 2, micro: 35, simplified: 30, sled: 25, setAside: 10, label: 'Portfolio diversifying' },
-  { year: 3, micro: 10, simplified: 35, sled: 35, setAside: 20, label: 'Renewals dominate' },
-  { year: 4, micro: 5, simplified: 35, sled: 35, setAside: 25, label: 'Mature portfolio' },
-  { year: 5, micro: 2, simplified: 33, sled: 35, setAside: 30, label: 'Compounding flywheel' },
-]
-
-// ── Owner Earnings Waterfall (Year 3 example, Moderate) ──
-export const OE_WATERFALL = {
-  year: 3,
-  scenario: 'Moderate',
-  steps: [
-    { label: 'Revenue', value: 780000 },
-    { label: 'COGS (78%)', value: -608400 },
-    { label: 'Gross Profit', value: 171600 },
-    { label: 'Bid Prep', value: -22500 },
-    { label: 'Fulfillment OH (5%)', value: -39000 },
-    { label: 'Program Costs (tools)', value: -13000 },
-    { label: 'Owner Earnings', value: 135000 },
-  ],
-  source: 'V7 Excel model Owner Earnings calculation',
-}
-
-
-// ── Tier Configuration (for stacked bar chart breakdown) ──
 export const TIER_CONFIGS = [
-  { key: 'micro',      label: 'Micro (<$15K)',         baseValue:  8000, growth: 0.05, color: '#C9A84C' },
-  { key: 'simplified', label: 'Simplified ($15–350K)',  baseValue: 50000, growth: 0.15, color: '#1B7A8A' },
-  { key: 'sled',       label: 'SLED',                  baseValue: 75000, growth: 0.10, color: '#3CC0D4' },
-  { key: 'setAside',   label: 'Set-Aside',             baseValue:150000, growth: 0.10, color: '#E8913A' },
+  { key: 'fedMicro',      label: 'Federal Micro',      color: '#C9A84C' },
+  { key: 'fedSimplified', label: 'Federal Simplified',  color: '#1B7A8A' },
+  { key: 'sled',          label: 'SLED',                color: '#239BAD' },
+  { key: 'sub',           label: 'Subcontracting',      color: '#10b981' },
+  { key: 'setAside',      label: 'Set-Aside / JV',      color: '#E8913A' },
 ]
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ── Interactive Pro Forma Computation Engine ──
-// Source: FPDS FY2024 competition analysis, USASpending, research.md Section 7
-// Win rates grounded in validated research data (see govcon/docs/research.md)
+// SCENARIO PARAMS — labels + colors for ScenarioToggle, renewal rates for engine
+// Scenarios differ by renewal rate (primary long-term revenue driver)
+// Source: Fed-Spend 2025 (70% incumbent), food industry benchmarks (85-90%+)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Scenario parameters — hardcoded bid volume, win rates, contract values.
- * Two independent toggle dimensions: Scenario × Route.
- */
 export const SCENARIO_PARAMS = {
   conservative: {
     label: 'Conservative',
-    color: '#71717a',       // zinc-500
-    bidsPerMonth: 2,
-    avgContractY1: 12000,
-    contractGrowthRate: 0.15,
-    winRateY1H1: 0.25,
-    winRateY1H2: 0.35,
-    winRateY2: 0.35,
-    winRateY3Plus: 0.40,
-    source: 'FPDS FY2024: low-competition combos, 25-40% Y1 range (research.md §7)',
+    color: '#71717a',
+    renewalRate: 0.65,
   },
   moderate: {
     label: 'Moderate',
-    color: '#1B7A8A',       // teal
-    bidsPerMonth: 3.5,
-    avgContractY1: 25000,
-    contractGrowthRate: 0.20,
-    winRateY1H1: 0.30,
-    winRateY1H2: 0.40,
-    winRateY2: 0.40,
-    winRateY3Plus: 0.45,
-    source: 'FPDS FY2024: blended low/moderate competition (research.md §7)',
+    color: '#1B7A8A',
+    renewalRate: 0.70,
   },
   aggressive: {
     label: 'Aggressive',
-    color: '#C9A84C',       // gold
-    bidsPerMonth: 5,
-    avgContractY1: 40000,
-    contractGrowthRate: 0.20,
-    winRateY1H1: 0.35,
-    winRateY1H2: 0.45,
-    winRateY2: 0.45,
-    winRateY3Plus: 0.50,
-    source: 'FPDS FY2024: targeted sole-source + paid tools (research.md §7)',
+    color: '#C9A84C',
+    renewalRate: 0.85,
   },
 }
 
-/**
- * Route parameters — Free ($0 tools) vs Paid ($13K/yr tools + win boost).
- */
-export const ROUTE_PARAMS = {
+// Sub-tier renewal rate — relationship-based, always 85%+
+const SUB_RENEWAL_RATE = 0.85
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROUTE PARAMS — cost structures for Free vs Paid tool routes
+// Source: govcon/docs/tool-capabilities.md (corrected pricing Feb 28, 2026)
+//   CLEATUS: $3,360/yr | HigherGov: $500/yr (Starter) | GovSpend: ~$10,000/yr
+// Source: govcon/docs/bd-marketing-personnel-costs.md
+//   Consultant: $42-60K free, $90-120K paid | BD/Marketing: $13K Y1 recommended
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ROUTE_PARAMS = {
   free: {
-    label: 'Free Route',
-    costLabel: '$0/yr',
     annualToolCost: 0,
-    winRateBoost: 0,
+    annualConsultantCost: 51000,   // Midpoint $42-60K (Foundation tier)
+    annualBdCost: 13060,           // Recommended Y1 minimum
   },
   paid: {
-    label: 'Paid Route',
-    costLabel: '$13K/yr',
-    annualToolCost: 13000,
-    winRateBoost: 0.05,
+    annualToolCost: 13860,         // CLEATUS $3,360 + HigherGov $500 + GovSpend $10,000
+    annualConsultantCost: 105000,  // Midpoint $90-120K (Growth tier)
+    annualBdCost: 13060,
   },
 }
 
-/**
- * Slider configs — 4 adjustable inputs for Newport ownership.
- */
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDER CONFIGS — adjustable inputs for presentation controls
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export const SLIDER_CONFIGS = [
-  { key: 'grossMargin',      label: 'Gross Margin',        min: 0.08, max: 0.15, step: 0.005, default: 0.11, format: 'percent' },
-  { key: 'bidVolumeMultiplier', label: 'Bid Volume',       min: 0.5,  max: 2.0,  step: 0.1,   default: 1.0,  format: 'multiplier' },
-  { key: 'winRateAdjustment', label: 'Win Rate Adj.',      min: -0.10, max: 0.10, step: 0.01,  default: 0,    format: 'percentSigned' },
-  { key: 'adminCost',        label: 'Admin Cost',          min: 0,    max: 50000, step: 5000,  default: 0,    format: 'currency' },
+  { key: 'grossMargin',        label: 'Gross Margin',  min: 0.08, max: 0.25, step: 0.005, default: 0.11, format: 'percent' },
+  { key: 'bidVolumeMultiplier', label: 'Bid Volume',   min: 0.5,  max: 2.0,  step: 0.1,   default: 1.0,  format: 'multiplier' },
+  { key: 'winRateAdjustment',  label: 'Win Rate Adj.', min: -0.10, max: 0.10, step: 0.01,  default: 0,    format: 'percentSigned' },
 ]
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// BID ALLOCATIONS — per tier, per period, per route
+// Source: govcon/docs/revenue-ramp-model.md Tables 1 (Paid & Free)
+// Periods: [Y1H1, Y1H2, Y2, Y3, Y4, Y5]
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BID_ALLOCATIONS = {
+  paid: {
+    fedMicro:       [100, 80, 60, 30, 15, 10],
+    fedSimplified:  [15,  30, 50, 40, 35, 30],
+    schoolDistrict: [0,   5,  8,  6,  5,  4],
+    countyJail:     [0,   0,  3,  2,  2,  2],
+    dlaSub:         [3,   3,  3,  2,  2,  2],
+    fsmcSub:        [0,   2,  2,  3,  3,  3],
+    cooperative:    [0,   0,  7,  3,  4,  5],
+    mentorProtege:  [0,   0,  0,  3,  4,  5],
+    fedSetAside:    [0,   0,  0,  5,  6,  8],
+    fedLarge:       [0,   0,  0,  0,  0,  3],
+  },
+  free: {
+    fedMicro:       [8,  10, 12, 8,  5,  3],
+    fedSimplified:  [12, 15, 20, 18, 15, 12],
+    schoolDistrict: [0,  3,  4,  4,  3,  3],
+    countyJail:     [0,  0,  2,  2,  2,  1],
+    dlaSub:         [2,  2,  2,  2,  1,  1],
+    fsmcSub:        [0,  1,  1,  2,  2,  2],
+    cooperative:    [0,  0,  3,  2,  3,  3],
+    mentorProtege:  [0,  0,  0,  2,  3,  3],
+    fedSetAside:    [0,  0,  0,  3,  4,  5],
+    fedLarge:       [0,  0,  0,  0,  0,  0],
+  },
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WIN RATES — per tier, per period (shared across routes)
+// Source: govcon/docs/win-rates-progression.md
+// Used for slider adjustments: winRateScale = (baseRate + adjustment) / baseRate
+// Periods: [Y1H1, Y1H2, Y2, Y3, Y4, Y5]
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const WIN_RATES = {
+  fedMicro:       [0.20,  0.38,  0.48,  0.55,  0.55,  0.55],
+  fedSimplified:  [0.08,  0.18,  0.30,  0.40,  0.40,  0.40],
+  schoolDistrict: [0,     0.40,  0.42,  0.42,  0.42,  0.42],
+  countyJail:     [0,     0,     0.38,  0.42,  0.42,  0.42],
+  dlaSub:         [0,     0,     0.22,  0.50,  0.50,  0.50],
+  fsmcSub:        [0,     0,     0.50,  0.60,  0.60,  0.60],
+  cooperative:    [0,     0,     1.00,  1.00,  1.00,  1.00],
+  mentorProtege:  [0,     0,     0,     0.25,  0.30,  0.35],
+  fedSetAside:    [0,     0,     0,     0.30,  0.35,  0.40],
+  fedLarge:       [0,     0,     0,     0,     0,     0.20],
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RESEARCH WINS — exact validated win counts from research Table 2
+// Source: govcon/docs/revenue-ramp-model.md Table 2 (Paid & Free)
+// These are the ground truth. At default slider positions, the engine uses
+// these directly. Slider adjustments scale proportionally from these baselines.
+// This avoids rounding artifacts on high-ACV tiers (e.g., 1 FSMC win = $2.75M).
+// Periods: [Y1H1, Y1H2, Y2, Y3, Y4, Y5]
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const RESEARCH_WINS = {
+  paid: {
+    fedMicro:       [20, 30, 28, 16, 8,  6],
+    fedSimplified:  [1,  5,  15, 16, 14, 12],
+    schoolDistrict: [0,  2,  3,  3,  2,  2],
+    countyJail:     [0,  0,  1,  1,  1,  1],
+    dlaSub:         [0,  0,  1,  1,  1,  1],
+    fsmcSub:        [0,  0,  1,  2,  2,  2],
+    cooperative:    [0,  0,  7,  3,  4,  5],
+    mentorProtege:  [0,  0,  0,  1,  1,  2],
+    fedSetAside:    [0,  0,  0,  2,  2,  3],
+    fedLarge:       [0,  0,  0,  0,  0,  1],
+  },
+  free: {
+    fedMicro:       [2, 4, 6,  4, 3, 2],
+    fedSimplified:  [1, 3, 6,  7, 6, 5],
+    schoolDistrict: [0, 1, 2,  2, 1, 1],
+    countyJail:     [0, 0, 1,  1, 1, 0],
+    dlaSub:         [0, 0, 0,  1, 0, 0],
+    fsmcSub:        [0, 0, 0,  1, 1, 1],
+    cooperative:    [0, 0, 3,  2, 3, 3],
+    mentorProtege:  [0, 0, 0,  0, 1, 1],
+    fedSetAside:    [0, 0, 0,  1, 1, 2],
+    fedLarge:       [0, 0, 0,  0, 0, 0],
+  },
+}
+
+// Period configs: factor is 0.5 for half-year periods, 1.0 for annual
+const PERIODS = [
+  { factor: 0.5 },  // Y1H1
+  { factor: 0.5 },  // Y1H2
+  { factor: 1.0 },  // Y2
+  { factor: 1.0 },  // Y3
+  { factor: 1.0 },  // Y4
+  { factor: 1.0 },  // Y5
+]
+
+// Model constants
+const FULFILLMENT_OH_RATE = 0.05   // 5% of revenue — gov compliance overhead
+const DSO_DAYS = 25                // Blended: federal food 7-15 + SLED 30-45
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPUTATION ENGINE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 /**
- * Pure computation function — no side effects, no state.
+ * Compute 5-year pro forma for a single scenario × route combination.
+ *
+ * Uses research-validated win counts as baseline. At default slider positions,
+ * output exactly matches govcon/docs/revenue-ramp-model.md. Slider adjustments
+ * scale proportionally from these baselines:
+ *   - bidVolumeMultiplier: scales wins linearly (more bids → more wins)
+ *   - winRateAdjustment: scales wins by (baseRate + adj) / baseRate
+ *   - grossMargin: only affects cost side, not revenue
+ *
+ * Renewals are computed mechanically: priorActive × scenarioRenewalRate.
+ * This means scenarios (65/70/85% renewal) produce properly compounded
+ * differences across the 5-year horizon.
+ *
  * @param {string} scenarioKey - 'conservative' | 'moderate' | 'aggressive'
  * @param {string} routeKey - 'free' | 'paid'
- * @param {object} overrides - slider values: { grossMargin, bidVolumeMultiplier, winRateAdjustment, adminCost }
+ * @param {object} overrides - { grossMargin, bidVolumeMultiplier, winRateAdjustment }
  * @returns {{ years: Array, summary: object }}
  */
 export function computeProForma(scenarioKey = 'moderate', routeKey = 'free', overrides = {}) {
-  const s = SCENARIO_PARAMS[scenarioKey]
-  const r = ROUTE_PARAMS[routeKey]
+  const scenario = SCENARIO_PARAMS[scenarioKey]
+  const route = ROUTE_PARAMS[routeKey]
+  const bidAlloc = BID_ALLOCATIONS[routeKey]
+  const researchWins = RESEARCH_WINS[routeKey]
 
   const grossMargin = overrides.grossMargin ?? 0.11
   const bidVolumeMultiplier = overrides.bidVolumeMultiplier ?? 1.0
   const winRateAdjustment = overrides.winRateAdjustment ?? 0
-  const adminCost = overrides.adminCost ?? 0
 
-  const renewalRate = 0.70
-  const years = []
+  // Track prior active contracts per tier for renewal computation
+  const priorActive = {}
+  TIERS.forEach(t => { priorActive[t.key] = 0 })
+
+  // ── Phase 1: Compute all 6 periods at tier level ──
+  const periodResults = PERIODS.map((period, pi) => {
+    const tierData = {}
+    let totalBids = 0
+    let totalNewWins = 0
+    let totalRenewals = 0
+    let totalActive = 0
+    let totalRevenue = 0
+
+    TIERS.forEach(tier => {
+      const baseBids = bidAlloc[tier.key][pi]
+      const adjustedBids = Math.round(baseBids * bidVolumeMultiplier)
+
+      // New wins: scale from research baseline
+      const baseWins = researchWins[tier.key][pi]
+      const baseWinRate = WIN_RATES[tier.key][pi]
+      let newWins
+      if (baseWins === 0 || baseBids === 0) {
+        // Research says 0 wins for this tier/period — respect that baseline.
+        // Only deviate if user actively adjusted sliders (bid volume or win rate).
+        if (baseWinRate === 0 || baseBids === 0) {
+          newWins = 0  // Channel locked or no bids — always zero
+        } else if (bidVolumeMultiplier === 1.0 && winRateAdjustment === 0) {
+          newWins = 0  // Sliders at defaults — use research baseline (0)
+        } else {
+          // User adjusted sliders — recompute, may cross threshold
+          const adjustedWinRate = Math.max(0, Math.min(1, baseWinRate + winRateAdjustment))
+          newWins = Math.max(0, Math.round(adjustedBids * adjustedWinRate))
+        }
+      } else {
+        // Scale research wins proportionally by slider adjustments
+        const adjustedWinRate = Math.max(0, Math.min(1, baseWinRate + winRateAdjustment))
+        const winScale = bidVolumeMultiplier * (adjustedWinRate / baseWinRate)
+        newWins = Math.max(0, Math.round(baseWins * winScale))
+      }
+
+      // Sub tiers always renew at SUB_RENEWAL_RATE; others use scenario rate
+      const renewalRate = tier.isSub
+        ? Math.max(scenario.renewalRate, SUB_RENEWAL_RATE)
+        : scenario.renewalRate
+      const renewals = Math.round(priorActive[tier.key] * renewalRate)
+
+      const active = newWins + renewals
+      const revenue = active * tier.acv * period.factor
+
+      tierData[tier.key] = { bids: adjustedBids, newWins, renewals, active, revenue }
+
+      totalBids += adjustedBids
+      totalNewWins += newWins
+      totalRenewals += renewals
+      totalActive += active
+      totalRevenue += revenue
+
+      // Update prior active for next period
+      priorActive[tier.key] = active
+    })
+
+    return { totalBids, totalNewWins, totalRenewals, totalActive, totalRevenue, tierData }
+  })
+
+  // ── Phase 2: Consolidate into 5 annual years ──
   let cumulativeRevenue = 0
-  let priorActiveContracts = 0
+  const years = []
 
   for (let yr = 1; yr <= 5; yr++) {
-    // Bids submitted
-    const bidsSubmitted = Math.round(s.bidsPerMonth * 12 * bidVolumeMultiplier)
+    let bidsSubmitted, newWins, renewals, activeContracts, revenue, annualTierData
 
-    // Win rate for this year (Y1 blends H1/H2)
-    let baseWinRate
     if (yr === 1) {
-      baseWinRate = (s.winRateY1H1 + s.winRateY1H2) / 2
-    } else if (yr === 2) {
-      baseWinRate = s.winRateY2
+      // Combine Y1H1 (period 0) and Y1H2 (period 1)
+      const h1 = periodResults[0]
+      const h2 = periodResults[1]
+      bidsSubmitted = h1.totalBids + h2.totalBids
+      newWins = h1.totalNewWins + h2.totalNewWins
+      renewals = h1.totalRenewals + h2.totalRenewals
+      activeContracts = h2.totalActive  // End-of-year = end of H2
+      revenue = h1.totalRevenue + h2.totalRevenue
+
+      // Merge tier data across half-years
+      annualTierData = {}
+      TIERS.forEach(tier => {
+        const t1 = h1.tierData[tier.key]
+        const t2 = h2.tierData[tier.key]
+        annualTierData[tier.key] = {
+          bids: t1.bids + t2.bids,
+          newWins: t1.newWins + t2.newWins,
+          renewals: t1.renewals + t2.renewals,
+          active: t2.active,  // End-of-year
+          revenue: t1.revenue + t2.revenue,
+        }
+      })
     } else {
-      baseWinRate = s.winRateY3Plus
+      // Years 2-5 map to periods 2-5
+      const p = periodResults[yr]
+      bidsSubmitted = p.totalBids
+      newWins = p.totalNewWins
+      renewals = p.totalRenewals
+      activeContracts = p.totalActive
+      revenue = p.totalRevenue
+      annualTierData = p.tierData
     }
-    const winRate = Math.max(0, Math.min(1, baseWinRate + r.winRateBoost + winRateAdjustment))
 
-    // Wins and renewals
-    const newWins = Math.round(bidsSubmitted * winRate)
-    const renewals = Math.round(priorActiveContracts * renewalRate)
-    const activeContracts = newWins + renewals
-
-    // Contract value and revenue
-    const avgContractValue = Math.round(s.avgContractY1 * Math.pow(1 + s.contractGrowthRate, yr - 1))
-    const revenue = activeContracts * avgContractValue
-
-    // Tier breakdown — distribute contracts by portfolio evolution mix
-    const mix = PORTFOLIO_EVOLUTION[yr - 1]
-    const tierPcts = [mix.micro, mix.simplified, mix.sled, mix.setAside]
-    const rawCounts = tierPcts.map(p => Math.round(activeContracts * p / 100))
-    // Fix rounding so counts sum exactly to activeContracts
-    const countDiff = activeContracts - rawCounts.reduce((a, b) => a + b, 0)
-    if (countDiff !== 0) {
-      // Adjust the largest tier
-      const maxIdx = rawCounts.indexOf(Math.max(...rawCounts))
-      rawCounts[maxIdx] += countDiff
-    }
-    // Compute raw tier revenues, then scale to match model revenue
-    const rawTierRevenues = TIER_CONFIGS.map((tc, i) =>
-      rawCounts[i] * tc.baseValue * Math.pow(1 + tc.growth, yr - 1)
-    )
-    const rawTotal = rawTierRevenues.reduce((a, b) => a + b, 0)
-    const scale = rawTotal > 0 ? revenue / rawTotal : 0
-    const tiers = TIER_CONFIGS.map((tc, i) => ({
-      key: tc.key,
-      label: tc.label,
-      color: tc.color,
-      contracts: rawCounts[i],
-      avgValue: rawCounts[i] > 0 ? Math.round((rawTierRevenues[i] * scale) / rawCounts[i]) : 0,
-      revenue: Math.round(rawTierRevenues[i] * scale),
-    }))
-
-    // Cost structure
+    // ── Financial computations ──
     const cogs = Math.round(revenue * (1 - grossMargin))
-    const grossProfit = revenue - cogs
-    const toolCost = r.annualToolCost
+    const grossProfit = Math.round(revenue * grossMargin)
+    const fulfillmentOH = Math.round(revenue * FULFILLMENT_OH_RATE)
+    const toolCost = route.annualToolCost
+    // Admin cost = consultant + BD/marketing + fulfillment overhead
+    const adminCost = route.annualConsultantCost + route.annualBdCost + fulfillmentOH
     const netIncome = grossProfit - toolCost - adminCost
 
     cumulativeRevenue += revenue
+    const workingCapital = Math.round((revenue / 12) * (DSO_DAYS / 30))
+    const totalInvestment = toolCost + route.annualConsultantCost + route.annualBdCost
+    const roi = totalInvestment > 0
+      ? netIncome / totalInvestment
+      : (netIncome > 0 ? Infinity : 0)
 
-    // ROI — handle ÷0 for free route + $0 admin
-    const totalInvestment = toolCost + adminCost
-    const roi = totalInvestment > 0 ? netIncome / totalInvestment : (netIncome > 0 ? Infinity : 0)
+    // ── Build grouped tier breakdown for chart ──
+    const tiers = TIER_CONFIGS.map(tc => {
+      let contracts = 0
+      let tierRevenue = 0
+      TIERS.filter(t => t.group === tc.key).forEach(t => {
+        contracts += annualTierData[t.key].active
+        tierRevenue += annualTierData[t.key].revenue
+      })
+      return {
+        key: tc.key,
+        label: tc.label,
+        color: tc.color,
+        contracts,
+        avgValue: contracts > 0 ? Math.round(tierRevenue / contracts) : 0,
+        revenue: Math.round(tierRevenue),
+      }
+    })
 
     years.push({
       year: yr,
       bidsSubmitted,
-      winRate,
       newWins,
       renewals,
       activeContracts,
-      avgContractValue,
-      revenue,
-      tiers,
+      revenue: Math.round(revenue),
       cogs,
       grossProfit,
       toolCost,
       adminCost,
       netIncome,
-      cumulativeRevenue,
+      cumulativeRevenue: Math.round(cumulativeRevenue),
       roi,
+      workingCapital,
+      tiers,
     })
-
-    priorActiveContracts = activeContracts
   }
 
-  // Summary
+  // ── Summary ──
   const breakevenYear = years.find(y => y.netIncome > 0)?.year ?? null
   const y5 = years[4]
 
@@ -403,5 +412,20 @@ export function computeProForma(scenarioKey = 'moderate', routeKey = 'free', ove
       y5CumulativeRevenue: y5.cumulativeRevenue,
       y5ActiveContracts: y5.activeContracts,
     },
+  }
+}
+
+/**
+ * Compute all 3 scenarios for chart comparison.
+ *
+ * @param {string} routeKey - 'free' | 'paid'
+ * @param {object} overrides - slider values
+ * @returns {{ conservative: object, moderate: object, aggressive: object }}
+ */
+export function computeAllScenarios(routeKey = 'free', overrides = {}) {
+  return {
+    conservative: computeProForma('conservative', routeKey, overrides),
+    moderate: computeProForma('moderate', routeKey, overrides),
+    aggressive: computeProForma('aggressive', routeKey, overrides),
   }
 }

@@ -2,7 +2,7 @@ import { motion } from 'motion/react'
 
 const ROUTES = [
   { key: 'free', label: 'Free Route', cost: '$0/yr', color: '#71717a' },
-  { key: 'paid', label: 'Paid Route', cost: '$13K/yr', color: '#1B7A8A' },
+  { key: 'paid', label: 'Paid Route', cost: '$13.9K/yr', color: '#1B7A8A' },
 ]
 
 export default function RouteToggle({ active, onChange, className = '' }) {

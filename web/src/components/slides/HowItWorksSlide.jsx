@@ -216,7 +216,7 @@ export default function HowItWorksSlide() {
           transition={{ delay: 1.2 }}
           className="text-[10px] text-zinc-300"
         >
-          SAM.gov API | MyFloridaMarketPlace | GovSpend ($6.5K/yr) | CLEATUS ($3K/yr) | HigherGov ($3.5K/yr)
+          SAM.gov API | MyFloridaMarketPlace | GovSpend ($7-12K/yr) | CLEATUS ($3.4K/yr) | HigherGov ($500/yr)
         </motion.p>
       </div>
     </div>
