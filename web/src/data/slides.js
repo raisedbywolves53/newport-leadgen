@@ -1,6 +1,6 @@
 /**
- * Slide registry — 20-slide spine (revised Feb 25, 2026).
- * Literary story only — economics/interactive model deferred to Phase 5D.
+ * Slide registry — 20-slide spine (revised Feb 27, 2026).
+ * 17 content slides + 1 economics divider + 2 financial slides.
  */
 export const SLIDES = [
   // Act 1: The Anchor
@@ -26,6 +26,11 @@ export const SLIDES = [
   { id: 'risk-compliance', label: 'Risk & Compliance', section: 'execution' },
   { id: 'recommendation', label: 'Our Recommendation', section: 'execution' },
   { id: 'key-questions', label: 'Key Questions', section: 'execution' },
+  // Act 5: Economics
+  { id: 'divider-economics', label: 'Economics', section: null, isDivider: true },
+  { id: 'financial-dashboard', label: 'Financial Dashboard', section: 'economics' },
+  { id: 'pro-forma', label: '5-Year Pro Forma', section: 'economics' },
+
   { id: 'blueprint', label: 'The Blueprint', section: null },
 ]
 

@@ -199,3 +199,174 @@ export const OE_WATERFALL = {
   ],
   source: 'V7 Excel model Owner Earnings calculation',
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── Interactive Pro Forma Computation Engine ──
+// Source: FPDS FY2024 competition analysis, USASpending, research.md Section 7
+// Win rates grounded in validated research data (see govcon/docs/research.md)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Scenario parameters — hardcoded bid volume, win rates, contract values.
+ * Two independent toggle dimensions: Scenario × Route.
+ */
+export const SCENARIO_PARAMS = {
+  conservative: {
+    label: 'Conservative',
+    color: '#71717a',       // zinc-500
+    bidsPerMonth: 2,
+    avgContractY1: 12000,
+    contractGrowthRate: 0.15,
+    winRateY1H1: 0.25,
+    winRateY1H2: 0.35,
+    winRateY2: 0.35,
+    winRateY3Plus: 0.40,
+    source: 'FPDS FY2024: low-competition combos, 25-40% Y1 range (research.md §7)',
+  },
+  moderate: {
+    label: 'Moderate',
+    color: '#1B7A8A',       // teal
+    bidsPerMonth: 3.5,
+    avgContractY1: 25000,
+    contractGrowthRate: 0.20,
+    winRateY1H1: 0.30,
+    winRateY1H2: 0.40,
+    winRateY2: 0.40,
+    winRateY3Plus: 0.45,
+    source: 'FPDS FY2024: blended low/moderate competition (research.md §7)',
+  },
+  aggressive: {
+    label: 'Aggressive',
+    color: '#C9A84C',       // gold
+    bidsPerMonth: 5,
+    avgContractY1: 40000,
+    contractGrowthRate: 0.20,
+    winRateY1H1: 0.35,
+    winRateY1H2: 0.45,
+    winRateY2: 0.45,
+    winRateY3Plus: 0.50,
+    source: 'FPDS FY2024: targeted sole-source + paid tools (research.md §7)',
+  },
+}
+
+/**
+ * Route parameters — Free ($0 tools) vs Paid ($13K/yr tools + win boost).
+ */
+export const ROUTE_PARAMS = {
+  free: {
+    label: 'Free Route',
+    costLabel: '$0/yr',
+    annualToolCost: 0,
+    winRateBoost: 0,
+  },
+  paid: {
+    label: 'Paid Route',
+    costLabel: '$13K/yr',
+    annualToolCost: 13000,
+    winRateBoost: 0.05,
+  },
+}
+
+/**
+ * Slider configs — 4 adjustable inputs for Newport ownership.
+ */
+export const SLIDER_CONFIGS = [
+  { key: 'grossMargin',      label: 'Gross Margin',        min: 0.08, max: 0.15, step: 0.005, default: 0.11, format: 'percent' },
+  { key: 'bidVolumeMultiplier', label: 'Bid Volume',       min: 0.5,  max: 2.0,  step: 0.1,   default: 1.0,  format: 'multiplier' },
+  { key: 'winRateAdjustment', label: 'Win Rate Adj.',      min: -0.10, max: 0.10, step: 0.01,  default: 0,    format: 'percentSigned' },
+  { key: 'adminCost',        label: 'Admin Cost',          min: 0,    max: 50000, step: 5000,  default: 0,    format: 'currency' },
+]
+
+/**
+ * Pure computation function — no side effects, no state.
+ * @param {string} scenarioKey - 'conservative' | 'moderate' | 'aggressive'
+ * @param {string} routeKey - 'free' | 'paid'
+ * @param {object} overrides - slider values: { grossMargin, bidVolumeMultiplier, winRateAdjustment, adminCost }
+ * @returns {{ years: Array, summary: object }}
+ */
+export function computeProForma(scenarioKey = 'moderate', routeKey = 'free', overrides = {}) {
+  const s = SCENARIO_PARAMS[scenarioKey]
+  const r = ROUTE_PARAMS[routeKey]
+
+  const grossMargin = overrides.grossMargin ?? 0.11
+  const bidVolumeMultiplier = overrides.bidVolumeMultiplier ?? 1.0
+  const winRateAdjustment = overrides.winRateAdjustment ?? 0
+  const adminCost = overrides.adminCost ?? 0
+
+  const renewalRate = 0.70
+  const years = []
+  let cumulativeRevenue = 0
+  let priorActiveContracts = 0
+
+  for (let yr = 1; yr <= 5; yr++) {
+    // Bids submitted
+    const bidsSubmitted = Math.round(s.bidsPerMonth * 12 * bidVolumeMultiplier)
+
+    // Win rate for this year (Y1 blends H1/H2)
+    let baseWinRate
+    if (yr === 1) {
+      baseWinRate = (s.winRateY1H1 + s.winRateY1H2) / 2
+    } else if (yr === 2) {
+      baseWinRate = s.winRateY2
+    } else {
+      baseWinRate = s.winRateY3Plus
+    }
+    const winRate = Math.max(0, Math.min(1, baseWinRate + r.winRateBoost + winRateAdjustment))
+
+    // Wins and renewals
+    const newWins = Math.round(bidsSubmitted * winRate)
+    const renewals = Math.round(priorActiveContracts * renewalRate)
+    const activeContracts = newWins + renewals
+
+    // Contract value and revenue
+    const avgContractValue = Math.round(s.avgContractY1 * Math.pow(1 + s.contractGrowthRate, yr - 1))
+    const revenue = activeContracts * avgContractValue
+
+    // Cost structure
+    const cogs = Math.round(revenue * (1 - grossMargin))
+    const grossProfit = revenue - cogs
+    const toolCost = r.annualToolCost
+    const netIncome = grossProfit - toolCost - adminCost
+
+    cumulativeRevenue += revenue
+
+    // ROI — handle ÷0 for free route + $0 admin
+    const totalInvestment = toolCost + adminCost
+    const roi = totalInvestment > 0 ? netIncome / totalInvestment : (netIncome > 0 ? Infinity : 0)
+
+    years.push({
+      year: yr,
+      bidsSubmitted,
+      winRate,
+      newWins,
+      renewals,
+      activeContracts,
+      avgContractValue,
+      revenue,
+      cogs,
+      grossProfit,
+      toolCost,
+      adminCost,
+      netIncome,
+      cumulativeRevenue,
+      roi,
+    })
+
+    priorActiveContracts = activeContracts
+  }
+
+  // Summary
+  const breakevenYear = years.find(y => y.netIncome > 0)?.year ?? null
+  const y5 = years[4]
+
+  return {
+    years,
+    summary: {
+      breakevenYear,
+      y5Revenue: y5.revenue,
+      y5CumulativeRevenue: y5.cumulativeRevenue,
+      y5ActiveContracts: y5.activeContracts,
+    },
+  }
+}
