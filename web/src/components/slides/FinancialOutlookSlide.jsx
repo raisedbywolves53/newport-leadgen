@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, Fragment } from 'react'
 import * as echarts from 'echarts/core'
-import { BarChart } from 'echarts/charts'
+import { LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { motion } from 'motion/react'
@@ -11,9 +11,9 @@ import RouteToggle from '../ui/RouteToggle'
 import ScenarioToggle from '../ui/ScenarioToggle'
 import AnimatedNumber from '../ui/AnimatedNumber'
 import NumberInput from '../ui/NumberInput'
-import { computeProForma, SLIDER_CONFIGS, TIER_CONFIGS } from '../../data/financials'
+import { computeProForma, computeAllScenarios, SLIDER_CONFIGS, SCENARIO_PARAMS } from '../../data/financials'
 
-echarts.use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
 const KPI_DEFS = [
   { key: 'y1Revenue',    label: 'Y1 Revenue',     icon: DollarSign, format: 'compact', accent: '#C9A84C' },
@@ -82,6 +82,11 @@ export default function FinancialOutlookSlide() {
     [scenario, route, overrides]
   )
 
+  const allModels = useMemo(
+    () => computeAllScenarios(route, overrides),
+    [route, overrides]
+  )
+
   const kpiValues = useMemo(() => ({
     y1Revenue: model.years[0].revenue,
     y5Revenue: model.summary.y5Revenue,
@@ -107,28 +112,36 @@ export default function FinancialOutlookSlide() {
     }
   }, [])
 
-  // Update chart data — stacked bar by tier
+  // Update chart data — 3-scenario overlapping area comparison
   useEffect(() => {
     if (!chartInstance.current) return
 
-    const series = TIER_CONFIGS.map((tc, idx) => ({
-      name: tc.label,
-      type: 'bar',
-      stack: 'revenue',
-      data: model.years.map(y => y.tiers[idx].revenue),
-      itemStyle: {
-        color: tc.color,
-        ...(idx === TIER_CONFIGS.length - 1 ? { borderRadius: [3, 3, 0, 0] } : {}),
-      },
-      barWidth: 48,
-      emphasis: { focus: 'series' },
-    }))
+    const scenarioKeys = ['aggressive', 'moderate', 'conservative']
+
+    const series = scenarioKeys.map((key) => {
+      const sp = SCENARIO_PARAMS[key]
+      const m = allModels[key]
+      const isActive = key === scenario
+      return {
+        name: sp.label,
+        type: 'line',
+        data: m.years.map(y => y.revenue),
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: isActive ? 6 : 0,
+        lineStyle: { width: isActive ? 3 : 1.5, color: sp.color },
+        itemStyle: { color: sp.color },
+        areaStyle: { opacity: isActive ? 0.35 : 0.08, color: sp.color },
+        z: isActive ? 10 : 1,
+        emphasis: { disabled: true },
+      }
+    })
 
     chartInstance.current.setOption({
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'axis',
-        axisPointer: { type: 'shadow' },
+        axisPointer: { type: 'line', lineStyle: { color: '#d4d4d8', type: 'dashed' } },
         backgroundColor: '#18181b',
         borderColor: '#27272a',
         borderWidth: 1,
@@ -136,29 +149,41 @@ export default function FinancialOutlookSlide() {
         padding: [10, 14],
         formatter: (params) => {
           const yearIdx = params[0].dataIndex
-          const yearData = model.years[yearIdx]
-          let html = `<div style="font-weight:600;margin-bottom:6px;font-size:14px">Year ${yearData.year}</div>`
-          params.forEach(p => {
-            const tier = yearData.tiers[p.seriesIndex]
-            html += `<div style="margin:4px 0">
-              <div style="display:flex;justify-content:space-between;gap:16px">
-                <span>${p.marker} ${tier.label}</span>
-                <span style="font-weight:600">${fmtTooltipCurrency(tier.revenue)}</span>
-              </div>
-              <div style="color:#a1a1aa;font-size:12px;margin-left:14px">${tier.contracts} contracts @ ${fmtTooltipCurrency(tier.avgValue)} avg</div>
+          let html = `<div style="font-weight:600;margin-bottom:6px;font-size:14px">Year ${yearIdx + 1}</div>`
+
+          // Show all 3 scenario values
+          scenarioKeys.forEach((key) => {
+            const sp = SCENARIO_PARAMS[key]
+            const m = allModels[key]
+            const yearData = m.years[yearIdx]
+            const isActive = key === scenario
+            const arrow = isActive ? '\u25b8 ' : '  '
+            const weight = isActive ? '700' : '400'
+            const opacity = isActive ? '1' : '0.6'
+            html += `<div style="display:flex;justify-content:space-between;gap:20px;margin:3px 0;opacity:${opacity}">
+              <span style="font-weight:${weight}"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${sp.color};margin-right:6px"></span>${arrow}${sp.label}</span>
+              <span style="font-weight:${weight}">${fmtTooltipCurrency(yearData.revenue)}</span>
             </div>`
           })
-          html += `<div style="border-top:1px solid #3f3f46;margin-top:6px;padding-top:4px;display:flex;justify-content:space-between;gap:16px">
-            <span style="color:#C9A84C;font-weight:600">Total</span>
-            <span style="color:#C9A84C;font-weight:600">${fmtTooltipCurrency(yearData.revenue)}</span>
-          </div>`
+
+          // Active scenario breakdown
+          const activeModel = allModels[scenario]
+          const activeYear = activeModel.years[yearIdx]
+          html += `<div style="border-top:1px solid #3f3f46;margin-top:6px;padding-top:6px;font-size:12px;color:#a1a1aa">`
+          html += `Bids: ${activeYear.bidsSubmitted} &nbsp;|&nbsp; Wins: ${activeYear.newWins} &nbsp;|&nbsp; Renewals: ${activeYear.renewals}`
+          // Tier breakdown for active scenario
+          activeYear.tiers.filter(t => t.revenue > 0).forEach(t => {
+            html += `<div style="margin-top:2px">${t.label}: ${t.contracts} × ${fmtTooltipCurrency(t.avgValue)} = ${fmtTooltipCurrency(t.revenue)}</div>`
+          })
+          html += `</div>`
           return html
         },
       },
       grid: { left: 56, right: 16, top: 12, bottom: 28 },
       xAxis: {
         type: 'category',
-        data: model.years.map(y => 'Y' + y.year),
+        data: ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'],
+        boundaryGap: false,
         axisLine: { lineStyle: { color: '#e5e5e5' } },
         axisTick: { show: false },
         axisLabel: { color: '#71717a', fontFamily: 'Inter', fontSize: 13 },
@@ -180,7 +205,7 @@ export default function FinancialOutlookSlide() {
       },
       series,
     }, true)
-  }, [model])
+  }, [allModels, scenario])
 
   return (
     <div className="w-full h-full flex flex-col px-10 lg:px-14 pt-2 pb-14 relative overflow-hidden">
@@ -267,7 +292,7 @@ export default function FinancialOutlookSlide() {
         })}
       </motion.div>
 
-      {/* Board 1: Stacked Bar Chart — Revenue Mix by Contract Tier */}
+      {/* Board 1: 3-Scenario Area Chart — Revenue Comparison */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -276,13 +301,13 @@ export default function FinancialOutlookSlide() {
       >
         <div className="flex items-center justify-between mb-1.5">
           <span className="font-body text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-            Revenue Mix by Contract Tier
+            Revenue Projection — All Scenarios
           </span>
           <div className="flex items-center gap-3">
-            {TIER_CONFIGS.map((tc) => (
-              <div key={tc.key} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tc.color }} />
-                <span className="text-xs text-zinc-500">{tc.label}</span>
+            {Object.entries(SCENARIO_PARAMS).map(([key, sp]) => (
+              <div key={key} className={`flex items-center gap-1.5 transition-opacity ${key === scenario ? 'opacity-100' : 'opacity-40'}`}>
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sp.color }} />
+                <span className="text-xs text-zinc-500">{sp.label}</span>
               </div>
             ))}
           </div>

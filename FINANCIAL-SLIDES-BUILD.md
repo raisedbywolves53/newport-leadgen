@@ -107,9 +107,9 @@ Pure computation engine. No React, no UI — just math.
 - Newport baseline revenue: $50M (for revenue concentration % calculation)
 - Cash flow impact: revenue delayed by DSO days; approximate as (revenue / 12) × (DSO / 30) for working capital tied up
 
-### Export: `computeAllScenarios(overrides)`
+### Export: `computeAllScenarios(routeKey, overrides)`
 
-Runs `computeProForma` for ALL THREE scenarios with the same overrides. Returns `{ conservative: {...}, moderate: {...}, aggressive: {...} }`. This is needed for the stacked area chart that compares all scenarios simultaneously.
+Runs `computeProForma` for ALL THREE scenarios with the same route + overrides. Returns `{ conservative: {...}, moderate: {...}, aggressive: {...} }`. This is needed for the 3-scenario area chart that compares all scenarios simultaneously.
 
 **Return shape (per scenario):**
 ```js
@@ -290,34 +290,38 @@ Style: `bg-zinc-50 rounded-lg px-4 py-2` — subtle background to visually separ
 - Subtle zebra striping: `bg-zinc-50` on alternate rows
 - Compact: `text-sm` for values, `text-xs` for row labels
 
-#### Stacked Area Chart (THE KEY VISUAL)
+#### 3-Scenario Area Chart (THE KEY VISUAL) — IMPLEMENTED
 
 This chart shows ALL THREE scenarios simultaneously so the viewer can visually compare them. This is different from the table which only shows the active scenario.
 
-**Chart type:** ECharts stacked area chart
-**X-axis:** Year 1 → Year 5
+**Chart type:** ECharts overlapping area chart (LineChart with areaStyle)
+**X-axis:** Year 1 → Year 5 (boundaryGap: false)
 **Y-axis:** Revenue (dollar amounts)
 
-**Three stacked area series:**
-1. **Conservative** (bottom layer): zinc-300 fill, zinc-400 line
-2. **Moderate** (middle layer): teal fill (#1B7A8A, 40% opacity), teal line
-3. **Aggressive** (top layer): gold fill (#C9A84C, 30% opacity), gold line
+**Three overlapping area series (NOT additive stacking):**
+Each series shows its absolute revenue value. Render order: Aggressive (back), Moderate (middle), Conservative (front). This naturally creates a "fan" that widens over 5 years.
+1. **Conservative**: zinc (#71717a) line + fill
+2. **Moderate**: teal (#1B7A8A) line + fill
+3. **Aggressive**: gold (#C9A84C) line + fill
 
-**Stacking behavior:** Each series shows its own revenue value stacked on top of the one below. This creates a visual "fan" that widens over 5 years, showing the growing gap between scenarios. The area between layers represents the incremental revenue from moving to a more aggressive approach.
+**Active scenario highlight:** The selected scenario gets full opacity fill (0.35), thick line (3px), visible dot markers (symbolSize: 6), and z-index 10. Inactive scenarios fade to opacity 0.08, thin line (1.5px), no markers.
 
-**Active scenario highlight:** The currently selected scenario's area should have FULL opacity and a thicker border line (lineWidth: 3), while the other two fade to lower opacity (0.15). This creates a visual "spotlight" on the active scenario while maintaining the comparison context.
-
-**Tooltip:** On hover, show all 3 scenario values for that year in a formatted tooltip:
+**Tooltip:** On hover, shows all 3 scenario values with the active one highlighted (▸ arrow, bold). Below a divider, shows the active scenario's bid/win/renewal math and per-tier breakdown:
 ```
 Year 3
-Conservative: $180,000
-Moderate: $425,000      ← (highlighted if active)
-Aggressive: $780,000
+─────────────────────
+  Aggressive:    $780K
+▸ Moderate:      $425K   (active, bold)
+  Conservative:  $180K
+
+Bids: 36 | Wins: 12 | Renewals: 8
+  SLED: 2 × $500K = $1.0M
+  Federal Micro: 3 × $8K = $22K
 ```
 
-**Animate on change:** When scenario toggle or sliders change, use `chart.setOption()` with animation enabled. The areas should smoothly morph to new values.
+**Reactivity:** `chart.setOption()` called on `[allModels, scenario]` changes. Slider changes recompute all 3 curves. Scenario toggle updates opacity/lineWidth highlight. Smooth morphing via ECharts built-in animation.
 
-**Compact styling:** No external legend (the colors are self-evident from the toggle above). Minimal axis labels. The chart should feel like part of the slide, not a standalone visualization.
+**Legend:** Inline in the chart card header — 3 scenario-colored dots with labels. Active scenario at full opacity, inactive at 40%. No external ECharts legend.
 
 ---
 
@@ -352,7 +356,7 @@ After building, verify all of these:
 - [ ] Navigate to slide 18 (Financial Outlook) — displays correctly
 - [ ] TOP HALF: KPI cards show correct values for selected scenario
 - [ ] BOTTOM HALF table: shows data for selected scenario, updates on toggle/slider
-- [ ] BOTTOM HALF chart: shows ALL 3 scenarios as stacked areas, highlights active one
+- [x] BOTTOM HALF chart: shows ALL 3 scenarios as overlapping areas, highlights active one
 - [ ] Toggle between scenarios — KPIs, table, AND chart all update smoothly together
 - [ ] Adjust each slider — everything recalculates in real time
 - [ ] Strategic metrics (GovCon % of Rev, EBITDA) update with scenario changes
