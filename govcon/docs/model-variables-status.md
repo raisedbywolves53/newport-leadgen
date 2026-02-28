@@ -17,7 +17,8 @@
 - Micro (<$15K): $250/bid
 - Simplified ($15K-$350K): $1,500/bid
 - SLED: $1,000/bid
-- Set-Aside: NOT YET DEFINED — needs number
+- Set-Aside (standard SB): $1,500/bid (same as simplified — self-certification adds <1hr)
+- Mentor-Protege JV: $3,000/bid (2-3x effort due to dual-firm docs + work share plan)
 
 ### Operational Capacity (bids/month)
 - Free route: 3-8/month (36-96/yr)
@@ -212,26 +213,44 @@
 - Working capital impact at 8% cost of capital on 15-day DSO differential = ~0.3% of revenue (trivial)
 - Should remain separate from fulfillment overhead (balance sheet vs P&L)
 
-## PENDING RESEARCH
+### Set-Aside Bid Prep Cost — LOCKED
+- Standard small business set-aside: $1,500/bid (same as simplified — self-certification adds <1hr)
+- Mentor-Protege JV proposals: $3,000/bid (2-3x effort due to dual-firm docs + work share plan)
+- Complete bid prep schedule: Micro $250, Simplified $1,500, SLED $1,000, Set-Aside $1,500, JV $3,000
 
-### Set-Aside Bid Prep Cost
-- Micro $250, Simplified $1,500, SLED $1,000
-- Set-Aside: ??? — needs a number
+### Revenue Ramp / Portfolio Evolution — LOCKED
+- Paid route: Y1 $1.04M → Y2 $11.5M → Y3 $25.6M → Y4 $34.9M → Y5 $42.4M (5-yr cumulative $115.4M)
+- Free route: Y1 $489K → Y2 $5.8M → Y3 $13.7M → Y4 $19.4M → Y5 $21.8M (5-yr cumulative $61.1M)
+- Paid route = ~2x free route across all years (tools multiply bid volume, not win rate)
+- Compound growth driver: By Y4, renewal revenue ($19.9M) exceeds new win revenue ($15.0M)
+- Renewals grow from 15 (Y1) → 36 (Y2) → 65 (Y3) → 78 (Y4) → 80 (Y5)
+- Y2 jump (10x) is from channel access, not win rate improvement — jails ($3M ACV) and FSMC subs ($2.75M ACV) open
+- PORTFOLIO_EVOLUTION replacement computed for both routes — 5 categories (micro, simplified, SLED, sub, set-aside/JV)
+- Full model with tables 1-5 (bids → wins → renewals → active → revenue) in revenue-ramp-model.md
 
-### Revenue Ramp / Portfolio Evolution
-- Current PORTFOLIO_EVOLUTION percentages need revision given ALL locked data
-- Now informed by: win rates per tier, time-to-first-win per channel, PP accumulation, BD activity model
-- Year 1: micro + simplified + small school districts + DLA subs
-- Year 2: county jails + cooperatives + FSMC subs
-- Year 3+: Mentor-Protege JV + set-asides + large
+### Contract Duration / Overlap — LOCKED
+- Federal micro: BPA (recurring), 80-85% continuation rate, spot transactions under BPA ceiling
+- Federal simplified: 1+4 option years, 85-90% option exercise rate
+- FL school districts: 1+4 renewal years (USDA mandated annual cycles), 90%+ retention through options
+- County jails: 1+2 renewals, 85% retention
+- DLA sub: Ongoing (no fixed term), 90%+ retention
+- FSMC sub: Indefinite approved vendor status, 90-95% retention (GPO relationships extremely sticky)
+- Mentor-Protege JV: 2-year SBA approval window, unlimited contracts
+- Concurrent contracts: Y1 10-52 active → Y2 26-92 → Y3 37-110 → Y5 44-115
+- **Key finding: Model default 70% renewal rate is conservative. Actual food supply retention is 85-90%+**
+- Full details in revenue-ramp-model.md
 
-### Contract Duration / Overlap
-- No concept of multi-year contracts in current model
-- SLED school districts: 1+4 year structure
-- DOC: 5-10 year contracts
-- Federal: mostly annual with renewal options
+### Subcontracting Revenue — LOCKED
+- Modeled WITHIN the revenue ramp (not separate) — DLA sub, FSMC sub, and Mentor-Protege JV are included as tiers
+- Paid route sub revenue: $0 Y1 → $3.38M Y2 → $11.5M Y3 → $19.6M Y4 → $25.0M Y5
+- Free route sub revenue: $0 Y1 → $0 Y2 → $3.38M Y3 → $8.13M Y4 → $12.88M Y5
+- By Y4, sub revenue exceeds prime revenue (paid route: 56% sub vs 44% prime)
+- FSMC subs dominate by Y5 (39% of total revenue) due to $2.75M ACV and 90-95% retention
+- Different cost structure: GPO fees 3-7% for FSMC subs, lower compliance overhead (prime handles most), lower fulfillment overhead (2.5% vs 5% for direct)
+- Full tables in revenue-ramp-model.md
 
-### Subcontracting Revenue
-- Not in current model at all
-- DLA subs ($250K-$1M), FSMC subs ($500K-$5M), Mentor-Protege JV ($1M-$5M)
-- Separate revenue stream with different cost structure
+## ALL VARIABLES LOCKED — Ready for Model Implementation
+
+**Status: 12 locked variables + 1 owner input (gross margin). All research complete.**
+
+Next step: Rebuild `computeProForma()` in `web/src/data/financials.js` using all validated research data.
