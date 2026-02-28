@@ -27,10 +27,10 @@ export default function SectionDivider({ title, subtitle, backgroundImage }) {
         />
 
         <motion.h2
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="font-body text-4xl md:text-5xl font-bold tracking-tight text-navy-950"
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="font-body text-4xl md:text-5xl font-semibold tracking-tight text-zinc-950"
         >
           {title}
         </motion.h2>
@@ -40,7 +40,7 @@ export default function SectionDivider({ title, subtitle, backgroundImage }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-3 text-base text-navy-800/60 max-w-lg mx-auto"
+            className="mt-3 text-base text-zinc-500 max-w-lg mx-auto"
           >
             {subtitle}
           </motion.p>

@@ -36,7 +36,7 @@ export default function TitleSlide() {
             className="font-body text-base font-normal tracking-[0.2em] uppercase mt-6"
             style={{ color: '#C9A84C' }}
           >
-            30 Years of Wholesale Distribution
+            35 Years of Wholesale Distribution
           </motion.p>
         </div>
       </div>

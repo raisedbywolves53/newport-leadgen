@@ -2,15 +2,15 @@
 
 ## Project Overview
 
-Newport Wholesalers is a 30-year American-owned grocery wholesaler based in Plantation, FL. Still Mind Creative LLC is building a two-channel growth strategy: (1) Government contracting — entering federal/state/local food procurement, and (2) Commercial SDR — AI-powered outbound prospecting for their core wholesale business. This repo contains the intelligence system, client deliverables, and operational tooling for both channels.
+Newport Wholesalers is a 35-year American-owned grocery wholesaler based in Plantation, FL (founded 1991). Still Mind Creative LLC is building a two-channel growth strategy: (1) Government contracting — entering federal/state/local food procurement, and (2) Commercial SDR — AI-powered outbound prospecting for their core wholesale business. This repo contains the intelligence system, client deliverables, and operational tooling for both channels.
 
-Newport's competitive advantage: 30 years of continuous Florida operations, real warehouse/fleet infrastructure, W-2 American workforce, clean audit history. In the current post-DOGE/fraud-crackdown environment, agencies actively need vendors with auditable, transparent histories. Newport is the exact type of company these agencies need — a competitive moat that took decades to build and can't be manufactured.
+Newport's competitive advantage: 35 years of continuous Florida operations, real warehouse/fleet infrastructure, W-2 American workforce, clean audit history. In the current post-DOGE/fraud-crackdown environment, agencies actively need vendors with auditable, transparent histories. Newport is the exact type of company these agencies need — a competitive moat that took decades to build and can't be manufactured.
 
 ## Tech Stack
 
 - **Core Language**: Python 3.10+
-- **Web Presentation**: React 19 + Vite 7 + Tailwind CSS 4 (primary client deliverable)
-- **Data Visualization**: ECharts 6 (charts) + Motion 12 (animations)
+- **Web Presentation**: React 19.2 + Vite 7.3 + Tailwind CSS 4.2 (primary client deliverable)
+- **Data Visualization**: ECharts 6.0 (charts) + Motion 12 (animations)
 - **Data Storage**: Flat CSV files + JSON configs (no database)
 - **Pipeline Tracking**: Google Sheets API v4 (gspread)
 - **Notifications**: Slack webhooks + Resend email
@@ -42,7 +42,7 @@ python govcon/scoring/bid_no_bid.py --input data/final/opportunities.csv   # Sco
 ## Project Structure
 
 ```
-web/             # Primary client deliverable: React/Vite interactive GovCon presentation (20 slides)
+web/             # Primary client deliverable: React/Vite interactive GovCon presentation (17 slides, 2 financial slides planned)
 govcon/          # Channel 1: Government contracting (enrichment, scrapers, scoring, tracking, deliverables)
 commercial/      # Channel 2: Commercial SDR (enrichment, scrapers, outreach [future])
 config/          # Shared: ICP definitions, exclusions, government contract params
@@ -96,9 +96,10 @@ Reference these for detailed context:
 
 **Known gotchas:**
 - SAM.gov API has intermittent outages (experienced Feb 2026). System degrades gracefully — check logs.
-- The GovCon web presentation (`web/`) is the primary client deliverable. 20 interactive slides, React 19 + Vite 7, deployed via Netlify. Design rules are in `web/DESIGN-SYSTEM.md` — read it before modifying any slide.
-- Financial data lives in `web/src/data/financials.js` (extracted from the v7 Excel model, now archived at `archive/govcon-financials-openpyxl/`). Market data in `web/src/data/market.js`, strategy data in `web/src/data/strategy.js`.
-- Legacy PPTX and Excel builders are archived in `archive/` subdirectories. The v7 .xlsx remains the reference for validating financial projections.
+- The GovCon web presentation (`web/`) is the primary client deliverable. 17 interactive slides (2 financial slides planned), React 19.2 + Vite 7.3 + Tailwind CSS 4.2 + ECharts 6 + Motion 12, deployed via Netlify. Design rules are in `web/DESIGN-SYSTEM.md` — read it before modifying any slide.
+- Market data in `web/src/data/market.js`, strategy data in `web/src/data/strategy.js`. Financial computation engine planned for `web/src/data/financials.js` (see `FINANCIAL-SLIDES-BUILD.md` for full build spec).
+- Legacy PPTX and Excel builders are archived in `archive/` subdirectories. The v7 .xlsx (`data/Newport_GovCon_Financial_Model_v7.xlsx`) remains as reference but financial slides are being rebuilt from scratch using research data.
+- Slide design system: zinc palette + brand accents (Gold #C9A84C, Teal #1B7A8A, Light Teal #239BAD, Orange #E8913A). Card pattern: `rounded-xl bg-white border border-zinc-200 shadow-sm`. Always use `pb-14` for progress bar clearance.
 - Google Sheets API requires a service account JSON file at the path specified in `GOOGLE_SHEETS_CREDS_PATH`. The spreadsheet must be shared with the service account email.
 - Apollo.io free tier has unlimited search but limited reveal credits. Budget reveals per segment.
 
@@ -125,13 +126,21 @@ Reference these for detailed context:
 - [x] All slides implemented with v7 data and narrative
 - [x] PPTX builder and output archived to `archive/govcon-presentation-pptx/`
 
-**Phase 2.5: GovCon Web Presentation** — COMPLETE
-- [x] React 19 + Vite 7 + Tailwind CSS 4 + ECharts 6 + Motion 12
-- [x] 20 interactive slides across 4 acts (Anchor, Market, Strategy, Execution)
-- [x] Design system: editorial tone, gold + teal accents, card-based layouts
-- [x] All market data from `web/src/data/market.js`, strategy from `strategy.js`, financials from `financials.js`
+**Phase 2.5: GovCon Web Presentation** — COMPLETE (17 slides live, 2 financial slides in progress)
+- [x] React 19.2 + Vite 7.3 + Tailwind CSS 4.2 + ECharts 6.0 + Motion 12
+- [x] 17 interactive slides across 4 sections (null/title, opportunity, strategy, execution)
+- [x] Design system: editorial tone, gold + teal accents, card-based layouts, zinc palette
+- [x] Market data from `web/src/data/market.js`, strategy from `strategy.js`
 - [x] Password-gated, Netlify-deployed
 - [x] This is now the primary client-facing deliverable
+- [x] Multiple rounds of visual polish (font sizing, spacing, progress bar clearance)
+- [ ] **IN PROGRESS**: 2 interactive financial slides (Executive Dashboard + 5-Year Pro Forma)
+  - Build spec: `FINANCIAL-SLIDES-BUILD.md` (root of repo)
+  - Custom build using existing stack (ECharts + Tailwind + Motion), no new dependencies
+  - Pure computation engine: `computeProForma(scenarioKey, overrides)` with 3 scenarios + 3 adjustable sliders
+  - Slide 18: Financial Dashboard — KPI cards + scenario toggle + 5-year trajectory chart
+  - Slide 19: Pro Forma — interactive table + sliders + companion chart (Looker Studio/Excel hybrid feel)
+  - Research data sources: `govcon/docs/research.md`, `govcon/docs/strategy.md`, `govcon/docs/phases/PHASE-4-FINANCIALS.md`
 
 **Phase 3: Commercial Financial Model** — COMPLETE (ARCHIVED)
 - [x] `build_commercial_model.py`: 5 sheets, 3 scenarios, 3 charts — v1 complete
@@ -144,7 +153,7 @@ Reference these for detailed context:
 - [x] PPTX builder and output archived to `archive/commercial-presentation-pptx/`
 - [x] Commercial web integration is a future item
 
-**Next**: Phase 5 (Operational Hardening)
+**Next**: Complete financial slides (Slide 18 + 19), then Phase 5 (Operational Hardening)
 - Fine-tune daily monitor scoring weights
 - Prepare bid template library
 - Set up direct portal monitoring for top FL school districts

@@ -60,23 +60,23 @@ export function CompassStar({ size = 20, color = '#C9A84C', opacity = 0.25, clas
 export function HeroStat({ value, unit, detail, delay = 0.25, accentColor = '#C9A84C', className = '' }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
+      transition={{ duration: 0.45, delay }}
       className={`flex items-baseline gap-3 ${className}`}
     >
       <span
-        className="font-body text-6xl md:text-7xl font-bold tracking-tighter leading-none"
+        className="font-body text-5xl md:text-6xl font-semibold tracking-tighter leading-none"
         style={{ color: accentColor }}
       >
         {value}
       </span>
       <div className="flex flex-col">
-        <span className="font-body text-sm font-semibold text-navy-950">
+        <span className="font-body text-sm font-semibold text-zinc-950">
           {unit}
         </span>
         {detail && (
-          <span className="font-body text-xs text-navy-800/50 mt-0.5">
+          <span className="font-body text-xs text-zinc-500 mt-0.5">
             {detail}
           </span>
         )}

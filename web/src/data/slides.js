@@ -17,14 +17,12 @@ export const SLIDES = [
   { id: 'b2b-fast-track', label: 'B2B Fast Track', section: 'opportunity' },
 
   // Act 3: The Strategy
-  { id: 'divider-strategy', label: 'The Strategy', section: 'strategy', isDivider: true },
   { id: 'how-it-works', label: 'How It Works', section: 'strategy' },
   { id: 'contract-examples', label: 'Real Contracts', section: 'strategy' },
   { id: 'portfolio-evolution', label: 'Portfolio Evolution', section: 'strategy' },
   { id: 'bd-strategy', label: 'Relationship Strategy', section: 'strategy' },
 
   // Act 4: Making It Real
-  { id: 'divider-execution', label: 'Making It Real', section: 'execution', isDivider: true },
   { id: 'risk-compliance', label: 'Risk & Compliance', section: 'execution' },
   { id: 'recommendation', label: 'Our Recommendation', section: 'execution' },
   { id: 'key-questions', label: 'Key Questions', section: 'execution' },

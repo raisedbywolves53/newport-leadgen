@@ -1,6 +1,5 @@
 import { motion } from 'motion/react'
 import { Truck, Brain, Handshake } from 'lucide-react'
-import SlideLayout from '../ui/SlideLayout'
 import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 import { RESPONSIBILITIES } from '../../data/strategy'
 
@@ -16,10 +15,10 @@ export default function BlueprintSlide() {
 
       {/* Headline */}
       <motion.h2
-        initial={{ opacity: 0, y: -15 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="font-body text-4xl md:text-5xl font-bold tracking-tight text-navy-950 text-center leading-tight"
+        transition={{ delay: 0.2, duration: 0.45 }}
+        className="font-body text-3xl md:text-4xl font-semibold tracking-tight text-zinc-950 text-center leading-tight"
       >
         The Blueprint Is Yours
       </motion.h2>
@@ -27,7 +26,7 @@ export default function BlueprintSlide() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="text-navy-800/60 text-[15px] text-center mt-3 max-w-xl leading-relaxed"
+        className="text-zinc-600 text-[15px] text-center mt-3 max-w-xl leading-relaxed"
       >
         Everything in this presentation — the market data, the competitive intelligence,
         the pipeline strategy — is yours whether we work together or not.
@@ -35,31 +34,31 @@ export default function BlueprintSlide() {
 
       {/* Partnership split */}
       <motion.div
-        initial={{ opacity: 0, y: 15 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.4 }}
-        className="grid grid-cols-[1fr_auto_1fr] gap-5 mt-10 w-full max-w-3xl"
+        className="grid grid-cols-[1fr_auto_1fr] gap-6 mt-10 w-full max-w-4xl"
       >
         {/* Newport */}
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 relative overflow-hidden">
-          <div className="absolute left-0 top-4 bottom-4 w-1 rounded-full" style={{ backgroundColor: '#E8913A' }} />
-          <div className="pl-2">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                <Truck className="w-4 h-4 text-amber-400" strokeWidth={1.5} />
+        <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-7 relative overflow-hidden">
+          <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
+          <div className="pl-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#C9A84C15' }}>
+                <Truck className="w-5 h-5" style={{ color: '#C9A84C' }} strokeWidth={1.5} />
               </div>
-              <h4 className="text-amber-400 font-semibold text-sm">Newport Owns</h4>
+              <h4 className="font-semibold text-base" style={{ color: '#C9A84C' }}>Newport Owns</h4>
             </div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-2.5">
               {RESPONSIBILITIES.partnership.newport.map((item, i) => (
                 <motion.li
                   key={i}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + i * 0.06 }}
-                  className="text-navy-800/65 text-xs leading-relaxed flex items-start gap-2"
+                  className="text-zinc-600 text-sm leading-relaxed flex items-start gap-2"
                 >
-                  <span className="text-amber-500/60 mt-1">-</span>
+                  <span className="mt-0.5" style={{ color: '#C9A84C', opacity: 0.6 }}>-</span>
                   {item}
                 </motion.li>
               ))}
@@ -69,30 +68,30 @@ export default function BlueprintSlide() {
 
         {/* Center connector */}
         <div className="flex flex-col items-center justify-center gap-2">
-          <Handshake className="w-5 h-5 text-navy-800/40" />
-          <div className="w-px h-16 bg-gradient-to-b from-amber-500/30 via-navy-800/40 to-teal-500/30" />
+          <Handshake className="w-6 h-6 text-zinc-400" />
+          <div className="w-px h-20" style={{ background: 'linear-gradient(to bottom, #C9A84C50, #a1a1aa60, #1B7A8A50)' }} />
         </div>
 
         {/* Still Mind */}
-        <div className="rounded-xl border border-teal-500/20 bg-teal-500/5 p-5 relative overflow-hidden">
-          <div className="absolute right-0 top-4 bottom-4 w-1 rounded-full" style={{ backgroundColor: '#1B7A8A' }} />
-          <div className="pr-2">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-teal-500/15 flex items-center justify-center">
-                <Brain className="w-4 h-4 text-teal-400" strokeWidth={1.5} />
+        <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-7 relative overflow-hidden">
+          <div className="absolute right-0 top-3 bottom-3 w-1 rounded-full" style={{ backgroundColor: '#1B7A8A' }} />
+          <div className="pr-3">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#1B7A8A15' }}>
+                <Brain className="w-5 h-5" style={{ color: '#1B7A8A' }} strokeWidth={1.5} />
               </div>
-              <h4 className="text-teal-400 font-semibold text-sm">Still Mind Delivers</h4>
+              <h4 className="font-semibold text-base" style={{ color: '#1B7A8A' }}>Still Mind Delivers</h4>
             </div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-2.5">
               {RESPONSIBILITIES.partnership.stillMind.map((item, i) => (
                 <motion.li
                   key={i}
                   initial={{ opacity: 0, x: 8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + i * 0.06 }}
-                  className="text-navy-800/65 text-xs leading-relaxed flex items-start gap-2"
+                  className="text-zinc-600 text-sm leading-relaxed flex items-start gap-2"
                 >
-                  <span className="text-teal-500/60 mt-1">-</span>
+                  <span className="mt-0.5" style={{ color: '#1B7A8A', opacity: 0.6 }}>-</span>
                   {item}
                 </motion.li>
               ))}
@@ -106,7 +105,7 @@ export default function BlueprintSlide() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4 }}
-        className="text-navy-800/50 text-xs text-center mt-10 max-w-lg leading-relaxed"
+        className="text-zinc-500 text-xs text-center mt-10 max-w-lg leading-relaxed"
       >
         No obligation, no pressure. If the opportunity makes sense for your business,
         we're ready to build it with you.
@@ -120,7 +119,7 @@ export default function BlueprintSlide() {
         className="mt-5 flex flex-col items-center gap-3"
       >
         <CompassStar size={20} opacity={0.3} delay={1.6} />
-        <span className="text-navy-800/40 text-[10px] tracking-wider uppercase">
+        <span className="text-zinc-400 text-[10px] tracking-wider uppercase">
           Prepared by Still Mind Creative LLC
         </span>
       </motion.div>

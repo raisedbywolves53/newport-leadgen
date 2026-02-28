@@ -20,32 +20,42 @@ function StatCard({ stat, index }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.5 + index * 0.12 }}
-      className="rounded-2xl bg-white/70 backdrop-blur-sm border border-black/[0.06] p-5 h-full flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+      transition={{ duration: 0.45, delay: 0.5 + index * 0.1 }}
+      className="rounded-xl bg-white border border-zinc-200 p-5 h-full flex flex-col shadow-sm relative overflow-hidden"
     >
+      {/* Hero card gets gold accent strip */}
+      {isHero && (
+        <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
+      )}
+
       <div className="flex items-center gap-3 mb-3">
-        <Icon
-          className="w-5 h-5"
-          style={{ color: isHero ? accent : '#0F1A2E50' }}
-          strokeWidth={1.5}
-        />
-        <span className="text-navy-950 font-semibold text-xs tracking-[-0.02em] leading-snug">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          style={{ backgroundColor: `${accent}15` }}
+        >
+          <Icon
+            className="w-4 h-4"
+            style={{ color: accent }}
+            strokeWidth={1.5}
+          />
+        </div>
+        <span className="text-zinc-950 font-semibold text-xs tracking-[-0.02em] leading-snug">
           {stat.label}
         </span>
       </div>
 
       <span
-        className={`font-body font-bold tracking-tight leading-none mb-2 ${
-          isHero ? 'text-4xl' : 'text-3xl text-navy-950'
+        className={`font-body font-semibold tracking-tight leading-none mb-2 ${
+          isHero ? 'text-3xl' : 'text-2xl text-zinc-950'
         }`}
         style={isHero ? { color: accent } : undefined}
       >
         {display}
       </span>
 
-      <span className="text-navy-800/50 font-medium text-[11px] leading-relaxed mt-auto">
+      <span className="text-zinc-500 font-medium text-[11px] leading-relaxed mt-auto">
         {stat.detail}
       </span>
     </motion.div>
@@ -74,10 +84,10 @@ export default function ExecutiveSummarySlide() {
         {/* Right — Content */}
         <div className="flex flex-col justify-center px-10 py-12">
           <motion.h2
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="font-body text-3xl md:text-4xl font-bold tracking-tight text-navy-950 mb-2"
+            className="font-body text-3xl font-semibold tracking-tight text-zinc-950 mb-2"
           >
             The Opportunity
           </motion.h2>
@@ -86,9 +96,9 @@ export default function ExecutiveSummarySlide() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.35 }}
-            className="font-body text-sm text-navy-800/60 mb-8 max-w-md"
+            className="font-body text-sm text-zinc-600 mb-8 max-w-md"
           >
-            Newport's 30-year operating history is a competitive moat in today's post-fraud procurement environment.
+            Newport's 35-year operating history is a competitive moat in today's post-fraud procurement environment.
           </motion.p>
 
           <div className="grid grid-cols-2 gap-4">
@@ -103,7 +113,7 @@ export default function ExecutiveSummarySlide() {
             transition={{ delay: 1.4 }}
             className="mt-6"
           >
-            <p className="text-[10px] text-navy-800/40">
+            <p className="text-[10px] text-zinc-300">
               Sources: USASpending API FY2024 (Feb 2026 query) | FPDS competition analysis | Fed-Spend recompete analysis
             </p>
           </motion.div>

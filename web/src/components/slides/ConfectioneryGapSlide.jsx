@@ -4,13 +4,37 @@ import { PieChart } from 'echarts/charts'
 import { GraphicComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { motion } from 'motion/react'
-import { TrendingUp, Shield, Lightbulb } from 'lucide-react'
-import { GoldLine, CompassStar } from '../ui/DecorativeElements'
+import { Star, Award, Users } from 'lucide-react'
+import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 import { PRODUCT_TIERS } from '../../data/market'
 
 echarts.use([PieChart, GraphicComponent, TooltipComponent, CanvasRenderer])
 
 const confectionery = PRODUCT_TIERS.tier1[0]
+
+const statTiles = [
+  {
+    icon: Star,
+    label: 'National Spend',
+    stat: `$${(confectionery.nationalSpend / 1e6).toFixed(0)}M`,
+    detail: `Only $${(confectionery.flSpend / 1e3).toFixed(0)}K captured in Florida`,
+    accent: '#C9A84C',
+  },
+  {
+    icon: Award,
+    label: 'National Awards',
+    stat: `${confectionery.nationalAwards}`,
+    detail: 'PSC 8925 — Confectionery & Nuts',
+    accent: '#1B7A8A',
+  },
+  {
+    icon: Users,
+    label: 'Avg Offers per Award',
+    stat: `${confectionery.avgOffers}`,
+    detail: 'Minimal competition',
+    accent: '#1B7A8A',
+  },
+]
 
 export default function ConfectioneryGapSlide() {
   const chartRef = useRef(null)
@@ -26,51 +50,52 @@ export default function ConfectioneryGapSlide() {
         trigger: 'item',
         backgroundColor: '#18181b',
         borderColor: '#27272a',
-        borderWidth: 1,
-        textStyle: {
-          color: '#fafafa',
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: 12,
-        },
-        padding: [8, 12],
+        borderRadius: 8,
+        textStyle: { color: '#fff', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 },
       },
-      series: [
-        {
-          type: 'pie',
-          radius: ['52%', '78%'],
-          center: ['50%', '50%'],
-          data: [
-            {
-              value: confectionery.soleSource,
-              name: 'Sole Source',
-              itemStyle: { color: '#C9A84C' },
+      graphic: [{
+        type: 'group',
+        left: 'center',
+        top: 'center',
+        children: [
+          {
+            type: 'text',
+            style: {
+              text: `${confectionery.soleSource}%`,
+              textAlign: 'center',
+              fill: '#C9A84C',
+              fontSize: 40,
+              fontWeight: 600,
+              fontFamily: 'Inter, system-ui, sans-serif',
             },
-            {
-              value: 100 - confectionery.soleSource,
-              name: 'Competitive',
-              itemStyle: { color: '#e5e5e5' },
-            },
-          ],
-          label: { show: false },
-          emphasis: { disabled: true },
-        },
-      ],
-      graphic: [
-        {
-          type: 'text',
-          left: 'center',
-          top: 'center',
-          style: {
-            text: `${confectionery.soleSource}%`,
-            fontSize: 32,
-            fontWeight: 700,
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fill: '#C9A84C',
-            textAlign: 'center',
-            textVerticalAlign: 'middle',
+            top: -8,
           },
-        },
-      ],
+          {
+            type: 'text',
+            style: {
+              text: 'Sole Source',
+              textAlign: 'center',
+              fill: '#71717a',
+              fontSize: 13,
+              fontFamily: 'Inter, system-ui, sans-serif',
+            },
+            top: 34,
+          },
+        ],
+      }],
+      series: [{
+        type: 'pie',
+        radius: ['48%', '76%'],
+        center: ['50%', '50%'],
+        avoidLabelOverlap: false,
+        label: { show: false },
+        labelLine: { show: false },
+        emphasis: { scale: false },
+        data: [
+          { value: confectionery.soleSource, name: 'Sole Source', itemStyle: { color: '#C9A84C' } },
+          { value: 100 - confectionery.soleSource, name: 'Competitive', itemStyle: { color: '#e5e5e5' } },
+        ],
+      }],
     })
 
     const handleResize = () => chart.resize()
@@ -82,218 +107,119 @@ export default function ConfectioneryGapSlide() {
   }, [])
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden">
-      {/* ZONE 1: Header */}
+    <div className="w-full h-full flex flex-col justify-center px-20 pb-16 relative overflow-hidden">
+      <BackgroundRing size={500} className="-top-40 -right-40" opacity={0.03} />
+      <BackgroundRing size={300} className="bottom-20 -right-20" opacity={0.025} />
+
+      {/* Header */}
       <div className="mb-4 relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="inline-block text-xs font-medium uppercase tracking-widest text-zinc-400 mb-3"
+          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-3"
         >
           Category Deep Dive
         </motion.span>
         <motion.h2
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.1 }}
-          className="text-3xl font-semibold tracking-tight text-zinc-950 mb-2"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="font-body text-3xl font-semibold tracking-tight text-zinc-950 mb-2"
         >
           The Confectionery Gap
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.35, delay: 0.2 }}
-          className="text-sm text-zinc-600 max-w-2xl"
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="font-body text-[15px] text-zinc-600 max-w-2xl"
         >
-          The lowest-competition category in government food — and Newport
-          already has the suppliers.
+          The lowest-competition category in government food — and you already have the suppliers.
         </motion.p>
-        <GoldLine width={48} className="mt-3" delay={0.25} />
+        <GoldLine width={60} className="mt-4" delay={0.25} />
       </div>
 
-      {/* ZONE 2: Stat card row — HORIZONTAL */}
-      <div className="grid grid-cols-3 gap-4 mb-4 relative z-10">
-        {/* $55M National Spend */}
+      {/* Dashboard: Chart + Stat Tiles */}
+      <div className="grid grid-cols-[3fr_2fr] gap-4 relative z-10" style={{ height: '380px' }}>
+
+        {/* Left: Hero chart card */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col gap-6 py-6"
+          transition={{ duration: 0.45, delay: 0.3 }}
+          className="rounded-xl bg-white p-5 shadow-sm border border-zinc-200 relative overflow-hidden"
         >
-          <div className="px-6 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-500">National Spend</span>
-              <span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-zinc-600">
-                <Shield className="w-3 h-3" /> PSC 8925
-              </span>
+          {/* Gold accent strip */}
+          <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
+
+          <div className="flex flex-col h-full">
+            <div className="flex-1 min-h-0">
+              <div ref={chartRef} className="w-full h-full" />
             </div>
-            <span
-              className="text-2xl font-semibold tabular-nums tracking-tight"
-              style={{ color: '#C9A84C' }}
-            >
-              $55M
-            </span>
-          </div>
-          <div className="border-t border-zinc-100 px-6 pt-4 flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center gap-2 font-medium text-zinc-900">
-              Only $412K captured in FL
-            </div>
-            <div className="text-zinc-500 text-xs">
-              Confectionery &amp; Nuts — highest Newport fit
+            {/* Compact legend */}
+            <div className="flex items-center gap-5 pt-2 border-t border-zinc-100">
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
+                <span className="font-body text-[13px] text-zinc-500">Sole Source</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#e5e5e5' }} />
+                <span className="font-body text-[13px] text-zinc-500">Competitive</span>
+              </div>
             </div>
           </div>
         </motion.div>
 
-        {/* 45 National Awards */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.38 }}
-          className="rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col gap-6 py-6"
-        >
-          <div className="px-6 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-500">National Awards</span>
-              <span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-zinc-600">
-                FY2024
-              </span>
-            </div>
-            <span
-              className="text-2xl font-semibold tabular-nums tracking-tight"
-              style={{ color: '#1B7A8A' }}
-            >
-              {confectionery.nationalAwards}
-            </span>
-          </div>
-          <div className="border-t border-zinc-100 px-6 pt-4 flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center gap-2 font-medium text-zinc-900">
-              Contract actions nationally
-            </div>
-            <div className="text-zinc-500 text-xs">
-              Low volume = low vendor awareness
-            </div>
-          </div>
-        </motion.div>
-
-        {/* 1.6 Avg Offers */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.46 }}
-          className="rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col gap-6 py-6"
-        >
-          <div className="px-6 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-zinc-500">
-                Avg Offers per Award
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-emerald-700">
-                <TrendingUp className="w-3 h-3" /> LOW
-              </span>
-            </div>
-            <span
-              className="text-2xl font-semibold tabular-nums tracking-tight"
-              style={{ color: '#1B7A8A' }}
-            >
-              {confectionery.avgOffers}
-            </span>
-          </div>
-          <div className="border-t border-zinc-100 px-6 pt-4 flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center gap-2 font-medium text-zinc-900">
-              Minimal competition
-            </div>
-            <div className="text-zinc-500 text-xs">
-              Most awards go to the only bidder
-            </div>
-          </div>
-        </motion.div>
+        {/* Right: 3 stacked stat tiles */}
+        <div className="flex flex-col gap-4">
+          {statTiles.map((tile, i) => {
+            const Icon = tile.icon
+            return (
+              <motion.div
+                key={tile.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
+                className="rounded-xl bg-white p-5 shadow-sm border border-zinc-200 flex-1 flex flex-col justify-center"
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: `${tile.accent}15` }}
+                  >
+                    <Icon className="w-5 h-5" style={{ color: tile.accent }} strokeWidth={1.5} />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-body text-xs font-semibold text-zinc-500">{tile.label}</span>
+                    <span
+                      className="font-body text-2xl font-semibold tracking-tight leading-none block mt-1"
+                      style={{ color: tile.accent }}
+                    >
+                      {tile.stat}
+                    </span>
+                    <p className="font-body text-xs text-zinc-500 mt-1.5">
+                      {tile.detail}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
       </div>
 
-      {/* ZONE 3: Chart card — FULL WIDTH donut */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col relative overflow-hidden mb-4 relative z-10"
-        style={{ height: '240px' }}
-      >
-        <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
-
-        <div className="p-6 pb-0 pl-8">
-          <h3 className="text-lg font-semibold text-zinc-950">
-            Sole-Source Rate
-          </h3>
-          <p className="text-sm text-zinc-500 mt-1">
-            PSC 8925 — Confectionery &amp; Nuts
-          </p>
-        </div>
-
-        <div className="p-6 pt-4 pl-8 flex-1 min-h-0">
-          <div ref={chartRef} className="w-full h-full" />
-        </div>
-
-        <div className="px-6 py-3 pl-8 border-t border-zinc-100 flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: '#C9A84C' }}
-            />
-            <span className="text-xs text-zinc-500">
-              Sole Source ({confectionery.soleSource}%)
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: '#e5e5e5' }}
-            />
-            <span className="text-xs text-zinc-500">
-              Competitive ({100 - confectionery.soleSource}%)
-            </span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ZONE 4: InsightCard */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
-        className="rounded-xl bg-amber-50/50 border border-amber-200/50 shadow-sm p-6 relative z-10"
-      >
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-md bg-amber-100 flex items-center justify-center shrink-0">
-            <Lightbulb
-              className="w-4 h-4 text-amber-600"
-              strokeWidth={1.5}
-            />
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-zinc-950 mb-1">
-              Built-In Cost Advantage
-            </h4>
-            <p className="text-sm text-zinc-600 leading-relaxed">
-              Newport's Segment E supplier pricing gives a built-in cost
-              advantage. 93% of NAICS 424490 contracts at DoD are sole-source.
-              Gov markup range: {confectionery.govMarkup}.
-            </p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ZONE 5: Source */}
+      {/* Source + compass star */}
       <div className="flex items-center justify-between mt-4 relative z-10">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 1.0 }}
           className="text-[10px] text-zinc-300"
         >
           {confectionery.source}
         </motion.p>
-        <CompassStar size={14} opacity={0.2} />
+        <CompassStar size={16} opacity={0.2} delay={1.2} />
       </div>
     </div>
   )

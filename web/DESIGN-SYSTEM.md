@@ -1,552 +1,399 @@
 # Newport Presentation Design System
 
-> **Purpose**: Single source of truth for every visual decision in the Newport web presentation (slides 3–19). Written so an AI coding assistant can mechanically produce slides that match the [shadcn/ui dashboard-01 block](https://ui.shadcn.com/blocks).
+> **Purpose**: Single source of truth for every visual decision in the Newport web presentation (slides 3–19). Written so an AI coding assistant can mechanically produce slides that meet Fortune 500 executive-presentation standards.
 >
-> **Slides 1–2 are EXCLUDED** from these guidelines.
+> **Slides 1–2 are EXCLUDED** from these guidelines. They have their own visual treatment.
 >
-> **Visual north star:** The `dashboard-01` block from [shadcn/ui](https://ui.shadcn.com/blocks). The actual source is at `apps/v4/app/(examples)/dashboard/` in the shadcn-ui/ui repo. The defining characteristics: **stat cards in a horizontal row on top → chart full-width below → optional table below that.** Every data slide MUST follow this vertical flow.
+> **Visual reference standard:** [shadcn/ui blocks](https://ui.shadcn.com/blocks) — dashboard layouts with charts inside cards, KPI stat tiles with trend indicators, clean data tables. Every data slide (6+) MUST include at least one chart or data visualization.
 
 ---
 
-## 1. THE ONE RULE (Read This First)
+## 1. Design Philosophy
 
-Previous versions of this system offered 6 layout patterns (A–F). That created too much variation. **There is now ONE layout.**
+The presentation tells one story: *Newport is the right partner for government food procurement.* Every slide is a scene. The visual language is **quiet, confident, and editorial** — the way a shadcn/ui dashboard communicates data.
 
-It is the shadcn `dashboard-01` layout:
+**Visual North Star: shadcn/ui Dashboard Aesthetic**
 
-```
-┌──────────┬──────────┬──────────┬──────────┐
-│ StatCard │ StatCard │ StatCard │ StatCard │  ← HORIZONTAL ROW of stat cards
-└──────────┴──────────┴──────────┴──────────┘
-┌────────────────────────────────────────────┐
-│                                            │
-│   ChartCard (FULL WIDTH)                   │  ← Chart BELOW the stat row
-│                                            │
-└────────────────────────────────────────────┘
-┌────────────────────────────────────────────┐
-│   Optional: TableCard or InsightCard       │  ← Optional third row
-└────────────────────────────────────────────┘
-```
+Study [shadcn/ui blocks](https://ui.shadcn.com/blocks). Key principles that apply to EVERY data slide (6+):
 
-**This is the ONLY layout. Every data slide uses it.**
+- **Charts live inside cards** — a donut, bar chart, or area chart sits inside a white card with a compact legend. Charts are never floating or unstyled.
+- **KPI stat tiles** — small cards showing a big number, a label, and optionally a trend indicator. These sit alongside or below chart cards.
+- **Data tables are clean** — minimal borders, alternating backgrounds, right-aligned numbers, no heavy styling. Tables live inside card surfaces.
+- **Layout is grid-based** — typically 2 columns: one large chart card (60%) + stacked stat tiles (40%). Or full-width chart above + row of stat tiles below.
+- **Every data slide MUST have at least one visual asset** — chart, data table, or styled metric tile. Pure text-card slides are forbidden for slides 6+.
 
-The vertical flow is always:
-1. **Slide header** (eyebrow → headline → subtitle → gold line)
-2. **Stat card row** — 3 or 4 cards in `grid-cols-3` or `grid-cols-4`, horizontal
-3. **Chart card** — full width, always BELOW the stat row
-4. **Optional bottom row** — table, insight, or additional stat cards
-5. **Source citation**
+**Four governing principles:**
 
-**What this means for existing slides:**
-- NO `grid-cols-[3fr_2fr]` layouts (chart beside stats)
-- NO vertical stat tile stacks
-- NO bento grids (hero card spanning rows)
-- Stats are ALWAYS in a horizontal row. Charts are ALWAYS below them.
+1. **Unified surface** — Every slide reads as one cohesive dashboard panel, not a collection of independent elements. White space is a design element.
+2. **Two-accent discipline** — Gold and teal carry all visual weight. No other hue appears in data, accents, or highlights.
+3. **Let the data breathe** — If a number is important, give it size. If text is supporting, make it smaller and lighter. Never let two elements compete.
+4. **Chart-first storytelling** — If a slide has quantitative data, show it as a chart FIRST, then support with stat cards. The chart is the hero; stat cards provide context.
 
 ---
 
-## 2. StatCard — The Core Building Block
+## 2. Color System
 
-This is extracted from shadcn's actual `section-cards.tsx` source code (`apps/v4/app/(examples)/dashboard/components/section-cards.tsx`).
+### 2.1 Foundations
 
-**shadcn's actual card anatomy:**
-```
-CardHeader
-  ├── CardDescription  (muted label — "Total Revenue")
-  ├── CardTitle        (big bold number — "$1,250.00")
-  └── CardAction       (Badge with trend icon + percentage — "↑ +12.5%")
-CardFooter
-  ├── Trend line       (font-medium text + icon — "Trending up this month ↑")
-  └── Description      (muted — "Visitors for the last 6 months")
-```
+The color system follows a **hybrid approach**: shadcn-style neutral surfaces (clean whites, subtle zinc borders) with Newport's gold and teal as accent/data colors. This gives the polished modern feel of shadcn while maintaining brand identity.
 
-**Newport translation** (no shadcn Card primitives — we use plain divs):
+**shadcn/ui reference values (OKLCH):**
 
-```jsx
-{/* StatCard — use for EVERY stat tile */}
-<motion.div
-  whileHover={{ y: -2 }}
-  className="rounded-xl bg-white border border-zinc-200 shadow-sm
-             hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out
-             flex flex-col gap-6 py-6 cursor-default"
->
-  {/* CardHeader zone */}
-  <div className="px-6 flex flex-col gap-2">
-    {/* Row 1: muted label (left) + trend badge (right) */}
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-zinc-500">{label}</span>
-      <span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-zinc-700">
-        {trendIcon} {trendText}
-      </span>
-    </div>
-    {/* Row 2: big bold number */}
-    <span className="text-2xl font-semibold tabular-nums tracking-tight" style={{ color: accentColor }}>
-      {value}
-    </span>
-  </div>
+| shadcn Token | OKLCH Value | Approximate Hex | Our Usage |
+|---|---|---|---|
+| `--background` | `oklch(1 0 0)` | `#ffffff` | Page/app background |
+| `--foreground` | `oklch(0.145 0 0)` | `#0a0a0a` | Primary text |
+| `--card` | `oklch(1 0 0)` | `#ffffff` | Card backgrounds |
+| `--card-foreground` | `oklch(0.145 0 0)` | `#0a0a0a` | Card text |
+| `--muted` | `oklch(0.97 0 0)` | `#f5f5f5` | Muted backgrounds |
+| `--muted-foreground` | `oklch(0.556 0 0)` | `#737373` | Secondary text |
+| `--border` | `oklch(0.922 0 0)` | `#e5e5e5` | Border color |
+| `--radius` | `0.625rem` | `10px` | Base border-radius |
 
-  {/* CardFooter zone — separated by border */}
-  <div className="border-t border-zinc-100 px-6 pt-4 flex flex-col gap-1.5 text-sm">
-    <div className="flex items-center gap-2 font-medium text-zinc-900">
-      {footerHighlight} {footerIcon}
-    </div>
-    <div className="text-zinc-500 text-xs">
-      {footerDescription}
-    </div>
-  </div>
-</motion.div>
-```
+### 2.2 Slide Background
 
-**Rules:**
-- Label is `text-sm text-zinc-500` — muted, top-left. This is the card's title (e.g., "FL Confectionery Spend", "Sole-Source Rate").
-- Value is `text-2xl font-semibold tabular-nums` — the big number. Primary metric gold `#C9A84C`, secondary metrics `text-zinc-950` or teal `#1B7A8A`.
-- Trend badge sits top-right: `border border-zinc-200 rounded-md px-2 py-0.5`. Contains an up/down arrow icon + percentage or keyword.
-- Footer has `border-t border-zinc-100` separator. Two lines: a bold summary line with icon, and a muted description line.
-- **EVERY StatCard MUST have all 4 zones**: label, value, trend badge, footer. This is what creates the shadcn density. Empty-looking cards = not enough content.
-
-**Trend badge variants:**
-```jsx
-{/* Positive trend */}
-<span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-emerald-700">
-  <TrendingUp className="w-3 h-3" /> +12.5%
-</span>
-
-{/* Negative trend */}
-<span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-red-600">
-  <TrendingDown className="w-3 h-3" /> -20%
-</span>
-
-{/* Neutral / label-only (for non-trend data like "HIGH confidence") */}
-<span className="inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 text-zinc-600">
-  <Shield className="w-3 h-3" /> HIGH
-</span>
-```
-
-**What makes this different from the old MetricCard:**
-| Old MetricCard | New StatCard (shadcn) |
-|---|---|
-| Title + big number + 1 detail line | Label + big number + trend badge + 2-line footer |
-| No trend indicator | Always has trend badge top-right |
-| No footer border separator | Always has `border-t` footer zone |
-| 3 pieces of content | 5+ pieces of content per card |
-| Looks sparse | Looks dense and informational |
-
----
-
-## 3. ChartCard — Wraps Every Visualization
-
-Every ECharts visualization MUST be inside this wrapper. No exceptions.
-
-```jsx
-{/* ChartCard — wraps every ECharts visualization */}
-<div className="rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col">
-  {/* CardHeader */}
-  <div className="p-6 pb-0">
-    <h3 className="text-lg font-semibold text-zinc-950">{chartTitle}</h3>
-    <p className="text-sm text-zinc-500 mt-1">{chartDescription}</p>
-  </div>
-
-  {/* CardContent — the chart */}
-  <div className="p-6 pt-4 flex-1 min-h-0">
-    <div ref={chartRef} className="w-full h-full" />
-  </div>
-
-  {/* CardFooter — legend, always present */}
-  <div className="px-6 py-3 border-t border-zinc-100 flex items-center gap-4">
-    {legendItems.map(item => (
-      <div key={item.label} className="flex items-center gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-        <span className="text-xs text-zinc-500">{item.label}</span>
-      </div>
-    ))}
-  </div>
-</div>
-```
-
-**Rules:**
-- `CardHeader`: title (`text-lg font-semibold text-zinc-950`) + description (`text-sm text-zinc-500`)
-- `CardContent`: chart renders here. `flex-1 min-h-0`
-- `CardFooter`: **ALWAYS present**. Separated by `border-t border-zinc-100`. Color-dot legend.
-- For the hero chart on a slide, add gold accent strip: `<div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />`
-- Chart height: set via parent container, 240–320px
-- Chart background: always `transparent`
-
----
-
-## 4. TableCard
-
-```jsx
-{/* TableCard */}
-<div className="rounded-xl bg-white border border-zinc-200 shadow-sm">
-  <div className="p-6 pb-0">
-    <h3 className="text-lg font-semibold text-zinc-950">{tableTitle}</h3>
-    <p className="text-sm text-zinc-500 mt-1">{tableDescription}</p>
-  </div>
-  <div className="p-6 pt-4">
-    {/* Header row */}
-    <div className="grid grid-cols-[...] border-b border-zinc-200 pb-3 mb-1">
-      <span className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Column</span>
-    </div>
-    {/* Data rows */}
-    {rows.map((row, i) => (
-      <div key={i} className={`grid grid-cols-[...] py-3 ${i % 2 === 0 ? 'bg-zinc-50/50' : ''}`}>
-        <span className="text-sm text-zinc-900">{row.name}</span>
-        <span className="text-sm text-zinc-600 text-right font-medium">{row.value}</span>
-      </div>
-    ))}
-  </div>
-</div>
-```
-
----
-
-## 5. InsightCard (max 1 per slide)
-
-```jsx
-{/* InsightCard — max 1 per slide */}
-<div className="rounded-xl bg-amber-50/50 border border-amber-200/50 shadow-sm p-6">
-  <div className="flex items-start gap-3">
-    <div className="w-8 h-8 rounded-md bg-amber-100 flex items-center justify-center shrink-0">
-      <Lightbulb className="w-4 h-4 text-amber-600" strokeWidth={1.5} />
-    </div>
-    <div>
-      <h4 className="text-sm font-semibold text-zinc-950 mb-1">{insightTitle}</h4>
-      <p className="text-sm text-zinc-600 leading-relaxed">{insightText}</p>
-    </div>
-  </div>
-</div>
-```
-
----
-
-## 6. THE LAYOUT — Two Simple Rules
-
-### 6.1 The Two Layout Rules
-
-**Rule 1 — SPLIT LAYOUT (default for most slides):**
-Visual asset (chart, graph, donut, rings, process flow) on the LEFT → stat tiles on the RIGHT.
-
-**Rule 2 — TABLE LAYOUT (exception):**
-When the slide's main content is a TABLE, use: stat tiles in a horizontal row on TOP → full-width table BELOW.
-
-That's it. Every data slide uses one of these two.
-
-```
-RULE 1 — SPLIT (default):                 RULE 2 — TABLE (exception):
-
-┌────────────────────┬───────────┐         ┌──────┬──────┬──────┬──────┐
-│                    │ StatCard  │         │ Stat │ Stat │ Stat │ Stat │
-│   ChartCard        ├───────────┤         └──────┴──────┴──────┴──────┘
-│   (visual asset)   │ StatCard  │         ┌────────────────────────────┐
-│                    ├───────────┤         │                            │
-│                    │ StatCard  │         │   TableCard (full width)   │
-│                    ├───────────┤         │                            │
-│                    │ StatCard  │         └────────────────────────────┘
-└────────────────────┴───────────┘
-```
-
-### 6.2 Split Layout — Full Structure
-
-```jsx
-export default function SomeSlide() {
-  return (
-    <div className="w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden">
-
-      {/* ZONE 1: Header */}
-      <div className="mb-4 relative z-10">
-        <span className="inline-block text-xs font-medium uppercase tracking-widest text-zinc-400 mb-3">
-          {eyebrowLabel}
-        </span>
-        <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 mb-2">
-          {headline}
-        </h2>
-        <p className="text-sm text-zinc-600 max-w-2xl">
-          {subtitle}
-        </p>
-        <GoldLine width={48} className="mt-3" />
-      </div>
-
-      {/* ZONE 2: Split — visual LEFT, tiles RIGHT */}
-      <div className="grid grid-cols-5 gap-4 relative z-10 flex-1 min-h-0">
-
-        {/* LEFT: ChartCard — 3 of 5 columns */}
-        <div className="col-span-3">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="rounded-xl bg-white border border-zinc-200 shadow-sm
-                       hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out
-                       relative overflow-hidden h-full flex flex-col"
-          >
-            {/* Gold accent strip */}
-            <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
-
-            {/* CardHeader */}
-            <div className="p-6 pb-0 pl-8">
-              <h3 className="text-lg font-semibold text-zinc-950">{chartTitle}</h3>
-              <p className="text-sm text-zinc-500 mt-1">{chartDescription}</p>
-            </div>
-
-            {/* CardContent — chart/graph/visual fills remaining space */}
-            <div className="flex-1 p-6 pt-4 pl-8 min-h-0">
-              <ResponsiveContainer width="100%" height="100%">
-                {/* Recharts chart or custom SVG */}
-              </ResponsiveContainer>
-            </div>
-
-            {/* CardFooter */}
-            <div className="px-6 pl-8 py-3 border-t border-zinc-100 flex items-center gap-4">
-              {/* Legend dots */}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* RIGHT: Stat tiles — 2 of 5 columns, stacked vertically */}
-        <div className="col-span-2 flex flex-col gap-4">
-          {STATS.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.4, delay: 0.35 + i * 0.08 }}
-              className="rounded-xl bg-white border border-zinc-200 shadow-sm
-                         hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out
-                         flex flex-col gap-3 py-4 cursor-default"
-            >
-              <div className="px-4 flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">{stat.label}</span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium border border-zinc-200 rounded-md px-1.5 py-0.5 text-zinc-700">
-                    {stat.badgeIcon} {stat.badgeText}
-                  </span>
-                </div>
-                <span className="text-xl font-semibold tabular-nums tracking-tight" style={{ color: stat.accent }}>
-                  {stat.value}
-                </span>
-              </div>
-              <div className="border-t border-zinc-100 px-4 pt-3 flex flex-col gap-1 text-xs">
-                <div className="flex items-center gap-1.5 font-medium text-zinc-900">{stat.footerHighlight}</div>
-                <div className="text-zinc-500 text-[11px]">{stat.footerDescription}</div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* ZONE 3 (optional): Bottom row — InsightCard or additional context */}
-
-      {/* ZONE 4: Source */}
-      <div className="flex items-center justify-between mt-4 relative z-10">
-        <p className="text-[10px] text-zinc-300">{sourceCitation}</p>
-        <CompassStar size={14} opacity={0.2} />
-      </div>
-    </div>
-  )
-}
-```
-
-**Split layout rules:**
-- `grid-cols-5` — visual `col-span-3` (60%) LEFT, tiles `col-span-2` (40%) RIGHT
-- Visual card gets gold accent strip + `pl-8` on all content
-- Stat tiles use the **compact variant** (see section 6.3) — they stack vertically
-- 3 or 4 stat tiles. If 3, they fill nicely. If 4, spacing is tighter.
-- The visual card is `h-full` — it stretches to match the total height of stacked tiles
-- Optional InsightCard or bottom row below the split (full width)
-
-### 6.3 Compact StatCard (Used in Split Layout)
-
-Stat tiles in the split layout use compact sizing so 3–4 can stack vertically.
-
-```jsx
-{/* Compact StatCard — used in split layout RIGHT column */}
-<motion.div
-  whileHover={{ y: -2 }}
-  className="rounded-xl bg-white border border-zinc-200 shadow-sm
-             hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out
-             flex flex-col gap-3 py-4 cursor-default"
->
-  <div className="px-4 flex flex-col gap-1.5">
-    <div className="flex items-center justify-between">
-      <span className="text-xs text-zinc-500">{label}</span>
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium border border-zinc-200 rounded-md px-1.5 py-0.5 text-zinc-700">
-        {trendIcon} {trendText}
-      </span>
-    </div>
-    <span className="text-xl font-semibold tabular-nums tracking-tight" style={{ color: accentColor }}>
-      {value}
-    </span>
-  </div>
-  <div className="border-t border-zinc-100 px-4 pt-3 flex flex-col gap-1 text-xs">
-    <div className="flex items-center gap-1.5 font-medium text-zinc-900">{footerHighlight}</div>
-    <div className="text-zinc-500 text-[11px]">{footerDescription}</div>
-  </div>
-</motion.div>
-```
-
-**Compact vs standard sizing:**
-| Property | Standard (old) | Compact (split layout) |
+| Token | Value | Usage |
 |---|---|---|
-| Outer padding | `py-6` | `py-4` |
-| Inner padding | `px-6` | `px-4` |
-| Gap between zones | `gap-6` | `gap-3` |
-| Label size | `text-sm` | `text-xs` |
-| Value size | `text-2xl` | `text-xl` |
-| Badge size | `text-xs` | `text-[11px]` |
-| Footer text | `text-sm` / `text-xs` | `text-xs` / `text-[11px]` |
+| `slide-bg` | `#f4f4f5` (zinc-100) | Slide canvas — applied by `SlideBackground`, never override |
+| `app-chrome` | `#0F1A2E` (navy-950) | Password gate, HTML body only. Never on slide surfaces |
 
-### 6.4 Table Layout — Full Structure
+> **Change from previous**: Shifted from `#e6e6ec` to zinc-100 (`#f4f4f5`) to align with shadcn's neutral palette. This is warmer and more contemporary.
 
-Use when the slide's main content is a data table.
+### 2.3 Text Hierarchy
 
-```jsx
-export default function TableSlide() {
-  return (
-    <div className="w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden">
+| Role | Color | Tailwind | Notes |
+|---|---|---|---|
+| Primary headline | `#0a0a0a` | `text-zinc-950` | Near-black, maximum contrast |
+| Secondary headline / card title | `#18181b` | `text-zinc-900` | Slightly lighter |
+| Body text | `#52525b` | `text-zinc-600` | Comfortable reading weight |
+| Caption / detail / footnote | `#a1a1aa` | `text-zinc-400` | Recedes clearly |
+| Kicker / eyebrow label | `#a1a1aa` or `#1B7A8A` | `text-zinc-400` or `text-teal-500` | Uppercase, tracked |
+| Source citation | `#d4d4d8` | `text-zinc-300` | Nearly invisible |
 
-      {/* ZONE 1: Header (same as split) */}
-      <div className="mb-4 relative z-10">
-        {/* eyebrow → headline → subtitle → GoldLine */}
-      </div>
+> **Change from previous**: Moved from custom `navy-800/XX` opacity values to standard zinc scale. This matches shadcn's text hierarchy exactly and eliminates the need for custom color definitions.
 
-      {/* ZONE 2: Stat card row — HORIZONTAL on top */}
-      <div className="grid grid-cols-3 gap-4 mb-4 relative z-10">
-        <StatCard ... />  {/* Standard size — NOT compact */}
-        <StatCard ... />
-        <StatCard ... />
-      </div>
+### 2.4 Accent Palette (strict — no exceptions)
 
-      {/* ZONE 3: TableCard — FULL WIDTH below */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="rounded-xl bg-white border border-zinc-200 shadow-sm
-                   hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out
-                   relative overflow-hidden flex-1"
-      >
-        {/* Gold accent strip */}
-        <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
-        {/* CardHeader + Table content + CardFooter */}
-      </motion.div>
+| Role | Name | Hex | When to use |
+|---|---|---|---|
+| **Primary accent** | Gold | `#C9A84C` | Hero stats, accent strips, primary KPI values, chart emphasis, icon tints on lead cards |
+| **Secondary accent** | Teal | `#1B7A8A` | Supporting KPI values, secondary data series, icon tints on supporting cards |
+| **Tertiary (data only)** | Light teal | `#3CC0D4` | Third data series in multi-series charts ONLY |
+| **Tertiary (data only)** | Amber | `#E8913A` | Fourth data series in multi-series charts ONLY, or a single highlight callout per slide |
 
-      {/* ZONE 4: Source */}
-      <div className="flex items-center justify-between mt-4 relative z-10">
-        <p className="text-[10px] text-zinc-300">{sourceCitation}</p>
-      </div>
-    </div>
-  )
-}
-```
+### 2.5 Chart Colors
 
-**Table layout rules:**
-- Stat cards on top use `grid-cols-3` or `grid-cols-4`, **standard** size (not compact)
-- Standard StatCard: `py-6 px-6 gap-6 text-sm text-2xl` (the template from section 2)
-- Table card is full-width below
-- Table rows have `hover:bg-zinc-50 transition-colors duration-150`
+Aligned with shadcn's `--chart-*` token pattern:
 
-### 6.5 Which Slides Use Which Layout
+| Series | Our Color | shadcn Equivalent |
+|---|---|---|
+| 1st (primary) | Gold `#C9A84C` | `--chart-1` |
+| 2nd | Teal `#1B7A8A` | `--chart-2` |
+| 3rd | Light teal `#3CC0D4` | `--chart-3` |
+| 4th | Amber `#E8913A` | `--chart-4` |
 
-| Layout | Slides |
-|---|---|
-| **Split** (visual LEFT + tiles RIGHT) | 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 15, 16, 17 |
-| **Table** (tiles top + table below) | 10, 13 |
+### 2.6 Forbidden Colors
 
-### 6.6 Optional Bottom Row
+These **must not** appear as accents, borders, icon tints, or data colors on slides 3–19:
 
-After either layout, you can add ONE optional element below:
-
-```jsx
-{/* InsightCard — max 1 per slide */}
-<div className="mt-4">
-  <InsightCard ... />
-</div>
-```
-
-### 6.7 Slides Without Charts or Tables
-
-Some slides are text/process-focused (like slide 8's pipeline). They still use the **split layout** — the LEFT card contains the process flow or content instead of a chart. Same `grid-cols-5` structure, same ChartCard wrapper.
+- Any red, green, purple, pink, or blue outside the accent palette
+- Raw amber as a card border or background
+- Any color at full opacity over large card-sized areas
+- Gray tones outside the zinc scale
 
 ---
 
-## 7. Color System
+## 3. Card System
 
-### 7.1 Slide Background
-`#f4f4f5` (zinc-100) — set by `SlideBackground`, never override.
+This is the biggest alignment change. Cards now follow shadcn's exact treatment.
 
-### 7.2 Text Hierarchy
-
-| Role | Tailwind | Hex |
-|---|---|---|
-| Headline | `text-zinc-950` | `#09090b` |
-| Card title (chart/table) | `text-zinc-950` | `#09090b` |
-| StatCard label | `text-zinc-500` | `#71717a` |
-| Body text | `text-zinc-600` | `#52525b` |
-| StatCard footer description | `text-zinc-500` | `#71717a` |
-| Detail / caption | `text-zinc-400` | `#a1a1aa` |
-| Source | `text-zinc-300` | `#d4d4d8` |
-
-### 7.3 Accent Colors (strict — never add more)
-
-| Role | Name | Hex |
-|---|---|---|
-| Primary accent | Gold | `#C9A84C` |
-| Secondary accent | Teal | `#1B7A8A` |
-| 3rd data series only | Light teal | `#3CC0D4` |
-| 4th data series only | Amber | `#E8913A` |
-
-**StatCard value color rules:**
-- Primary metric of the slide → gold `#C9A84C`
-- Secondary metrics → `text-zinc-950` or teal `#1B7A8A`
-
-### 7.4 Card Surface (ONE surface — no variants)
+### 3.1 Base Card Surface
 
 ```
 rounded-xl bg-white border border-zinc-200 shadow-sm
 ```
 
-Every card uses this. No `bg-white/70`, no `backdrop-blur`. Solid white, zinc-200 border, shadow-sm.
+**Key differences from previous system:**
 
-### 7.5 Card Accent Variants
-
-| Variant | How | When |
+| Property | Previous | shadcn-aligned |
 |---|---|---|
-| Gold accent strip | `absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]` | Hero chart card only (1 per slide max) |
-| Insight card | `bg-amber-50/50 border-amber-200/50` | InsightCard component (1 per slide max) |
+| Border radius | `rounded-2xl` (16px) | `rounded-xl` (12px) |
+| Background | `bg-white/70 backdrop-blur-sm` | `bg-white` (solid) |
+| Border | `border-black/[0.06]` | `border-zinc-200` |
+| Shadow | `shadow-[0_1px_3px_rgba(0,0,0,0.04)]` | `shadow-sm` |
+
+> **Why**: shadcn uses solid white cards with a clear `border-zinc-200` border — no frosted glass, no backdrop blur, no custom shadow values. This is cleaner and renders more consistently.
+
+### 3.2 Card Variants
+
+| Variant | Classes | When |
+|---|---|---|
+| **Standard** | `rounded-xl bg-white border border-zinc-200 shadow-sm` | Default for all cards |
+| **Hero** (1 per slide max) | Base + `relative overflow-hidden` with left gold accent strip: `absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]` | The single most important card on the slide |
+| **Muted / stat tile** | `rounded-xl bg-zinc-50 border border-zinc-200` | Supporting KPI tiles |
+| **Emphasized** | `rounded-xl bg-teal-50/50 border border-teal-200/50` | One secondary callout per slide, max |
+| **Highlighted** | `rounded-xl bg-amber-50/50 border border-amber-200/50` | One per slide max, for a key insight |
+
+**Rules:**
+
+- Never more than **1 hero card** per slide
+- Never more than **1 emphasized + 1 highlighted** card per slide
+- If a slide has 4+ cards, they should ALL be standard — differentiate with accent-colored stat values, not card backgrounds
+- No drop shadow heavier than `shadow-sm`
+
+### 3.3 Card Padding
+
+Following shadcn's Card component:
+
+| Size | Padding | Usage |
+|---|---|---|
+| Default | `p-6` | Standard cards |
+| Compact | `p-4` | Stat tiles, tight layouts |
+| Hero | `p-6` to `p-8` | Hero cards with more breathing room |
+
+> **Change from previous**: Standardized to `p-6` default (was `p-5`). shadcn's CardContent uses `p-6 pt-0` with `CardHeader` providing top padding.
+
+### 3.4 Card Anatomy (shadcn pattern)
+
+```
+┌─────────────────────────────────────┐
+│ CardHeader: p-6                     │
+│   CardTitle: text-lg font-semibold  │
+│   CardDescription: text-sm text-zinc-600 │
+├─────────────────────────────────────│
+│ CardContent: p-6 pt-0              │
+│   [chart / stats / table content]  │
+├─────────────────────────────────────│
+│ CardFooter: p-6 pt-0 (optional)   │
+│   [legend / actions / metadata]    │
+└─────────────────────────────────────┘
+```
+
+When building chart cards:
+
+- Title + description in the card header area
+- Chart occupies the content area
+- Legend sits in the footer area, separated by `border-t border-zinc-100`
 
 ---
 
-## 8. Typography
+## 4. Typography
 
-### 8.1 Font Stack
-- **Display**: `Playfair Display` — ONLY slide 1 title
-- **Everything else**: `Inter` (`font-body` class)
+### 4.1 Font Stack
 
-### 8.2 Scale
+| Role | Family | Weight | Tracking |
+|---|---|---|---|
+| **Display** | `Playfair Display` | — | — |
+| **Body** | `Inter` | 400–700 | `tracking-tight` on stats, normal on body |
 
-| Element | Classes |
-|---|---|
-| Slide headline | `text-3xl font-semibold tracking-tight text-zinc-950` |
-| Eyebrow | `text-xs font-medium uppercase tracking-widest text-zinc-400` |
-| ChartCard title | `text-lg font-semibold text-zinc-950` |
-| ChartCard description | `text-sm text-zinc-500` |
-| StatCard label | `text-sm text-zinc-500` |
-| StatCard value | `text-2xl font-semibold tabular-nums tracking-tight` |
-| StatCard trend badge | `text-xs font-medium` |
-| StatCard footer highlight | `text-sm font-medium text-zinc-900` |
-| StatCard footer description | `text-xs text-zinc-500` |
-| Body text | `text-sm text-zinc-600 leading-relaxed` |
-| Table header | `text-xs font-medium text-zinc-500 uppercase tracking-wider` |
-| Table cell | `text-sm text-zinc-700` |
-| Source | `text-[10px] text-zinc-300` |
-| Legend item | `text-xs text-zinc-500` |
+> shadcn uses `font-sans` which maps to the system font stack. We keep Inter as our explicit choice — it's close to Geist (shadcn's preferred font) and already installed.
+
+### 4.2 Usage Rules
+
+- **Playfair Display is used ONLY on slide 1 (title).** Slides 2–19 use `Inter` for everything.
+- Headlines: `text-3xl font-semibold tracking-tight` (or `text-2xl` on dense slides)
+- Kicker/eyebrow: `text-xs font-medium uppercase tracking-widest`
+- Hero stat: `text-5xl md:text-6xl font-bold tracking-tighter leading-none`
+- Card stat: `text-2xl font-semibold tracking-tight leading-none`
+- Card title: `text-sm font-medium`
+- Card description: `text-sm text-zinc-600`
+- Card body: `text-sm leading-relaxed`
+- Detail/caption: `text-xs text-zinc-400`
+- Source line: `text-[10px] text-zinc-300`
+
+> **Changes from previous**: Reduced headline weight from `font-bold` to `font-semibold` (shadcn convention). Reduced hero stat from 7xl to 6xl. Card stats from 3xl to 2xl. These are subtler, more restrained — the shadcn way.
+
+### 4.3 Hierarchy Pattern (every slide follows this)
+
+```
+Eyebrow label (xs, uppercase, tracking-widest, teal or zinc-400)
+Headline (2xl–3xl, semibold, zinc-950)
+Subtitle (sm, zinc-600, max-w-2xl)
+GoldLine (48px, animated)
+—— content area ——
+Source citation (10px, zinc-300, bottom of slide)
+```
 
 ---
 
-## 9. Charts (ECharts)
+## 5. Layout System
 
-### 9.1 Setup
+### 5.1 Slide Container
+
+Every slide's root `<div>`:
+
+```
+w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden
+```
+
+- `justify-center` vertically centers the content block
+- `px-16 lg:px-20` gives generous horizontal margins
+- `pb-16` ensures content clears the fixed navigation bar
+- `relative overflow-hidden` enables decorative elements
+
+> **CRITICAL**: Do NOT use `pt-6 pb-20` — this causes layout issues. The validated pattern is `justify-center` with horizontal padding.
+
+### 5.2 Content Layouts
+
+| Layout | Grid | Best for |
+|---|---|---|
+| **Dashboard: Chart + Stats** | `grid-cols-[3fr_2fr] gap-4` | 1 chart + 2–4 stat tiles (most common) |
+| **Dashboard: Full-width Chart** | Full-width chart + `grid-cols-3 gap-4` stat row below | Chart hero + compact stats |
+| **Dashboard: Chart + Table** | Chart top (50%) + table below (50%) | Visual summary + detailed breakdown |
+| **Bento** | `grid-cols-2 grid-rows-3` with hero `row-span-2` | 1 hero metric + supporting stats |
+| **Two-column** | `grid-cols-2 gap-4` | Side-by-side comparison |
+| **Card grid** | `grid-cols-2 gap-4` | 4 equal-weight cards |
+| **Table** | `grid-cols-[...explicit widths...]` | Data tables with row striping |
+| **Process flow** | Flex row + grid below | Sequential steps |
+| **Split narrative** | `grid-cols-[1fr_auto_1fr]` | Two-side comparison |
+
+**Dashboard Layout Patterns (shadcn-style):**
+
+**Pattern A — Chart + Stat Tiles (most common)**
+```
+┌─────────────────────────┬──────────────┐
+│                         │  Stat Tile 1 │
+│   Chart Card            │──────────────│
+│   (ECharts inside       │  Stat Tile 2 │
+│    white card)          │──────────────│
+│                         │  Stat Tile 3 │
+└─────────────────────────┴──────────────┘
+```
+Grid: `grid-cols-[3fr_2fr] gap-4`. Chart card = hero card (gold accent strip).
+
+**Pattern B — Full-width Chart + Stat Row**
+```
+┌────────────────────────────────────────┐
+│   Chart Card (ECharts)                 │
+│   height: 260–320px                    │
+└────────────────────────────────────────┘
+┌──────────┬──────────┬──────────────────┐
+│ Stat 1   │ Stat 2   │ Insight Card     │
+└──────────┴──────────┴──────────────────┘
+```
+
+**Pattern C — Chart + Table**
+```
+┌─────────────────────┬──────────────────┐
+│   Chart Card        │  Hero Stat Card  │
+└─────────────────────┴──────────────────┘
+┌────────────────────────────────────────┐
+│   Table Card (full width)              │
+└────────────────────────────────────────┘
+```
+
+### 5.3 Spacing Rules
+
+| Context | Value | Notes |
+|---|---|---|
+| Gap between cards | `gap-4` (16px) | Standard. shadcn uses `gap-4` consistently |
+| Header to content | `mb-3` after GoldLine | Tighter than before |
+| Card internal padding | `p-6` standard, `p-4` compact | shadcn CardContent convention |
+| Icon to text in cards | `gap-2` or `gap-3` | Compact |
+| Slide horizontal padding | `px-16 lg:px-20` | Content never touches edges |
+
+> **Change from previous**: Standardized to `gap-4` everywhere (was `gap-5`). shadcn uses tighter spacing consistently — `gap-4` (16px) is the standard gap between dashboard cards.
+
+---
+
+## 6. Visual Assets
+
+### 6.1 KPI Tiles / Stat Cards
+
+The **StatCard** is the primary visual unit. shadcn-style anatomy:
+
+```
+┌──────────────────────────────────┐
+│ [Icon]  Label (xs, font-medium)  │  ← zinc-600 text
+│                                  │
+│  $87M  (2xl, semibold, accent)   │  ← gold or teal
+│                                  │
+│  +12% from last year (xs)        │  ← zinc-400, optional trend
+└──────────────────────────────────┘
+```
+
+**Icon treatment:**
+
+- Icon inside a `w-8 h-8 rounded-md` container with `bg-zinc-100` (or `bg-[accent]/10` for accent cards)
+- Icon itself: `w-4 h-4` in zinc-600 (or accent color)
+- `strokeWidth={1.5}`
+- Use `lucide-react` icons only
+
+> **Change from previous**: `rounded-md` instead of `rounded-lg`. `bg-zinc-100` default instead of always accent-tinted. This matches shadcn's subtler icon containers.
+
+**Accent color rules for stat values:**
+
+- The **single most important stat** on the slide gets gold (`#C9A84C`)
+- All other stats use either `zinc-950` (dark, neutral) or teal (`#1B7A8A`)
+- Never use amber or light teal for stat values in cards
+
+**Hero stat (standalone):**
+
+- `text-5xl md:text-6xl font-bold tracking-tighter`
+- Gold accent color
+- Maximum one per slide
+
+### 6.2 Charts
+
+**General chart rules:**
+
+- Use ECharts with canvas renderer (modular imports)
+- Chart backgrounds: `transparent` — the card provides the surface
+- Grid lines: `#e5e5e5` (zinc-200) at 0.5 opacity, horizontal only
+- Axis labels: Inter, 11px, `#71717a` (zinc-500)
+- No chart borders or outlines
+- Maximum 4 data series per chart
+- Charts ALWAYS live inside a card surface
+- Every chart card includes a compact legend below, separated by `border-t border-zinc-100`
+
+**Color assignment for data series:**
+
+| Series | Color | Opacity |
+|---|---|---|
+| 1st (primary) | Gold `#C9A84C` | 100% |
+| 2nd | Teal `#1B7A8A` | 100% |
+| 3rd | Light teal `#3CC0D4` | 100% |
+| 4th | Amber `#E8913A` | 100% |
+
+**Chart type guidance:**
+
+| Data story | Chart type | Notes |
+|---|---|---|
+| Part-to-whole | Donut (not pie) | Max 4 segments. Center label. `radius: ['52%', '78%']` |
+| Composition over time | Stacked bar | Horizontal axis = time |
+| Ranking / comparison | Horizontal bar | Sorted descending. Single color |
+| Trend | Line / Area | Gold primary, teal secondary. 8% opacity area fill |
+
+**Chart sizing:**
+
+- Charts take 50–60% of content area width
+- Minimum height: 200px, recommended 240–300px
+- Legend always below or beside (not overlaid)
+
+**Tooltip styling (shadcn-aligned):**
+
+```jsx
+tooltip: {
+  trigger: 'axis',
+  backgroundColor: '#18181b',    // zinc-900
+  borderColor: '#27272a',        // zinc-800
+  borderWidth: 1,
+  textStyle: {
+    color: '#fafafa',            // zinc-50
+    fontFamily: 'Inter, system-ui, sans-serif',
+    fontSize: 12
+  },
+  padding: [8, 12],
+}
+```
+
+> **Change from previous**: Tooltip background changed from `rgba(36,51,86,0.95)` to zinc-900. This matches shadcn's popover/tooltip aesthetic.
+
+---
+
+#### 6.2.1 ECharts Setup (required for every chart slide)
+
+**Imports — always use modular imports:**
 
 ```jsx
 import { useEffect, useRef } from 'react'
@@ -558,7 +405,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
 ```
 
-### 9.2 Lifecycle
+**Chart lifecycle pattern:**
 
 ```jsx
 const chartRef = useRef(null)
@@ -566,7 +413,7 @@ const chartRef = useRef(null)
 useEffect(() => {
   if (!chartRef.current) return
   const chart = echarts.init(chartRef.current, null, { renderer: 'canvas' })
-  chart.setOption({ /* ... */ })
+  chart.setOption({ /* config */ })
 
   const handleResize = () => chart.resize()
   window.addEventListener('resize', handleResize)
@@ -577,631 +424,549 @@ useEffect(() => {
 }, [])
 ```
 
-### 9.3 Universal Chart Options
+**Chart container (inside a card):**
 
 ```jsx
-{
+<div ref={chartRef} className="w-full h-full" />
+```
+
+---
+
+#### 6.2.2 Template: Donut Chart
+
+**Use for:** Part-to-whole data
+
+```jsx
+import { PieChart } from 'echarts/charts'
+import { GraphicComponent, TooltipComponent } from 'echarts/components'
+echarts.use([PieChart, GraphicComponent, TooltipComponent, CanvasRenderer])
+
+chart.setOption({
   backgroundColor: 'transparent',
   animation: false,
   tooltip: {
-    trigger: 'axis',
+    trigger: 'item',
     backgroundColor: '#18181b',
     borderColor: '#27272a',
     borderWidth: 1,
-    textStyle: {
-      color: '#fafafa',
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: 12,
-    },
+    textStyle: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 },
     padding: [8, 12],
   },
-}
+  graphic: [{
+    type: 'group', left: 'center', top: 'center',
+    children: [
+      { type: 'text', style: { text: '58%', textAlign: 'center', fill: '#C9A84C', fontSize: 32, fontWeight: 600, fontFamily: 'Inter, system-ui, sans-serif' } },
+      { type: 'text', style: { text: 'Sole Source', textAlign: 'center', fill: '#71717a', fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif' }, top: 26 },
+    ],
+  }],
+  series: [{
+    type: 'pie', radius: ['52%', '78%'], center: ['50%', '50%'],
+    avoidLabelOverlap: false, label: { show: false }, labelLine: { show: false }, emphasis: { scale: false },
+    data: [
+      { value: 58, name: 'Sole Source', itemStyle: { color: '#C9A84C' } },
+      { value: 42, name: 'Competitive', itemStyle: { color: '#e5e5e5' } },
+    ],
+  }],
+})
 ```
 
-### 9.4 Chart Types
+> **Change**: Secondary donut slice color changed from `rgba(15,26,46,0.08)` to `#e5e5e5` (zinc-200) for better visibility on white cards.
 
-| Data story | Chart type | Key settings |
-|---|---|---|
-| Part-to-whole | Donut | `radius: ['52%', '78%']`, center label |
-| Ranking | Horizontal bar | Sorted desc, `barWidth: 18`, labels right |
-| Trend | Line/Area | `smooth: true`, area fill 8% opacity |
-| Composition over time | Stacked bar | `barWidth: 28`, 4 series max |
-
-### 9.5 Chart Color Series
-
-| Series | Color |
-|---|---|
-| 1st | `#C9A84C` (gold) |
-| 2nd | `#1B7A8A` (teal) |
-| 3rd | `#3CC0D4` (light teal) |
-| 4th | `#E8913A` (amber) |
-
-### 9.6 Axis Styling
-
-```jsx
-xAxis: {
-  axisLine: { lineStyle: { color: '#e5e5e5' } },
-  axisTick: { show: false },
-  axisLabel: { fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#71717a' },
-},
-yAxis: {
-  splitLine: { lineStyle: { color: '#e5e5e5', opacity: 0.5 } },
-  axisLabel: { fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#71717a' },
-}
-```
-
-### 9.7 CRITICAL: Charts Always Inside ChartCard
-
-Never render ECharts without the ChartCard wrapper from section 3.
-
----
-
-## 10. Visual Polish (Required)
-
-These polish details close the gap between "functional dashboard" and "production shadcn quality." **Every card and chart MUST include these treatments.**
-
-### 10.1 StatCard Hover State
-
-Every StatCard gets an interactive hover treatment:
+**Hero chart card wrapper:**
 
 ```jsx
 <motion.div
-  whileHover={{ y: -2 }}
-  transition={{ duration: 0.15 }}
-  className="rounded-xl bg-white border border-zinc-200 shadow-sm
-             hover:shadow-md hover:border-zinc-300
-             transition-all duration-200 ease-out
-             flex flex-col gap-6 py-6 cursor-default"
->
-```
-
-**Rules:**
-- `hover:shadow-md` — subtle depth increase on hover
-- `hover:border-zinc-300` — border darkens slightly
-- `transition-all duration-200 ease-out` — smooth CSS transition for shadow + border
-- `whileHover={{ y: -2 }}` via Motion — card lifts 2px
-- `cursor-default` — cards are informational, not clickable
-
-### 10.2 ChartCard Hover State
-
-```jsx
-<motion.div
-  initial={{ opacity: 0, y: 12 }}
+  initial={{ opacity: 0, y: 16 }}
   animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.3 }}
-  className="rounded-xl bg-white border border-zinc-200 shadow-sm
-             hover:shadow-md hover:border-zinc-300
-             transition-all duration-200 ease-out
-             relative overflow-hidden"
+  transition={{ duration: 0.4, delay: 0.3 }}
+  className="rounded-xl bg-white border border-zinc-200 shadow-sm p-6 relative overflow-hidden"
 >
-```
+  {/* Gold accent strip */}
+  <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
 
-Same hover pattern as StatCards — `hover:shadow-md hover:border-zinc-300 transition-all duration-200`.
-
-### 10.3 Trend Badge Color System
-
-Use specific badge colors to convey meaning at a glance:
-
-```jsx
-{/* Positive / growth */}
-className="text-emerald-700 bg-emerald-50"
-
-{/* Warning / caution */}
-className="text-amber-700 bg-amber-50"
-
-{/* Negative / risk */}
-className="text-red-700 bg-red-50"
-
-{/* Neutral / informational (default) */}
-className="text-zinc-600"
-```
-
-**Enhanced badge template with subtle background fill:**
-```jsx
-<span className="inline-flex items-center gap-1 text-xs font-medium
-                 border border-emerald-200 rounded-md px-2 py-0.5
-                 text-emerald-700 bg-emerald-50">
-  <TrendingUp className="w-3 h-3" /> +12.5%
-</span>
-```
-
-The key difference: add `bg-{color}-50` and change `border-zinc-200` to `border-{color}-200` for colored badges. Use sparingly — max 1 colored badge per stat row, rest should be neutral `text-zinc-600 border-zinc-200`.
-
-### 10.4 Gold Accent Strip (Hero Card)
-
-The main chart card gets a gold left-border accent:
-
-```jsx
-{/* Inside ChartCard, first child */}
-<div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
-```
-
-- Apply to the PRIMARY chart card only (1 per slide max)
-- Requires `relative` on the parent
-- Adds `pl-8` to CardHeader and CardContent (instead of `pl-6`) to clear the strip
-
-### 10.5 Subtle Card Top Gradient (Optional Enhancement)
-
-For the hero stat card on a slide (typically Card 1), add a subtle top gradient:
-
-```jsx
-<div className="rounded-xl bg-white border border-zinc-200 shadow-sm
-                flex flex-col gap-6 py-6 relative overflow-hidden">
-  {/* Subtle gradient overlay — hero card only */}
-  <div className="absolute inset-0 bg-gradient-to-b from-amber-50/30 to-transparent pointer-events-none" />
-  {/* ... card content ... */}
-</div>
-```
-
-**Rules:**
-- Maximum 1 gradient-highlighted card per slide
-- Use `from-amber-50/30` (gold family) for Tier 1 / primary metrics
-- Use `from-sky-50/30` (teal family) for secondary emphasis
-- Always `to-transparent`, always `pointer-events-none`
-- Card content must have `relative z-10` to sit above the gradient
-
-### 10.6 Table Row Hover
-
-TableCard rows should have subtle hover states:
-
-```jsx
-<div className={`grid grid-cols-[...] py-3 transition-colors duration-150
-                 hover:bg-zinc-50
-                 ${i % 2 === 0 ? 'bg-zinc-50/50' : ''}`}>
-```
-
-### 10.7 Chart Tooltip Polish
-
-ECharts tooltips should feel native to the card system:
-
-```jsx
-tooltip: {
-  backgroundColor: '#18181b',
-  borderColor: '#27272a',
-  borderWidth: 1,
-  borderRadius: 8,              // ← match card radius
-  padding: [10, 14],
-  textStyle: {
-    color: '#fafafa',
-    fontFamily: 'Inter, system-ui, sans-serif',
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.25);',  // ← elevated shadow
-}
-```
-
-### 10.8 Polish Checklist
-
-Add to the quality checklist for every slide:
-
-- [ ] StatCards have `hover:shadow-md hover:border-zinc-300 transition-all duration-200`
-- [ ] ChartCard has `hover:shadow-md hover:border-zinc-300 transition-all duration-200`
-- [ ] Hero chart card has gold accent strip + `pl-8`
-- [ ] At most 1 colored trend badge per stat row (rest neutral)
-- [ ] Table rows have `hover:bg-zinc-50` if TableCard is present
-- [ ] Chart tooltip has `borderRadius: 8` and `extraCssText` shadow
-
----
-
-## 11. Charts — Recharts (Preferred for New Slides)
-
-**Recharts** is now the preferred charting library for new slides. It produces cleaner, more polished output with less configuration than ECharts and integrates natively with React (declarative JSX instead of imperative options objects).
-
-**ECharts remains supported** for existing slides. Do NOT refactor working ECharts slides to Recharts unless specifically asked. But all NEW slides should use Recharts.
-
-### 11.1 Setup
-
-```jsx
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell
-} from 'recharts'
-```
-
-### 11.2 Horizontal Bar Chart (Most Common)
-
-```jsx
-<ResponsiveContainer width="100%" height="100%">
-  <BarChart
-    data={data}
-    layout="vertical"
-    margin={{ top: 0, right: 80, left: 0, bottom: 0 }}
-    barSize={18}
-  >
-    <CartesianGrid
-      horizontal={false}
-      stroke="#e5e5e5"
-      strokeOpacity={0.5}
-      strokeDasharray="4 4"
-    />
-    <XAxis type="number" hide />
-    <YAxis
-      type="category"
-      dataKey="name"
-      axisLine={false}
-      tickLine={false}
-      tick={{ fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif', fill: '#18181b' }}
-      width={140}
-    />
-    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-      {data.map((entry, i) => (
-        <Cell key={i} fill={entry.tier === 1 ? 'rgba(201,168,76,0.80)' : 'rgba(27,122,138,0.70)'} />
-      ))}
-    </Bar>
-  </BarChart>
-</ResponsiveContainer>
-```
-
-### 11.3 Donut Chart
-
-```jsx
-import { PieChart, Pie, Cell } from 'recharts'
-
-<ResponsiveContainer width="100%" height="100%">
-  <PieChart>
-    <Pie
-      data={donutData}
-      cx="50%"
-      cy="50%"
-      innerRadius="52%"
-      outerRadius="78%"
-      paddingAngle={2}
-      dataKey="value"
-      stroke="none"
-    >
-      {donutData.map((entry, i) => (
-        <Cell key={i} fill={COLORS[i]} />
-      ))}
-    </Pie>
-    <Tooltip content={<CustomTooltip />} />
-  </PieChart>
-</ResponsiveContainer>
-```
-
-### 11.4 Stacked Bar Chart (Portfolio Evolution)
-
-```jsx
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-
-<ResponsiveContainer width="100%" height="100%">
-  <BarChart data={yearData} barSize={28}>
-    <CartesianGrid vertical={false} stroke="#e5e5e5" strokeOpacity={0.5} />
-    <XAxis dataKey="year" axisLine={false} tickLine={false}
-           tick={{ fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif', fill: '#71717a' }} />
-    <YAxis axisLine={false} tickLine={false}
-           tick={{ fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', fill: '#71717a' }} />
-    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-    <Bar dataKey="tier1" stackId="a" fill="#C9A84C" radius={[0, 0, 0, 0]} />
-    <Bar dataKey="tier2" stackId="a" fill="#1B7A8A" radius={[0, 0, 0, 0]} />
-    <Bar dataKey="tier3" stackId="a" fill="#3CC0D4" radius={[0, 0, 0, 0]} />
-    <Bar dataKey="micro" stackId="a" fill="#E8913A" radius={[4, 4, 0, 0]} />
-  </BarChart>
-</ResponsiveContainer>
-```
-
-### 11.5 Custom Tooltip (Matches Card System)
-
-```jsx
-function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="rounded-lg px-4 py-3 shadow-lg"
-         style={{ backgroundColor: '#18181b', border: '1px solid #27272a' }}>
-      <p className="text-[13px] font-semibold text-zinc-50">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="text-xs text-zinc-300 mt-0.5">
-          {p.name}: <span className="font-medium text-zinc-50">{p.value}</span>
-        </p>
-      ))}
+  <div className="flex flex-col h-full">
+    <div className="flex-1 min-h-0">
+      <div ref={chartRef} className="w-full h-full" />
     </div>
-  )
-}
+    {/* Compact legend */}
+    <div className="flex items-center gap-4 pt-3 mt-3 border-t border-zinc-100">
+      <div className="flex items-center gap-1.5">
+        <div className="w-2 h-2 rounded-full bg-[#C9A84C]" />
+        <span className="text-xs text-zinc-500">Sole Source</span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <div className="w-2 h-2 rounded-full bg-zinc-200" />
+        <span className="text-xs text-zinc-500">Competitive</span>
+      </div>
+    </div>
+  </div>
+</motion.div>
 ```
-
-### 11.6 Color Series (Same as ECharts)
-
-| Series | Color |
-|---|---|
-| 1st | `#C9A84C` (gold) |
-| 2nd | `#1B7A8A` (teal) |
-| 3rd | `#3CC0D4` (light teal) |
-| 4th | `#E8913A` (amber) |
-
-### 11.7 Recharts Inside ChartCard
-
-Same ChartCard wrapper from section 3. The only difference: `<ResponsiveContainer>` replaces the `ref={chartRef}` div:
-
-```jsx
-{/* CardContent: Recharts */}
-<div className="p-6 pt-4 pl-8 flex-1 min-h-0">
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart ... />
-  </ResponsiveContainer>
-</div>
-```
-
-No `useEffect`, no `useRef`, no manual `dispose()`. Recharts handles all of this declaratively.
-
-### 11.8 When to Use Which
-
-| Scenario | Library |
-|---|---|
-| Existing slides (3–5) already using ECharts | Keep ECharts |
-| New slides (6–17) with standard charts | Use Recharts |
-| Custom SVG visualizations (concentric rings, etc.) | Keep custom SVG |
-| Any chart inside ChartCard | Either library works |
 
 ---
 
-## 12. Animation System (unchanged)
+#### 6.2.3 Template: Horizontal Bar Chart
+
+**Use for:** Rankings, comparisons
+
+```jsx
+import { BarChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent } from 'echarts/components'
+echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
+
+chart.setOption({
+  backgroundColor: 'transparent',
+  animation: false,
+  tooltip: {
+    trigger: 'axis', axisPointer: { type: 'shadow' },
+    backgroundColor: '#18181b', borderColor: '#27272a', borderWidth: 1,
+    textStyle: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 },
+    padding: [8, 12],
+  },
+  grid: { left: 16, right: 90, top: 16, bottom: 16, containLabel: true },
+  xAxis: { type: 'value', show: false, splitLine: { show: false } },
+  yAxis: {
+    type: 'category',
+    data: REVERSED_DATA.map(d => d.label),
+    axisLine: { show: false }, axisTick: { show: false },
+    splitLine: { show: true, lineStyle: { color: '#e5e5e5', opacity: 0.3, type: 'dashed' } },
+    axisLabel: { fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif', color: '#18181b' },
+  },
+  series: [{
+    type: 'bar',
+    data: REVERSED_DATA.map(d => ({
+      value: d.amount,
+      itemStyle: { color: d.isPrimary ? '#C9A84C' : 'rgba(27,122,138,0.70)', borderRadius: [0, 4, 4, 0] },
+    })),
+    barWidth: 18,
+    label: {
+      show: true, position: 'right', fontSize: 11,
+      fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600, color: '#71717a',
+      formatter: (p) => formatCurrency(p.value),
+    },
+  }],
+})
+```
+
+---
+
+#### 6.2.4 Template: Area/Line Chart
+
+**Use for:** Trends, growth projections
+
+```jsx
+import { LineChart } from 'echarts/charts'
+echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer])
+
+chart.setOption({
+  backgroundColor: 'transparent',
+  animation: false,
+  tooltip: { trigger: 'axis', backgroundColor: '#18181b', borderColor: '#27272a', borderWidth: 1,
+    textStyle: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 }, padding: [8, 12] },
+  grid: { left: 60, right: 20, top: 20, bottom: 40, containLabel: false },
+  xAxis: {
+    type: 'category', data: ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'],
+    axisLine: { lineStyle: { color: '#e5e5e5' } }, axisTick: { show: false },
+    axisLabel: { fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#71717a' },
+  },
+  yAxis: {
+    type: 'value', axisLine: { show: false }, axisTick: { show: false },
+    splitLine: { lineStyle: { color: '#e5e5e5', opacity: 0.5 } },
+    axisLabel: { fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#71717a' },
+  },
+  series: [{
+    type: 'line', data: [10, 25, 45, 65, 78],
+    smooth: true, symbol: 'circle', symbolSize: 6,
+    lineStyle: { color: '#C9A84C', width: 2 },
+    itemStyle: { color: '#C9A84C', borderColor: '#fff', borderWidth: 2 },
+    areaStyle: { color: 'rgba(201,168,76,0.08)' },
+  }],
+})
+```
+
+---
+
+#### 6.2.5 Template: Stacked Bar Chart (Vertical)
+
+**Use for:** Composition over time
+
+```jsx
+chart.setOption({
+  backgroundColor: 'transparent',
+  animation: false,
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+    backgroundColor: '#18181b', borderColor: '#27272a', borderWidth: 1,
+    textStyle: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 }, padding: [8, 12] },
+  grid: { left: 60, right: 20, top: 20, bottom: 40 },
+  xAxis: {
+    type: 'category', data: ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'],
+    axisLine: { lineStyle: { color: '#e5e5e5' } }, axisTick: { show: false },
+    axisLabel: { fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#71717a' },
+  },
+  yAxis: {
+    type: 'value',
+    splitLine: { lineStyle: { color: '#e5e5e5', opacity: 0.5 } },
+    axisLabel: { fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#71717a' },
+  },
+  series: [
+    { name: 'Micro', type: 'bar', stack: 'total', data: [5, 12, 18, 22, 25], itemStyle: { color: '#C9A84C' }, barWidth: 28 },
+    { name: 'Simplified', type: 'bar', stack: 'total', data: [0, 3, 8, 15, 22], itemStyle: { color: '#1B7A8A' } },
+    { name: 'Larger', type: 'bar', stack: 'total', data: [0, 0, 3, 8, 16], itemStyle: { color: '#3CC0D4' } },
+    { name: 'Renewed', type: 'bar', stack: 'total', data: [0, 0, 2, 8, 15], itemStyle: { color: '#E8913A' } },
+  ],
+})
+```
+
+---
+
+### 6.3 Tables
+
+**Table styling (shadcn-aligned):**
+
+```
+Header row: text-xs font-medium text-zinc-500 uppercase tracking-wider
+            border-b border-zinc-200 pb-3
+Data rows:  text-sm text-zinc-700
+            Even rows: bg-zinc-50/50
+            Odd rows: bg-transparent
+            Row padding: py-3 px-4
+```
+
+- Use CSS Grid for table layout (not `<table>`) — allows precise column widths
+- First column left-aligned, number columns right-aligned
+- Currency values: `font-medium`, accent-colored (gold for highest, teal for others)
+- No row hover (presentation, not app)
+
+> **Change from previous**: Header changed from `text-[11px]` to `text-xs`. Row background from `bg-white/40` to `bg-zinc-50/50`. Border color from `border-black/[0.08]` to `border-zinc-200`.
+
+**Badge system for categorical data:**
+
+| Category | Style |
+|---|---|
+| Highest priority | `bg-amber-50 text-amber-700 border border-amber-200/50 rounded-md px-2 py-0.5 text-xs font-medium` |
+| High / good | `bg-teal-50 text-teal-700 border border-teal-200/50 rounded-md px-2 py-0.5 text-xs font-medium` |
+| Moderate | `bg-zinc-100 text-zinc-600 rounded-md px-2 py-0.5 text-xs font-medium` |
+| Low / avoid | `bg-zinc-50 text-zinc-400 rounded-md px-2 py-0.5 text-xs font-medium line-through` |
+
+> **Change from previous**: Badges changed from `rounded-full px-3` (pill) to `rounded-md px-2` (rounded rectangle). This matches shadcn's Badge component styling exactly.
+
+### 6.4 Process Flows / Pipelines
+
+- Horizontal flex row with icon badges connected by subtle connectors
+- Badge: `w-10 h-10 rounded-lg bg-zinc-100` with icon centered (or accent bg at 10% for highlighted steps)
+- Connector: `ChevronRight` icon at `text-zinc-300` between badges
+- Label below: `text-xs font-medium text-zinc-900`
+- Sub-label: `text-[10px] text-zinc-400`
+- Maximum 5 stages per pipeline row
+
+> **Change from previous**: Badge shape from `rounded-full` to `rounded-lg`. Background from accent at 15% to `bg-zinc-100` default. Connector icon changed to ChevronRight.
+
+### 6.5 Decorative Elements
+
+Use sparingly — decoration should never compete with data.
+
+| Element | Component | Placement | Frequency |
+|---|---|---|---|
+| Gold line | `GoldLine` | Below subtitle, before content | Every slide |
+| Compass star | `CompassStar` | Bottom-right, next to source | 1 in 3 slides max |
+| Background ring | `BackgroundRing` | Corner, half off-screen | Max 1 per slide |
+
+- Background rings: `opacity-[0.02]`, gold color
+- CompassStar: `opacity-20`, size 14px
+- GoldLine: 48px wide, gold `#C9A84C`
+
+---
+
+## 7. Animation System
+
+All animations use `motion/react` (Framer Motion).
+
+### 7.1 Standard Patterns
 
 | Element | Initial | Animate | Duration | Delay |
 |---|---|---|---|---|
-| Eyebrow | `opacity: 0` | `opacity: 1` | 0.3s | 0.05s |
 | Headline | `opacity: 0, y: 8` | `opacity: 1, y: 0` | 0.35s | 0.1s |
 | Subtitle | `opacity: 0` | `opacity: 1` | 0.35s | 0.2s |
 | GoldLine | `width: 0` | `width: target` | 0.6s | 0.25s |
-| Stat cards (staggered) | `opacity: 0, y: 12` | `opacity: 1, y: 0` | 0.4s | 0.3 + i × 0.08 |
-| Chart card | `opacity: 0, y: 12` | `opacity: 1, y: 0` | 0.5s | 0.5s |
-| Bottom row | `opacity: 0, y: 12` | `opacity: 1, y: 0` | 0.4s | 0.6s |
-| Source | `opacity: 0` | `opacity: 1` | 0.35s | last |
+| Cards (staggered) | `opacity: 0, y: 12` | `opacity: 1, y: 0` | 0.4s | 0.35 + i × 0.08 |
+| Hero stat / chart | `opacity: 0, scale: 0.97` | `opacity: 1, scale: 1` | 0.5s | 0.3s |
+| Source citation | `opacity: 0` | `opacity: 1` | 0.35s | last |
 
-Total budget: under 1.5 seconds. `useCountUp` for animated numbers.
+> **Changes from previous**: Reduced all animation distances (`y: 12` → `y: 8`, scale `0.95` → `0.97`). Shortened durations. shadcn animations are subtle and quick — they communicate responsiveness, not drama.
 
----
+### 7.2 Rules
 
-## 13. Decorative Elements
-
-| Element | Component | Rules |
-|---|---|---|
-| Gold line | `GoldLine` | Below subtitle. Width 48px. |
-| Compass star | `CompassStar` | Bottom-right. Max 1 in 3 slides. Size 14, opacity 0.2. |
-| Background ring | `BackgroundRing` | Max 1 per slide. Corner, half off-screen. Opacity 0.03. |
+- Total animation sequence per slide: **under 1.5 seconds**
+- Header always animates first
+- Content follows header
+- Source citation last
+- `useCountUp` hook for stats: `duration: 1000, delay: 500 + index * 150`
+- Never animate decorative elements with attention-grabbing motion
 
 ---
 
-## 14. Spacing Rules
+## 8. Slide-by-Slide Instructions
 
-| Context | Value |
-|---|---|
-| Gap between cards | `gap-4` (16px) |
-| Stat row to chart | `mb-4` on stat row |
-| Chart to bottom row | `mt-4` on bottom row |
-| Header to content | `mb-4` |
-| Card internal padding | `p-6` (stat cards use `py-6 px-6`) |
-| Slide horizontal padding | `px-16 lg:px-20` |
-| Content to source | `mt-4` |
+> **Legend:**
+> Layout = CSS Grid / Flex structure
+> Hero = single most prominent visual element
+> Cards = StatCard-style tiles
+> Source = bottom-line citation
 
 ---
 
-## 15. Slide-by-Slide Instructions
+### Slides 3–5: LOCKED — Do Not Modify
 
-**Every slide uses one of two layouts (see section 6):**
-- **SPLIT** = visual LEFT (col-span-3) + stat tiles RIGHT (col-span-2)
-- **TABLE** = stat tiles horizontal on TOP + full-width table BELOW
+Slides 3 (WhyNewportSlide), 4 (FloridaTamSlide), and 5 (ProductMatrixSlide) are approved and locked. Study their patterns but do not modify.
 
 ---
 
-### Slide 3: Why Newport — SPLIT
+### Slide 6: The Confectionery Gap
 
-**Data:** hardcoded pillars
-**LEFT:** InsightCard with narrative about Newport's competitive moat (30 years, real infrastructure, post-fraud positioning). CardHeader "The Verifiable History Agencies Now Require".
-**RIGHT:** 4 stacked compact tiles:
-- "30 Years" (gold), badge "Since 1996", footer "Real warehouse, fleet, W-2 workforce" / "Plantation, FL"
-- "1,091" (gold), badge "↓ 25% of 8(a)", footer "SBA cleared Jan 2026" / "DOJ prosecuted $550M"
-- "83%" (teal), badge "Below $15K", footer "No bid, no past performance needed" / "Fastest path to first contract"
-- "$1–5M" (teal), badge "Entry Tier", footer "FL competitors #5–10" / "Less capability than Newport"
+**Content:** PSC 8925 deep dive — Newport's Segment E advantage
+**Data source:** `PRODUCT_TIERS.tier1[0]` from `market.js`
+**Layout:** Dashboard Pattern A — Chart + Stat Tiles (`grid-cols-[3fr_2fr] gap-4`)
+**Required visual:** ECharts donut chart (Template 6.2.2)
 
----
-
-### Slide 4: Florida TAM — SPLIT
-
-**Data:** RING_CONFIG from FloridaTamSlide
-**LEFT:** ChartCard with concentric rings SVG. CardHeader "TAM by Channel" / "$87M Total". SVG fills available space (min 320px diameter). CardFooter with 5-color legend.
-**RIGHT:** 4 stacked compact tiles:
-- "State Procurement" → "$20–30M" (gold), badge "MEDIUM"
-- "Education / NSLP" → "$10–20M" (gold), badge "MEDIUM"
-- "Micro-Purchase" → "$8–15M" (teal), badge "HIGH ↑"
-- "Federal + Local" → "$9.4M" (teal), badge "HIGH"
+**Structure:**
+- Eyebrow: "Category Deep Dive" (zinc-400)
+- Headline: "The Confectionery Gap" (3xl)
+- Subtitle + GoldLine
+- **Left (3fr):** Hero chart card — donut: 58% sole-source (gold) vs 42% competitive (zinc-200). Center label: "58%" gold 32px semibold. Chart height ~240px. Hero card with gold accent strip.
+- **Right (2fr):** 3 stat tiles stacked (`gap-3`):
+  - `$55M` (gold) + "National Spend"
+  - `45` (teal) + "National Awards"
+  - `1.6` (teal) + "Avg Offers per Award"
+- Source: "FPDS FY2024, PSC 8925"
 
 ---
 
-### Slide 5: Product Matrix — SPLIT
+### Slide 7: Competition Landscape
 
-**Data:** `PRODUCT_TIERS` from `market.js`
-**LEFT:** ChartCard with horizontal bar chart. CardHeader "FL Spend by Product Category" / "Gold = Tier 1, Teal = Tier 2, Gray = Avoid". CardFooter with tier legend.
-**RIGHT:** 3 stacked compact tiles:
-- "Confectionery & Nuts" → "$55M" (gold), badge "Highest Fit"
-- "Sole-Source Rate" → "58%" (gold), badge "↑ No competition"
-- "Evaluation Method" → "LPTA" (teal), badge "Price wins"
+**Content:** Top 8 FL food distributors
+**Data source:** `COMPETITORS` from `market.js`
+**Layout:** Dashboard Pattern C
+**Required visual:** Horizontal bar chart (Template 6.2.3)
 
----
-
-### Slide 6: The Confectionery Gap — SPLIT
-
-**Data:** `PRODUCT_TIERS.tier1[0]` from `market.js`
-**LEFT:** ChartCard with donut chart. Gold = sole-source (58%), zinc = competitive. Center label "58%". CardHeader "Competition Density" / "PSC 8925 — Confectionery & Nuts".
-**RIGHT:** 3 stacked compact tiles:
-- "National Spend" → "$55M" (gold), badge "Tier 1"
-- "FL Awards" → "45" (teal), badge "FY2024"
-- "Avg. Offers per Award" → "1.6" (teal), badge "Low competition"
-
-**Bottom row (optional):** InsightCard about Segment E pricing advantage.
+**Structure:**
+- Eyebrow + Headline + GoldLine
+- **Top:** `grid-cols-[3fr_2fr] gap-4` — chart card (hero) + stat card ("$26.1M" gold, "$1–5M" teal entry tier)
+- **Bottom:** Full-width table card. 8 rows, alternating `bg-zinc-50/50`. Newport callout row: `bg-teal-50/50`
+- Source
 
 ---
 
-### Slide 7: Competition Landscape — SPLIT
+### Slide 8: How It Works (Pipeline)
 
-**Data:** `COMPETITORS` from `market.js`
-**LEFT:** ChartCard with horizontal bar chart of 8 competitors. Newport highlighted in teal. CardHeader "FL Food Procurement by Vendor" / "FPDS FY2024 Award Volume".
-**RIGHT:** 4 stacked compact tiles:
-- "Top Competitor" → "$26.1M" (gold), badge "Dominant"
-- "Active Competitors" → "8" (teal), badge "Moderate"
-- "Newport Target" → "#6" (teal), badge "Entry point"
-- "Gap to #5" → "$5M+" (gold), badge "↑ Opportunity"
+**Content:** 5-stage pipeline + 4 sourcing channels
+**Data source:** `PIPELINE_STAGES`, `SOURCING_CHANNELS` from `strategy.js`
+**Layout:** Process flow + card grid
 
----
-
-### Slide 8: How It Works (Pipeline) — SPLIT
-
-**Data:** `PIPELINE_STAGES`, `SOURCING_CHANNELS` from `strategy.js`
-**LEFT:** ChartCard with 5-step pipeline process flow (horizontal chevron steps). CardHeader "Procurement Pipeline" / "From registration to recurring revenue".
-**RIGHT:** 4 stacked compact tiles (sourcing channels):
-- "SAM.gov" → "Free" (gold), badge "Primary"
-- "MFMP / MyFL" → "Free" (gold), badge "State"
-- "BidNet / DemandStar" → "$5–13K/yr" (teal), badge "Paid"
-- "Direct Outreach" → "Free" (teal), badge "Proactive"
+**Structure:**
+- Eyebrow + Headline + GoldLine
+- **Pipeline row:** 5 badges in hero card, connected by chevrons
+- **Channels:** `grid-cols-4 gap-3`, standard cards with top accent bar (2px)
+- Source
 
 ---
 
-### Slide 9: Target Agencies — SPLIT
+### Slide 9: Target Agencies
 
-**Data:** `TARGET_AGENCIES` from `market.js`
-**LEFT:** ChartCard with horizontal bar chart of agency values. DOJ bar in gold. CardHeader "FL Contract Value by Agency" / "Annual addressable opportunity".
-**RIGHT:** 4 stacked compact tiles (one per agency):
-- "DOJ / BOP" → value from data (gold), badge "Primary"
-- "USDA" → value from data (teal), badge "Secondary"
-- "VA Medical" → value from data (teal), badge "Steady"
-- "DoD Commissary" → value from data (teal), badge "Volume"
+**Content:** 4 priority targets
+**Data source:** `TARGET_AGENCIES` from `market.js`
+**Layout:** Dashboard Pattern A
+**Required visual:** Horizontal bar chart
 
----
-
-### Slide 10: Real Contracts — TABLE
-
-**Data:** `CONTRACT_EXAMPLES` from `strategy.js`
-**TOP ROW:** `grid-cols-3` standard stat cards:
-- "Active Opportunities" → "8" (gold), badge "Qualified"
-- "Combined Value" → "$155K+" (teal), badge "Addressable"
-- "High Fit Rating" → "75%" (teal), badge "Strong"
-
-**BELOW:** Full-width TableCard. CardHeader "Contract Pipeline" / "Scored by product fit, size, and competition". Table with columns: Contract, Agency, Value, Fit Rating. Fit badges: HIGH = amber, MEDIUM = teal, LOW = zinc. Table rows have `hover:bg-zinc-50`.
+**Structure:**
+- Left: Hero chart card — 4 agencies by value
+- Right: 4 stat tiles (DOJ gold, others teal)
+- Source
 
 ---
 
-### Slide 11: Portfolio Evolution — SPLIT
+### Slide 10: Real Contracts
 
-**Data:** `PORTFOLIO_EVOLUTION` from `financials.js`
-**LEFT:** ChartCard with stacked bar chart Y1–Y5, 4 series. CardHeader "Contract Portfolio Growth" / "Projected 5-year build across contract tiers".
-**RIGHT:** 3 stacked compact tiles:
-- "Year 5 Contracts" → "78" (gold), badge "↑ Cumulative"
-- "Renewal Rate" → "70%" (teal), badge "Industry avg"
-- "Year 5 Revenue" → "$1.2M" (teal), badge "↑ Projected"
+**Content:** 8 contract examples
+**Data source:** `CONTRACT_EXAMPLES` from `strategy.js`
+**Layout:** Dashboard Pattern C — stat row + table
 
----
-
-### Slide 12: Relationship Strategy — SPLIT
-
-**Data:** `INFLUENCE_LAYERS`, `BD_PROCESS_STEPS` from `strategy.js`
-**LEFT:** ChartCard with numbered vertical timeline (5 BD steps). CardHeader "Business Development Process" / "5-step relationship building".
-**RIGHT:** 3 stacked compact tiles (influence layers):
-- "Front-Line Buyers" → "Micro-Purchase" (gold), badge "Primary"
-- "Program Managers" → "Requirements" (teal), badge "Influence"
-- "Contracting Officers" → "Authority" (teal), badge "Decision"
+**Structure:**
+- 3 compact stat tiles: "8" opportunities, "$155K+" value, "75%" high fit
+- Full-width table with badge system
+- Source
 
 ---
 
-### Slide 13: Risk & Compliance — TABLE
+### Slide 11: Portfolio Evolution
 
-**Data:** `COMPLIANCE_REQUIRED`, `COMPLIANCE_NOT_NEEDED` from `strategy.js`
-**TOP ROW:** `grid-cols-3` standard stat cards:
-- "Total Entry Cost" → "$4K–$31.5K" (gold), badge "One-time"
-- "Complexity Avoided" → "$120–360K" (teal), badge "Saved"
-- "Registrations Needed" → "6" (teal), badge "Straightforward"
+**Content:** 5-year stacked bar
+**Data source:** Projection data (hardcoded)
+**Layout:** Dashboard Pattern A
+**Required visual:** Stacked bar (Template 6.2.5)
 
-**BELOW:** Full-width TableCard with two-column comparison. Left = Required items (Check icon, teal), Right = Not Required items (X icon, zinc, line-through). CardHeader "Requirements Checklist" / "What Newport needs vs. what it skips".
-
----
-
-### Slide 14: Our Recommendation — SPLIT
-
-**Data:** `ROUTE_COMPARISON` from `strategy.js`
-**LEFT:** ChartCard with side-by-side route comparison visual (two columns inside the card, or a grouped bar chart). CardHeader "Route Comparison" / "Free vs. paid market access".
-**RIGHT:** 4 stacked compact tiles:
-- "Free Route Cost" → "$0" (zinc-950), badge "No cost"
-- "Paid Route Cost" → "$13K/yr" (gold), badge "★ Recommended"
-- "Visibility Gap" → "2x" (gold), badge "↑ Critical"
-- "Break-Even" → "1 Win" (teal), badge "Low bar"
+**Structure:**
+- Left: Hero chart card — 4-series stacked bars Y1–Y5
+- Right: 3 stat tiles ("78" contracts gold, "70%" renewal teal, "$1.2M" revenue teal)
+- Source
 
 ---
 
-### Slide 15: Key Questions — SPLIT
+### Slide 12: Relationship Strategy
 
-**Data:** `KEY_QUESTIONS` from `strategy.js`
-**LEFT:** ChartCard with grouped question list and priority badges. CardHeader "Discussion Points" / "Key questions for Newport leadership".
-**RIGHT:** 3 stacked compact tiles (question categories with count per category)
+**Content:** 3 influence layers + 5-step process
+**Layout:** Two-column (`grid-cols-2 gap-4`)
 
----
-
-### Slide 16: B2B Fast Track — SPLIT
-
-**Data:** `B2B_TARGETS` from `market.js`
-**LEFT:** ChartCard with horizontal bar chart of 5 targets. GEO Group highlighted. CardHeader "B2B Target Revenue" / "Near-term commercial opportunities".
-**RIGHT:** 3 stacked compact tiles:
-- "Targets" → "5" (gold), badge "Qualified"
-- "Sales Cycle" → "2–8 wks" (teal), badge "Fast"
-- "Combined Revenue" → "$2M+" (teal), badge "Addressable"
+**Structure:**
+- Left: 3 stacked cards with chevron connectors. Card 3 (Front-Line) gets gold accent
+- Right: Numbered vertical timeline (5 steps) inside a card
+- Insight callout card (full width, emphasized)
+- Source
 
 ---
 
-### Slide 17: The Blueprint (Final) — SPLIT
+### Slide 13: Risk & Compliance
 
-**Data:** `RESPONSIBILITIES.partnership` from `strategy.js`
-**LEFT:** ChartCard with two-column responsibilities card. Left column = Newport (teal accent), Right column = Still Mind (gold accent). Handshake icon center. CardHeader "Partnership Structure".
-**RIGHT:** 4 stacked compact tiles (key partnership metrics)
+**Content:** $4K entry cost vs. $360K avoided
+**Data source:** `COMPLIANCE_REQUIRED`, `COMPLIANCE_NOT_NEEDED` from `strategy.js`
+**Layout:** Dashboard — stat row + two-column comparison
+
+**Structure:**
+- 2 hero stat cards: "$4K" (teal) vs "$120–360K" (gold)
+- Two-column: "Required" (teal) vs "Not Required" (gold, line-through)
+- Source
 
 ---
 
-### Section Divider Slides
+### Slide 14: Our Recommendation
 
-No split layout. No stat cards. Just:
-- Centered layout
-- Title: `text-4xl font-semibold text-zinc-950`
-- Subtitle: `text-base text-zinc-500`
+**Content:** Free vs. Paid route comparison
+**Data source:** `ROUTE_COMPARISON` from `strategy.js`
+**Layout:** Two recommendation cards + comparison table
+
+**Structure:**
+- Left card (Free): standard, muted. "$0", "40–50%" visibility
+- Right card (Paid): hero card, gold accent. "$13K/yr", "90%+", "Recommended" badge
+- Comparison table below
+- Source
+
+---
+
+### Slide 15: Key Questions
+
+**Content:** 10 decision questions
+**Data source:** `KEY_QUESTIONS` from `strategy.js`
+**Layout:** Category groups
+
+**Structure:**
+- 3 category cards, each containing questions as rows (not individual cards)
+- Priority badges per question
+- Decorative "10" watermark
+- Source
+
+---
+
+### Slide 16: B2B Fast Track
+
+**Content:** 5 institutional buyer targets
+**Data source:** `B2B_TARGETS` from `market.js`
+**Layout:** Dashboard Pattern C
+**Required visual:** Horizontal bar chart
+
+**Structure:**
+- Top: chart card + stat card ("2–8 weeks" gold)
+- Table: 5 targets, GEO Group highlighted
+- Source
+
+---
+
+### Slide 17: The Blueprint (Final)
+
+**Content:** Partnership responsibilities
+**Data source:** `RESPONSIBILITIES.partnership` from `strategy.js`
+**Layout:** Split narrative (`grid-cols-[1fr_auto_1fr]`)
+
+**Structure:**
+- Left panel: Newport (teal accent strip)
+- Center: Vertical gradient connector with Handshake icon
+- Right panel: Still Mind (gold accent strip)
+- Source
+
+---
+
+### Divider Slides
+
+**Layout:** Centered, minimal
+
+**Structure:**
+- Section title: `text-4xl font-semibold text-zinc-950` centered
+- Subtitle: `text-base text-zinc-500` centered
 - GoldLine centered (64px)
 - BackgroundRing large, centered, 2% opacity
+- No cards, no data
 
 ---
 
-## 16. Quality Checklist
+## 9. Quality Checklist
 
-Before any slide is complete, verify ALL of these:
+Before any slide is complete:
 
-- [ ] **Split or Table layout**: SPLIT = visual LEFT + tiles RIGHT (default), TABLE = tiles top + table below (slides 10, 13 only)
-- [ ] **Split uses grid-cols-5**: visual `col-span-3` LEFT, tiles `col-span-2` RIGHT stacked vertically
-- [ ] **StatCard density**: Every stat card has: muted label, big number, trend badge (top-right), footer with border-t and 2 lines
-- [ ] **ChartCard anatomy**: CardHeader (title + desc) → CardContent (chart) → CardFooter (border-t + legend)
-- [ ] **Card surface**: ALL cards use `rounded-xl bg-white border border-zinc-200 shadow-sm`
-- [ ] **Tile count**: 3 or 4 compact tiles stacked RIGHT (split), or 3–4 standard tiles horizontal TOP (table)
-- [ ] **Two-accent rule**: Only gold `#C9A84C` and teal `#1B7A8A` as accent colors
-- [ ] **Data from imports**: Numbers from `market.js`, `strategy.js`, or `financials.js`
-- [ ] **Typography scale**: No mushy middle sizes. Use the exact classes from section 8.2.
+- [ ] **Visual asset present**: Every data slide (6+) has a chart, table, or styled metric
+- [ ] **Two-accent rule**: Only gold and teal as accent colors
+- [ ] **One hero**: Max one hero card or stat per slide
+- [ ] **Card DNA**: All cards use `rounded-xl bg-white border border-zinc-200 shadow-sm` or an approved variant
+- [ ] **Chart inside card**: ECharts visualizations sit inside card surfaces with compact legend below
+- [ ] **Data from imports**: Quantitative data from `market.js` or `strategy.js`
+- [ ] **Typography scale**: Headlines 2xl–3xl, card stats 2xl, hero stats 5xl–6xl. No mushy middle
+- [ ] **Breathing room**: Minimum `px-16` horizontal. Cards have `p-4` to `p-6` internal padding
+- [ ] **Container pattern**: Root div uses `justify-center px-16 lg:px-20 pb-16`
 - [ ] **Source citation**: Every data slide has a source line
 - [ ] **Animation budget**: Under 1.5 seconds total
-- [ ] **Container pattern**: Root div uses `justify-center px-16 lg:px-20 pb-16`
-- [ ] **Hover states**: All cards have `hover:shadow-md hover:border-zinc-300 transition-all duration-200`
-- [ ] **Gold accent strip**: Hero ChartCard has `absolute left-0 ... bg-[#C9A84C]` + content `pl-8`
-- [ ] **Chart tooltip radius**: `borderRadius: 8` + `extraCssText: 'box-shadow: ...'`
-- [ ] **Table hover**: TableCard rows have `hover:bg-zinc-50` if present
-- [ ] **New slides use Recharts**: Slides 6–17 use `recharts` (not ECharts) for standard charts
+- [ ] **No competing weight**: Squint test — one element dominates
+- [ ] **Consistent with slides 3–5**: Same card DNA, same accent discipline
+- [ ] **shadcn aesthetic**: Looks like a shadcn/ui dashboard panel
 
 ---
 
-## 17. Component Reference
+## 10. Component Reference
 
 | Component | Import | Purpose |
 |---|---|---|
-| `GoldLine` | `../ui/DecorativeElements` | Animated gold divider |
-| `CompassStar` | `../ui/DecorativeElements` | 4-pointed star |
-| `BackgroundRing` | `../ui/DecorativeElements` | Circular decoration |
-| `SourceCitation` | `../ui/SourceCitation` | Source line |
-| `useCountUp` | `../../hooks/useCountUp` | Animated counter |
-| `TrendingUp` | `lucide-react` | Trend badge icon |
-| `TrendingDown` | `lucide-react` | Trend badge icon |
+| `GoldLine` | `../ui/DecorativeElements` | Animated gold divider after subtitles |
+| `CompassStar` | `../ui/DecorativeElements` | 4-pointed decorative star |
+| `HeroStat` | `../ui/DecorativeElements` | Oversized metric display |
+| `BackgroundRing` | `../ui/DecorativeElements` | Subtle circular decoration |
+| `SourceCitation` | `../ui/SourceCitation` | Bottom-of-slide source line |
+| `useCountUp` | `../../hooks/useCountUp` | Animated number counter |
 
-Data files: `src/data/market.js`, `src/data/strategy.js`, `src/data/financials.js`
+All slide data lives in `/src/data/market.js` and `/src/data/strategy.js`.
 
 ---
 
-*This system enforces the shadcn/ui dashboard-01 layout as the ONLY layout for data slides. The key structural rules: stat cards always in a horizontal row (grid-cols-3 or grid-cols-4), chart card always full-width below, every stat card has 5+ pieces of content (label, value, trend badge, footer highlight, footer description). No bento grids, no side-by-side chart+stats, no vertical stacking.*
+## Appendix: Migration Summary
+
+Key changes from the previous design system to align with shadcn/ui:
+
+| Area | Previous | shadcn-aligned |
+|---|---|---|
+| Card radius | `rounded-2xl` (16px) | `rounded-xl` (12px) |
+| Card bg | `bg-white/70 backdrop-blur-sm` | `bg-white` (solid) |
+| Card border | `border-black/[0.06]` | `border-zinc-200` |
+| Card shadow | Custom `rgba(0,0,0,0.04)` | `shadow-sm` |
+| Card padding | `p-5` | `p-6` (standard), `p-4` (compact) |
+| Grid gap | `gap-5` | `gap-4` |
+| Slide bg | `#e6e6ec` | `#f4f4f5` (zinc-100) |
+| Text colors | `navy-800/XX` opacity system | Zinc scale (950/900/600/400/300) |
+| Headline weight | `font-bold` | `font-semibold` |
+| Hero stat size | `text-7xl` | `text-6xl` |
+| Card stat size | `text-3xl` | `text-2xl` |
+| Badge shape | `rounded-full` (pill) | `rounded-md` (rect) |
+| Icon container | `rounded-lg` accent bg | `rounded-md` zinc-100 bg |
+| Tooltip bg | Navy `rgba(36,51,86,0.95)` | `#18181b` (zinc-900) |
+| Donut secondary | `rgba(15,26,46,0.08)` | `#e5e5e5` (zinc-200) |
+| Animation distance | `y: 16–20` | `y: 8–12` |
+| Animation budget | 2 seconds | 1.5 seconds |
+| Process badge | `rounded-full` | `rounded-lg` |
+
+---
+
+*This system fuses shadcn/ui's clean, component-driven aesthetic with Newport's gold-and-teal brand identity. Follow it precisely — every rule exists to maintain the quiet confidence of a well-designed dashboard.*

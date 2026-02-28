@@ -4,8 +4,8 @@ import { BarChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { motion } from 'motion/react'
-import { Star, Shield, TrendingUp } from 'lucide-react'
-import { GoldLine, CompassStar } from '../ui/DecorativeElements'
+import { Star, Shield } from 'lucide-react'
+import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 import { PRODUCT_TIERS } from '../../data/market'
 
 echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
@@ -37,37 +37,10 @@ const REVERSED = [...BAR_DATA].reverse()
 function tierColor(tier) {
   if (tier === 1) return 'rgba(201,168,76,0.80)'
   if (tier === 2) return 'rgba(27,122,138,0.70)'
-  return 'rgba(161,161,170,0.25)'
+  return '#e5e5e5'
 }
 
 const confectionery = PRODUCT_TIERS.tier1[0]
-
-const STAT_CARDS = [
-  {
-    label: 'Confectionery & Nuts',
-    value: fmtM(confectionery.nationalSpend),
-    accent: '#C9A84C',
-    badge: { icon: Star, text: 'Highest Fit', variant: 'text-amber-700' },
-    footerHighlight: 'National spend, PSC 8925',
-    footerDescription: "Newport's #1 product match",
-  },
-  {
-    label: 'PSC 8925 Sole-Source',
-    value: `${confectionery.soleSource}%`,
-    accent: '#C9A84C',
-    badge: { icon: TrendingUp, text: 'No competition', variant: 'text-emerald-700' },
-    footerHighlight: 'Most awards are sole-source',
-    footerDescription: 'Lowest competition of all categories',
-  },
-  {
-    label: 'Evaluation Method',
-    value: 'LPTA',
-    accent: '#1B7A8A',
-    badge: { icon: Shield, text: 'Price wins', variant: 'text-zinc-600' },
-    footerHighlight: 'Lowest Price Technically Acceptable',
-    footerDescription: "Newport's wholesale pricing advantage",
-  },
-]
 
 export default function ProductMatrixSlide() {
   const chartRef = useRef(null)
@@ -84,11 +57,12 @@ export default function ProductMatrixSlide() {
         axisPointer: { type: 'shadow' },
         backgroundColor: '#18181b',
         borderColor: '#27272a',
-        borderWidth: 1,
-        textStyle: { color: '#fafafa', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 },
-        padding: [8, 12],
         borderRadius: 8,
-        extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.25);',
+        textStyle: {
+          color: '#fff',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontSize: 13,
+        },
         formatter: (params) => {
           const p = params[0]
           const d = REVERSED[p.dataIndex]
@@ -104,20 +78,34 @@ export default function ProductMatrixSlide() {
           ].filter(Boolean).join('<br/>')
         },
       },
-      grid: { left: 16, right: 90, top: 16, bottom: 16, containLabel: true },
-      xAxis: { type: 'value', show: false, splitLine: { show: false } },
+      grid: {
+        left: 24,
+        right: 80,
+        top: 16,
+        bottom: 16,
+        containLabel: true,
+      },
+      xAxis: {
+        type: 'value',
+        show: false,
+        axisLine: { show: true, lineStyle: { color: '#e4e4e7' } },
+        splitLine: { show: false },
+      },
       yAxis: {
         type: 'category',
         data: REVERSED.map(d => d.name),
         axisLine: { show: false },
         axisTick: { show: false },
-        splitLine: { show: true, lineStyle: { color: '#e5e5e5', opacity: 0.3, type: 'dashed' } },
+        splitLine: {
+          show: true,
+          lineStyle: { color: '#e4e4e7', type: 'dashed' },
+        },
         axisLabel: {
-          fontSize: 12,
+          fontSize: 13,
           fontFamily: 'Inter, system-ui, sans-serif',
           color: (value) => {
             const item = BAR_DATA.find(d => d.name === value)
-            return item && item.tier === 3 ? '#a1a1aa' : '#18181b'
+            return item && item.tier === 3 ? '#a1a1aa' : '#27272a'
           },
         },
       },
@@ -125,19 +113,29 @@ export default function ProductMatrixSlide() {
         type: 'bar',
         data: REVERSED.map(d => ({
           value: d.flSpend,
-          itemStyle: { color: tierColor(d.tier), borderRadius: [0, 4, 4, 0] },
-          label: { color: d.tier === 1 ? '#C9A84C' : d.tier === 2 ? '#1B7A8A' : 'transparent' },
+          itemStyle: {
+            color: tierColor(d.tier),
+            borderRadius: [0, 3, 3, 0],
+          },
+          label: {
+            color: d.tier === 1 ? '#C9A84C' : d.tier === 2 ? '#1B7A8A' : 'transparent',
+          },
         })),
-        barWidth: 18,
+        barWidth: 22,
         label: {
-          show: true, position: 'right', fontSize: 11,
-          fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600,
+          show: true,
+          position: 'right',
+          fontSize: 12,
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 600,
           formatter: (params) => {
             const d = REVERSED[params.dataIndex]
             return d.tier !== 3 ? fmtM(params.value) : ''
           },
         },
-        emphasis: { itemStyle: { opacity: 1 } },
+        emphasis: {
+          itemStyle: { opacity: 1 },
+        },
       }],
     })
 
@@ -150,135 +148,170 @@ export default function ProductMatrixSlide() {
   }, [])
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden">
-      {/* ZONE 1: Header */}
-      <div className="mb-4 relative z-10">
+    <div className="w-full h-full flex flex-col justify-center px-16 pt-6 pb-8 relative overflow-hidden">
+      <BackgroundRing size={450} className="-top-36 -right-36" opacity={0.03} />
+      <BackgroundRing size={280} className="bottom-16 -left-24" opacity={0.025} />
+
+      {/* Header */}
+      <div className="mb-3 relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="inline-block text-xs font-medium uppercase tracking-widest text-zinc-400 mb-3"
+          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-3"
         >
           Product Categories
         </motion.span>
         <motion.h2
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.1 }}
-          className="text-3xl font-semibold tracking-tight text-zinc-950 mb-2"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="font-body text-3xl font-semibold tracking-tight text-zinc-950 mb-2"
         >
           Where Newport Has Pricing Power
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.35, delay: 0.2 }}
-          className="text-sm text-zinc-600 max-w-2xl"
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="font-body text-[15px] text-zinc-600 max-w-2xl"
         >
-          Prioritized by FL demand, competition density, and Newport's wholesale
-          advantage.
+          Not all products are equal — prioritized by FL demand, competition, and Newport's advantage.
         </motion.p>
-        <GoldLine width={48} className="mt-3" delay={0.25} />
+        <GoldLine width={60} className="mt-3" delay={0.25} />
       </div>
 
-      {/* ZONE 2: Stat card row — ABOVE chart */}
-      <div className="grid grid-cols-3 gap-4 mb-4 relative z-10">
-        {STAT_CARDS.map((stat, i) => {
-          const BadgeIcon = stat.badge.icon
-          return (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
-              className="rounded-xl bg-white border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out flex flex-col gap-6 py-6 cursor-default"
-            >
-              <div className="px-6 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-zinc-500">{stat.label}</span>
-                  <span
-                    className={`inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 ${stat.badge.variant}`}
-                  >
-                    {BadgeIcon && <BadgeIcon className="w-3 h-3" />}
-                    {stat.badge.text}
-                  </span>
-                </div>
-                <span
-                  className="text-2xl font-semibold tabular-nums tracking-tight"
-                  style={{ color: stat.accent }}
-                >
-                  {stat.value}
-                </span>
-              </div>
-              <div className="border-t border-zinc-100 px-6 pt-4 flex flex-col gap-1.5 text-sm">
-                <div className="flex items-center gap-2 font-medium text-zinc-900">
-                  {stat.footerHighlight}
-                </div>
-                <div className="text-zinc-500 text-xs">
-                  {stat.footerDescription}
-                </div>
-              </div>
-            </motion.div>
-          )
-        })}
-      </div>
-
-      {/* ZONE 3: ChartCard — FULL WIDTH, BELOW stats */}
+      {/* Full-width bar chart card */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="rounded-xl bg-white border border-zinc-200 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all duration-200 ease-out relative overflow-hidden z-10"
-        style={{ height: '300px' }}
+        transition={{ duration: 0.45, delay: 0.3 }}
+        className="rounded-xl bg-white p-5 shadow-sm border border-zinc-200 relative z-10 mb-4"
+        style={{ height: '340px' }}
       >
-        <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
-
         <div className="w-full h-full flex flex-col">
-          {/* CardHeader */}
-          <div className="p-6 pb-0 pl-8">
-            <h3 className="text-lg font-semibold text-zinc-950">
-              FL Spend by Product Category
-            </h3>
-            <p className="text-sm text-zinc-500 mt-1">
-              Gold = Tier 1, Teal = Tier 2, Gray = Avoid
-            </p>
-          </div>
-
-          {/* CardContent: chart */}
-          <div className="p-6 pt-4 pl-8 flex-1 min-h-0">
+          <div className="flex-1 min-h-0">
             <div ref={chartRef} className="w-full h-full" />
           </div>
 
-          {/* CardFooter: legend */}
-          <div className="px-6 py-3 pl-8 border-t border-zinc-100 flex items-center gap-4">
+          {/* Compact legend */}
+          <div className="flex items-center gap-5 pt-2 border-t border-zinc-100">
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.80)' }} />
-              <span className="text-xs text-zinc-500">Tier 1 — Highest</span>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.80)' }} />
+              <span className="font-body text-[13px] text-zinc-500">Tier 1 — Highest</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(27,122,138,0.70)' }} />
-              <span className="text-xs text-zinc-500">Tier 2 — Growth</span>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'rgba(27,122,138,0.70)' }} />
+              <span className="font-body text-[13px] text-zinc-500">Tier 2 — Growth</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'rgba(161,161,170,0.25)' }} />
-              <span className="text-xs text-zinc-500">Avoid</span>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#e5e5e5' }} />
+              <span className="font-body text-[13px] text-zinc-500">Avoid</span>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* ZONE 5: Source */}
-      <div className="flex items-center justify-between mt-4 relative z-10">
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-[10px] text-zinc-300"
+      {/* Bottom zone: two cards */}
+      <div className="grid grid-cols-2 gap-4 relative z-10">
+        {/* Left: Confectionery deep dive */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.45 }}
+          className="rounded-xl bg-white border border-zinc-200 px-6 py-5 flex flex-col justify-center relative overflow-hidden shadow-sm"
         >
-          FPDS FY2024 by PSC code | USASpending FL awards | FAR 15.101-2 (LPTA evaluation)
-        </motion.p>
-        <CompassStar size={14} opacity={0.2} />
+          {/* Gold left accent strip */}
+          <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full" style={{ backgroundColor: '#C9A84C' }} />
+          <span
+            className="absolute top-3 right-3 text-[11px] font-semibold px-1.5 py-0.5 rounded-md"
+            style={{ backgroundColor: 'rgba(201,168,76,0.1)', color: '#C9A84C' }}
+          >
+            HIGHEST FIT
+          </span>
+          <div className="flex items-start gap-3 pl-2">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+              style={{ backgroundColor: '#C9A84C15' }}
+            >
+              <Star className="w-5 h-5" style={{ color: '#C9A84C' }} strokeWidth={1.5} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-body text-base font-semibold text-zinc-950 mb-1">
+                {confectionery.name}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="font-body text-2xl font-semibold tracking-tight leading-none" style={{ color: '#C9A84C' }}>
+                  {fmtM(confectionery.nationalSpend)}
+                </span>
+                <span className="font-body text-[11px] font-medium text-zinc-400 uppercase tracking-wide">
+                  National
+                </span>
+              </div>
+              <div className="space-y-1">
+                <p className="font-body text-sm text-zinc-600">
+                  <span className="font-semibold text-zinc-950">{confectionery.soleSource}%</span> sole-source — minimal competition
+                </p>
+                <p className="font-body text-sm text-zinc-600">
+                  Newport's Segment E supplier pricing = built-in cost advantage
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right: LPTA Evaluation */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.55 }}
+          className="rounded-xl bg-white px-6 py-5 shadow-sm border border-zinc-200 flex flex-col justify-center"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0">
+              <Shield className="w-5 h-5 text-zinc-500" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-body text-base font-semibold text-zinc-950 mb-1.5">
+                LPTA Evaluation
+              </h3>
+              <p className="font-body text-sm leading-relaxed text-zinc-600 mb-2">
+                Most food contracts use <span className="font-semibold text-zinc-950">Lowest Price Technically Acceptable</span> — directly favors wholesale distributors.
+              </p>
+              <p className="font-body text-sm leading-relaxed text-zinc-600">
+                Volume purchasing = pricing power. Newport's 35-year supplier relationships are the moat.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-3 relative z-10">
+        <div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="flex items-center gap-3 mb-1"
+          >
+            <span className="font-body text-[11px] text-zinc-400">Deprioritized:</span>
+            {PRODUCT_TIERS.avoid.map(item => (
+              <span key={item.psc} className="font-body text-[11px] text-zinc-300 line-through">
+                {item.name}
+              </span>
+            ))}
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0 }}
+            className="text-[11px] text-zinc-300"
+          >
+            FPDS FY2024 by PSC code | USASpending FL awards | FAR 15.101-2 (LPTA evaluation)
+          </motion.p>
+        </div>
+        <CompassStar size={16} opacity={0.2} delay={1.2} />
       </div>
     </div>
   )
