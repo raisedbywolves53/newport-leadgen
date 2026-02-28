@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { SCENARIO_PARAMS } from '../../data/financials'
+import { SCENARIO_CONFIGS } from '../../data/financials'
 
 const SCENARIOS = ['conservative', 'moderate', 'aggressive']
 
@@ -7,7 +7,7 @@ export default function ScenarioToggle({ active, onChange, className = '' }) {
   return (
     <div className={`inline-flex rounded-lg bg-zinc-100 p-0.5 ${className}`}>
       {SCENARIOS.map((key) => {
-        const s = SCENARIO_PARAMS[key]
+        const s = SCENARIO_CONFIGS[key]
         const isActive = active === key
         return (
           <button
