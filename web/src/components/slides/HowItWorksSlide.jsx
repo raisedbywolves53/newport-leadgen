@@ -1,157 +1,183 @@
 import { motion } from 'motion/react'
-import { Search, BarChart3, FileText, Send, Award, ArrowRight, Globe, Building2, Eye, Users } from 'lucide-react'
-import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
-import { SOURCING_CHANNELS } from '../../data/strategy'
+import {
+  Search,
+  FileText,
+  Send,
+  CheckCircle,
+  Truck,
+  ChevronRight,
+  Globe,
+  Building2,
+  Eye,
+  Users,
+  TrendingUp,
+} from 'lucide-react'
+import { GoldLine, CompassStar } from '../ui/DecorativeElements'
+import { PIPELINE_STAGES, SOURCING_CHANNELS } from '../../data/strategy'
 
-// Pipeline stages with design-system-compliant colors
-const STAGES = [
-  { name: 'Identify', sub: 'Daily monitoring', icon: Search, accent: '#1B7A8A' },
-  { name: 'Score', sub: 'Bid/no-bid (0-100)', icon: BarChart3, accent: '#1B7A8A' },
-  { name: 'Pursue', sub: 'Proposal in progress', icon: FileText, accent: '#C9A84C' },
-  { name: 'Submit', sub: 'Bid delivered', icon: Send, accent: '#C9A84C' },
-  { name: 'Win', sub: 'Contract awarded', icon: Award, accent: '#1B7A8A' },
-]
-
-// Icons for sourcing channels
+const STAGE_ICONS = [Search, FileText, Send, CheckCircle, Truck]
 const CHANNEL_ICONS = [Globe, Building2, Eye, Users]
 
-// Determine card accent: free channels get teal, paid get gold
-function channelAccent(cost) {
-  if (cost.toLowerCase().includes('free')) return '#1B7A8A'
-  return '#C9A84C'
-}
+const CHANNEL_BADGES = [
+  { text: 'BUILT', variant: 'text-emerald-700' },
+  { text: 'FREE', variant: 'text-zinc-600' },
+  { text: '$6.5K/YR', variant: 'text-zinc-600' },
+  { text: 'FREE', variant: 'text-zinc-600' },
+]
 
 export default function HowItWorksSlide() {
   return (
-    <div className="w-full h-full flex flex-col px-16 lg:px-20 pt-6 pb-20 relative overflow-hidden">
-      <BackgroundRing size={400} className="-top-28 -right-28" opacity={0.03} />
-
-      {/* Header */}
+    <div className="w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden">
+      {/* ZONE 1: Header */}
       <div className="mb-4 relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-navy-800/40 mb-3"
+          className="inline-block text-xs font-medium uppercase tracking-widest text-zinc-400 mb-3"
         >
           Process
         </motion.span>
         <motion.h2
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="font-body text-4xl font-bold tracking-tight text-navy-950 mb-2"
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="text-3xl font-semibold tracking-tight text-zinc-950 mb-2"
         >
-          How It Works
+          How Government Contracts Work
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="font-body text-sm text-navy-800/60 max-w-2xl"
+          transition={{ duration: 0.35, delay: 0.2 }}
+          className="text-sm text-zinc-600 max-w-2xl"
         >
-          From opportunity identification to contract award — a systematic pipeline.
+          From opportunity identification to contract award — a systematic
+          pipeline.
         </motion.p>
-        <GoldLine width={60} className="mt-3" delay={0.25} />
+        <GoldLine width={48} className="mt-3" delay={0.25} />
       </div>
 
-      {/* Pipeline row — circular badges with arrows */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.4 }}
-        className="flex items-center justify-center gap-2 mb-6 relative z-10"
-      >
-        {STAGES.map((stage, i) => {
-          const Icon = stage.icon
-          return (
-            <div key={stage.name} className="flex items-center gap-2">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.35 + i * 0.1, duration: 0.4 }}
-                className="flex flex-col items-center"
-              >
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: `${stage.accent}15` }}
-                >
-                  <Icon
-                    className="w-5 h-5"
-                    style={{ color: stage.accent }}
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <span className="font-body text-[11px] font-semibold text-navy-950 mt-2">
-                  {stage.name}
-                </span>
-                <span className="font-body text-[10px] text-navy-800/40">
-                  {stage.sub}
-                </span>
-              </motion.div>
-              {i < STAGES.length - 1 && (
-                <ArrowRight className="w-4 h-4 text-navy-800/15 -mt-5" />
-              )}
-            </div>
-          )
-        })}
-      </motion.div>
-
-      {/* Sourcing channel cards — grid-cols-4 */}
-      <div className="grid grid-cols-4 gap-3 flex-1 min-h-0 relative z-10">
+      {/* ZONE 2: Stat card row — 4 sourcing channels HORIZONTAL */}
+      <div className="grid grid-cols-4 gap-4 mb-4 relative z-10">
         {SOURCING_CHANNELS.map((ch, i) => {
-          const accent = channelAccent(ch.cost)
           const Icon = CHANNEL_ICONS[i]
+          const isFirst = i === 0
+          const accent = isFirst ? '#C9A84C' : '#1B7A8A'
+          const badge = CHANNEL_BADGES[i]
+
           return (
             <motion.div
               key={ch.title}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.1, duration: 0.45 }}
-              className="rounded-2xl bg-white/70 backdrop-blur-sm border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 flex flex-col relative overflow-hidden"
+              transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
+              className="rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col gap-6 py-6"
             >
-              {/* Top accent bar */}
-              <div
-                className="absolute top-0 left-4 right-4 h-[2px] rounded-full"
-                style={{ backgroundColor: accent }}
-              />
-
-              {/* Icon pill */}
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center mb-3 mt-1"
-                style={{ backgroundColor: `${accent}15` }}
-              >
-                <Icon className="w-5 h-5" style={{ color: accent }} strokeWidth={1.5} />
+              <div className="px-6 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-zinc-500">{ch.title}</span>
+                  <span
+                    className={`inline-flex items-center gap-1 text-xs font-medium border border-zinc-200 rounded-md px-2 py-0.5 ${badge.variant}`}
+                  >
+                    {isFirst && <TrendingUp className="w-3 h-3" />}
+                    {badge.text}
+                  </span>
+                </div>
+                <span
+                  className="text-2xl font-semibold tabular-nums tracking-tight"
+                  style={{ color: accent }}
+                >
+                  {ch.cost}
+                </span>
               </div>
-
-              <h4 className="font-body text-sm font-semibold text-navy-950 mb-2">
-                {ch.title}
-              </h4>
-              <p className="font-body text-[13px] leading-relaxed text-navy-800/65 flex-1">
-                {ch.description}
-              </p>
-              <span
-                className="font-body text-xs font-semibold mt-3 block"
-                style={{ color: accent }}
-              >
-                {ch.cost}
-              </span>
+              <div className="border-t border-zinc-100 px-6 pt-4 flex flex-col gap-1.5 text-sm">
+                <div className="flex items-center gap-2 font-medium text-zinc-900 line-clamp-1">
+                  <Icon className="w-4 h-4 shrink-0" /> {ch.title.split(': ')[1] || ch.title}
+                </div>
+                <div className="text-zinc-500 text-xs line-clamp-2">
+                  {ch.description}
+                </div>
+              </div>
             </motion.div>
           )
         })}
       </div>
 
-      {/* Source */}
+      {/* ZONE 3: Pipeline card — FULL WIDTH (replaces chart) */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="rounded-xl bg-white border border-zinc-200 shadow-sm relative overflow-hidden relative z-10"
+      >
+        <div className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-[#C9A84C]" />
+
+        {/* CardHeader */}
+        <div className="p-6 pb-0 pl-8">
+          <h3 className="text-lg font-semibold text-zinc-950">
+            Procurement Pipeline
+          </h3>
+          <p className="text-sm text-zinc-500 mt-1">
+            5 stages from identification to delivery
+          </p>
+        </div>
+
+        {/* CardContent — horizontal pipeline */}
+        <div className="p-6 pt-4 pl-8">
+          <div className="flex items-center justify-center gap-3">
+            {PIPELINE_STAGES.map((stage, i) => {
+              const Icon = STAGE_ICONS[i]
+              return (
+                <div key={stage.name} className="flex items-center gap-3">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.35 + i * 0.1, duration: 0.4 }}
+                    className="flex flex-col items-center"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-zinc-100 flex items-center justify-center">
+                      <Icon
+                        className="w-5 h-5 text-zinc-600"
+                        strokeWidth={1.5}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-zinc-900 mt-2">
+                      {stage.name}
+                    </span>
+                    <span className="text-[10px] text-zinc-400">
+                      {stage.description}
+                    </span>
+                  </motion.div>
+                  {i < PIPELINE_STAGES.length - 1 && (
+                    <ChevronRight className="w-4 h-4 text-zinc-300 -mt-5" />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* CardFooter */}
+        <div className="px-6 py-3 pl-8 border-t border-zinc-100">
+          <span className="text-xs text-zinc-400">
+            Typical cycle: 30–180 days depending on contract size
+          </span>
+        </div>
+      </motion.div>
+
+      {/* ZONE 5: Source */}
       <div className="flex items-center justify-between mt-4 relative z-10">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="text-[10px] text-navy-800/35"
+          transition={{ delay: 0.8 }}
+          className="text-[10px] text-zinc-300"
         >
-          SAM.gov API | MyFloridaMarketPlace | GovSpend ($6.5K/yr) | CLEATUS ($3K/yr) | HigherGov ($3.5K/yr)
+          SAM.gov API | MyFloridaMarketPlace | GovSpend ($6.5K/yr) | CLEATUS
+          ($3K/yr) | HigherGov ($3.5K/yr)
         </motion.p>
-        <CompassStar size={16} opacity={0.2} delay={1.4} />
+        <CompassStar size={14} opacity={0.2} />
       </div>
     </div>
   )

@@ -64,7 +64,7 @@ function SlideBackground({ slideId, children }) {
     return <>{children}</>
   }
   return (
-    <div className="w-full h-full" style={{ backgroundColor: '#e6e6ec' }}>
+    <div className="w-full h-full" style={{ backgroundColor: '#f4f4f5' }}>
       {children}
     </div>
   )

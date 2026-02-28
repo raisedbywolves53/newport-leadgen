@@ -11,7 +11,7 @@ export default function SectionDivider({ title, subtitle, backgroundImage }) {
             alt=""
             className="w-full h-full object-contain object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#e6e6ec] via-[#e6e6ec]/60 to-[#e6e6ec]/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#f4f4f5] via-[#f4f4f5]/60 to-[#f4f4f5]/30" />
         </div>
       )}
 

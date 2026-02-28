@@ -257,3 +257,33 @@ export const RESPONSIBILITIES = {
     ],
   },
 }
+
+// ── BD Strategy — Influence Layers (Slide 15) ──
+export const INFLUENCE_LAYERS = [
+  {
+    role: 'Contracting Officers',
+    description: 'Control the formal procurement process — RFQs, evaluations, awards.',
+    stat: 'Decision authority',
+    color: 'teal',
+  },
+  {
+    role: 'Program Managers',
+    description: 'Define requirements and evaluate vendor capability. Budget owners.',
+    stat: 'Requirement setters',
+    color: 'teal',
+  },
+  {
+    role: 'Front-Line Influencers',
+    description: 'Kitchen managers, food service directors, nutrition staff. They know what they need and recommend vendors.',
+    stat: 'Newport\'s entry point',
+    color: 'gold',
+  },
+]
+
+export const BD_PROCESS_STEPS = [
+  { step: 1, title: 'Identify Facilities', description: 'Map federal and state facilities within delivery range.' },
+  { step: 2, title: 'Research Requirements', description: 'Pull current contracts, expiration dates, incumbent vendors.' },
+  { step: 3, title: 'Engage Front-Line', description: 'Visit food service directors. Bring samples. Build relationships.' },
+  { step: 4, title: 'Position for Recompete', description: 'When contracts expire, Newport is already a known quantity.' },
+  { step: 5, title: 'Win & Expand', description: 'Win first micro-purchase. Use past performance to bid larger contracts.' },
+]
