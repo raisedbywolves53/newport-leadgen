@@ -201,6 +201,14 @@ export const OE_WATERFALL = {
 }
 
 
+// ── Tier Configuration (for stacked bar chart breakdown) ──
+export const TIER_CONFIGS = [
+  { key: 'micro',      label: 'Micro (<$15K)',         baseValue:  8000, growth: 0.05, color: '#C9A84C' },
+  { key: 'simplified', label: 'Simplified ($15–350K)',  baseValue: 50000, growth: 0.15, color: '#1B7A8A' },
+  { key: 'sled',       label: 'SLED',                  baseValue: 75000, growth: 0.10, color: '#3CC0D4' },
+  { key: 'setAside',   label: 'Set-Aside',             baseValue:150000, growth: 0.10, color: '#E8913A' },
+]
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── Interactive Pro Forma Computation Engine ──
 // Source: FPDS FY2024 competition analysis, USASpending, research.md Section 7
@@ -323,6 +331,32 @@ export function computeProForma(scenarioKey = 'moderate', routeKey = 'free', ove
     const avgContractValue = Math.round(s.avgContractY1 * Math.pow(1 + s.contractGrowthRate, yr - 1))
     const revenue = activeContracts * avgContractValue
 
+    // Tier breakdown — distribute contracts by portfolio evolution mix
+    const mix = PORTFOLIO_EVOLUTION[yr - 1]
+    const tierPcts = [mix.micro, mix.simplified, mix.sled, mix.setAside]
+    const rawCounts = tierPcts.map(p => Math.round(activeContracts * p / 100))
+    // Fix rounding so counts sum exactly to activeContracts
+    const countDiff = activeContracts - rawCounts.reduce((a, b) => a + b, 0)
+    if (countDiff !== 0) {
+      // Adjust the largest tier
+      const maxIdx = rawCounts.indexOf(Math.max(...rawCounts))
+      rawCounts[maxIdx] += countDiff
+    }
+    // Compute raw tier revenues, then scale to match model revenue
+    const rawTierRevenues = TIER_CONFIGS.map((tc, i) =>
+      rawCounts[i] * tc.baseValue * Math.pow(1 + tc.growth, yr - 1)
+    )
+    const rawTotal = rawTierRevenues.reduce((a, b) => a + b, 0)
+    const scale = rawTotal > 0 ? revenue / rawTotal : 0
+    const tiers = TIER_CONFIGS.map((tc, i) => ({
+      key: tc.key,
+      label: tc.label,
+      color: tc.color,
+      contracts: rawCounts[i],
+      avgValue: rawCounts[i] > 0 ? Math.round((rawTierRevenues[i] * scale) / rawCounts[i]) : 0,
+      revenue: Math.round(rawTierRevenues[i] * scale),
+    }))
+
     // Cost structure
     const cogs = Math.round(revenue * (1 - grossMargin))
     const grossProfit = revenue - cogs
@@ -344,6 +378,7 @@ export function computeProForma(scenarioKey = 'moderate', routeKey = 'free', ove
       activeContracts,
       avgContractValue,
       revenue,
+      tiers,
       cogs,
       grossProfit,
       toolCost,

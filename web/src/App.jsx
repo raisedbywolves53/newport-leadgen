@@ -24,8 +24,7 @@ import RiskComplianceSlide from './components/slides/RiskComplianceSlide'
 import RecommendationSlide from './components/slides/RecommendationSlide'
 import KeyQuestionsSlide from './components/slides/KeyQuestionsSlide'
 import BlueprintSlide from './components/slides/BlueprintSlide'
-import FinancialDashboardSlide from './components/slides/FinancialDashboardSlide'
-import ProFormaSlide from './components/slides/ProFormaSlide'
+import FinancialOutlookSlide from './components/slides/FinancialOutlookSlide'
 import PlaceholderSlide from './components/slides/PlaceholderSlide'
 
 const SLIDE_COMPONENTS = {
@@ -45,8 +44,7 @@ const SLIDE_COMPONENTS = {
   'risk-compliance': RiskComplianceSlide,
   'recommendation': RecommendationSlide,
   'key-questions': KeyQuestionsSlide,
-  'financial-dashboard': FinancialDashboardSlide,
-  'pro-forma': ProFormaSlide,
+  'financial-outlook': FinancialOutlookSlide,
   'blueprint': BlueprintSlide,
 }
 
