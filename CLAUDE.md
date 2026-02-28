@@ -42,7 +42,7 @@ python govcon/scoring/bid_no_bid.py --input data/final/opportunities.csv   # Sco
 ## Project Structure
 
 ```
-web/             # Primary client deliverable: React/Vite interactive GovCon presentation (17 slides, 2 financial slides planned)
+web/             # Primary client deliverable: React/Vite interactive GovCon presentation (17 slides, 1 financial slide planned)
 govcon/          # Channel 1: Government contracting (enrichment, scrapers, scoring, tracking, deliverables)
 commercial/      # Channel 2: Commercial SDR (enrichment, scrapers, outreach [future])
 config/          # Shared: ICP definitions, exclusions, government contract params
@@ -96,7 +96,7 @@ Reference these for detailed context:
 
 **Known gotchas:**
 - SAM.gov API has intermittent outages (experienced Feb 2026). System degrades gracefully — check logs.
-- The GovCon web presentation (`web/`) is the primary client deliverable. 17 interactive slides (2 financial slides planned), React 19.2 + Vite 7.3 + Tailwind CSS 4.2 + ECharts 6 + Motion 12, deployed via Netlify. Design rules are in `web/DESIGN-SYSTEM.md` — read it before modifying any slide.
+- The GovCon web presentation (`web/`) is the primary client deliverable. 17 interactive slides (1 financial slide planned), React 19.2 + Vite 7.3 + Tailwind CSS 4.2 + ECharts 6 + Motion 12, deployed via Netlify. Design rules are in `web/DESIGN-SYSTEM.md` — read it before modifying any slide.
 - Market data in `web/src/data/market.js`, strategy data in `web/src/data/strategy.js`. Financial computation engine planned for `web/src/data/financials.js` (see `FINANCIAL-SLIDES-BUILD.md` for full build spec).
 - Legacy PPTX and Excel builders are archived in `archive/` subdirectories. The v7 .xlsx (`data/Newport_GovCon_Financial_Model_v7.xlsx`) remains as reference but financial slides are being rebuilt from scratch using research data.
 - Slide design system: zinc palette + brand accents (Gold #C9A84C, Teal #1B7A8A, Light Teal #239BAD, Orange #E8913A). Card pattern: `rounded-xl bg-white border border-zinc-200 shadow-sm`. Always use `pb-14` for progress bar clearance.
@@ -134,12 +134,16 @@ Reference these for detailed context:
 - [x] Password-gated, Netlify-deployed
 - [x] This is now the primary client-facing deliverable
 - [x] Multiple rounds of visual polish (font sizing, spacing, progress bar clearance)
-- [ ] **IN PROGRESS**: 2 interactive financial slides (Executive Dashboard + 5-Year Pro Forma)
+- [ ] **IN PROGRESS**: 1 interactive financial slide (combined Executive Dashboard + Pro Forma)
   - Build spec: `FINANCIAL-SLIDES-BUILD.md` (root of repo)
   - Custom build using existing stack (ECharts + Tailwind + Motion), no new dependencies
-  - Pure computation engine: `computeProForma(scenarioKey, overrides)` with 3 scenarios + 3 adjustable sliders
-  - Slide 18: Financial Dashboard — KPI cards + scenario toggle + 5-year trajectory chart
-  - Slide 19: Pro Forma — interactive table + sliders + companion chart (Looker Studio/Excel hybrid feel)
+  - Pure computation engine: `computeProForma(scenarioKey, overrides)` + `computeAllScenarios(overrides)`
+  - Slide 18 (FinancialOutlookSlide): Single slide, two interconnected halves
+    - TOP: KPI cards (Y1 Rev, Y5 Rev, Breakeven, 5Y Cumulative) + strategic metrics (GovCon % of Rev, EBITDA)
+    - CONTROLS: Scenario toggle + 3 sliders (Gross Margin, Bid Volume, Win Rate Adj)
+    - BOTTOM: Interactive pro forma table (active scenario) + stacked area chart (all 3 scenarios compared)
+  - Stacked area chart shows all scenarios simultaneously, highlights active one
+  - Includes DSO/working capital, revenue concentration %, EBITDA contribution
   - Research data sources: `govcon/docs/research.md`, `govcon/docs/strategy.md`, `govcon/docs/phases/PHASE-4-FINANCIALS.md`
 
 **Phase 3: Commercial Financial Model** — COMPLETE (ARCHIVED)

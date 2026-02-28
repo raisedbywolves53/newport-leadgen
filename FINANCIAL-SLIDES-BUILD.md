@@ -1,6 +1,6 @@
-# Financial Slides Build — Claude CLI Execution Guide
+# Financial Slide Build — Claude CLI Execution Guide
 
-> **Purpose:** Add 2 interactive financial slides to the Newport GovCon web presentation.
+> **Purpose:** Add 1 interactive financial slide to the Newport GovCon web presentation.
 > **Stack:** React 19 + Vite 7.3 + Tailwind CSS 4.2 + ECharts 6 + Motion
 > **Working directory:** `newport-leadgen/web/`
 
@@ -35,6 +35,39 @@ web/src/components/ui/DecorativeElements.jsx          — reusable UI components
 
 ---
 
+## Architecture
+
+This is ONE slide with two interconnected halves:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  TOP HALF: Executive Dashboard                      │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐ │
+│  │ Y1 Rev   │ │ Y5 Rev   │ │Breakeven │ │5Y Total│ │
+│  │ $XXX,XXX │ │ $X.XM    │ │ Year X   │ │ $X.XM  │ │
+│  └──────────┘ └──────────┘ └──────────┘ └────────┘ │
+│  [GovCon % of Rev: X%]  [EBITDA Contribution: $XX] │
+├─────────────────────────────────────────────────────┤
+│  BOTTOM HALF: 5-Year Pro Forma                      │
+│  ┌─ Controls ─────────────────────────────────────┐ │
+│  │ [Conservative] [Moderate] [Aggressive]         │ │
+│  │ Margin [===o===] Volume [===o===] Win [===o==] │ │
+│  └────────────────────────────────────────────────┘ │
+│  ┌─ Table (60%) ──────┐ ┌─ Chart (40%) ──────────┐ │
+│  │ Metric Y1 Y2 .. Y5 │ │  ███  Stacked area     │ │
+│  │ Revenue    ...      │ │  ███  showing all 3    │ │
+│  │ COGS       ...      │ │  ███  scenarios with   │ │
+│  │ Net Income ...      │ │  ██   component layers │ │
+│  │ Cash Flow  ...      │ │  █                     │ │
+│  │ ...                 │ │                        │ │
+│  └─────────────────────┘ └────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+**Key interaction:** When the user toggles scenarios or adjusts sliders, BOTH halves update simultaneously — KPI cards animate to new values, the table recalculates, and the chart redraws.
+
+---
+
 ## Step 1 — Create `/web/src/data/financials.js`
 
 Pure computation engine. No React, no UI — just math.
@@ -53,6 +86,7 @@ Pure computation engine. No React, no UI — just math.
 | Win rate Y2 | 30% | 35% | 40% |
 | Win rate Y3-5 | 30% | 40% | 45% |
 | Admin cost/yr | $0 (DIY) | $15,000 | $25,000 |
+| DSO (days sales outstanding) | 45 | 45 | 45 |
 
 **Overrides (sliders):**
 - `grossMargin`: 0.08–0.15, default 0.11
@@ -64,8 +98,14 @@ Pure computation engine. No React, no UI — just math.
 - Contract tiers: Micro $8K avg, Simplified $50K, SLED $75K, Sealed Bid $150K
 - Platform costs breakdown: CLEATUS $3K + HigherGov $3.5K + GovSpend $6.5K = $13K/yr
 - COGS = revenue × (1 - grossMargin)
+- Newport baseline revenue: $50M (for revenue concentration % calculation)
+- Cash flow impact: revenue delayed by DSO days; approximate as (revenue / 12) × (DSO / 30) for working capital tied up
 
-**Return shape:**
+### Export: `computeAllScenarios(overrides)`
+
+Runs `computeProForma` for ALL THREE scenarios with the same overrides. Returns `{ conservative: {...}, moderate: {...}, aggressive: {...} }`. This is needed for the stacked area chart that compares all scenarios simultaneously.
+
+**Return shape (per scenario):**
 ```js
 {
   scenario: 'moderate',
@@ -82,17 +122,24 @@ Pure computation engine. No React, no UI — just math.
       grossProfit: 24750,
       toolCost: 13000,
       adminCost: 15000,
+      totalOperatingCosts: 28000,
       netIncome: -3250,
       cumulativeRevenue: 225000,
       roi: -0.12,
+      workingCapitalTiedUp: 28125,    // cash flow: revenue/12 * DSO/30
+      revenueConcentration: 0.0045,   // revenue / 50M baseline
+      ebitdaContribution: -3250,      // netIncome (simplified; no depreciation/amortization for this model)
     },
     // ... years 2-5
   ],
   summary: {
-    breakevenYear: 2,        // first year with positive net income
+    breakevenYear: 2,
     y5Revenue: 850000,
     y5CumulativeRevenue: 2750000,
     y5ActiveContracts: 35,
+    peakWorkingCapital: 106250,       // max workingCapitalTiedUp across 5 years
+    y5RevenueConcentration: 0.017,    // Y5 revenue / baseline
+    y5EbitdaContribution: 93500,
   }
 }
 ```
@@ -148,54 +195,71 @@ Clean range input. Props: `{ label, value, onChange, min, max, step, format, cla
 
 ---
 
-## Step 3 — Create Slide 18: `FinancialDashboardSlide.jsx`
+## Step 3 — Create Slide 18: `FinancialOutlookSlide.jsx`
 
-**File:** `/web/src/components/slides/FinancialDashboardSlide.jsx`
+**File:** `/web/src/components/slides/FinancialOutlookSlide.jsx`
 
-**Layout (top to bottom):**
-1. Slide title: "Financial Outlook" with subtitle "Five-year revenue projections by scenario"
-2. ScenarioToggle (centered)
-3. 4 KPI cards in a row (equal width)
-4. ECharts area chart showing 5-year revenue trajectory
+This is ONE slide with two interconnected halves sharing the same state. The controls sit between the halves and drive everything.
 
-**KPI Cards:**
+### Shared State (at component root level)
+
+```js
+const [scenario, setScenario] = useState('moderate')
+const [overrides, setOverrides] = useState({
+  grossMargin: 0.11,
+  bidVolumeMultiplier: 1.0,
+  winRateAdjustment: 0,
+})
+
+// Active scenario model (for KPI cards + table)
+const model = useMemo(() => computeProForma(scenario, overrides), [scenario, overrides])
+
+// All scenarios (for stacked area chart comparison)
+const allModels = useMemo(() => computeAllScenarios(overrides), [overrides])
+```
+
+### TOP HALF — Executive Dashboard KPIs
+
+**Layout:** Slide title → KPI cards row → strategic metrics row
+
+**Title:** "Financial Outlook" — small, left-aligned, text-zinc-500 subtitle "Five-year GovCon revenue projections"
+
+**KPI Cards (4 across, equal width):**
 | Card | Value | Subtitle |
 |---|---|---|
-| Year 1 Revenue | AnimatedNumber (currency) | "First-year projected revenue" |
-| Year 5 Revenue | AnimatedNumber (currency) | "Fifth-year projected revenue" |
+| Year 1 Revenue | AnimatedNumber (currency) | "First-year projected" |
+| Year 5 Revenue | AnimatedNumber (compact) | "Fifth-year projected" |
 | Breakeven | "Year X" | "First profitable year" |
-| 5-Year Total | AnimatedNumber (compact) | "Cumulative five-year revenue" |
+| 5-Year Cumulative | AnimatedNumber (compact) | "Total five-year revenue" |
 
-Each card: white bg, rounded-xl, border, shadow-sm, colored top border (scenario color)
+Each card: white bg, `rounded-xl border border-zinc-200 shadow-sm`, colored left border or top border using scenario color.
 
-**Chart:**
-- ECharts area chart, 5 data points (Year 1–5)
-- Y-axis: dollar amounts
-- Smooth curve, gradient fill matching scenario color
-- Tooltip showing year, revenue, net income, active contracts
-- Animate on scenario change via `chart.setOption()` with `notMerge: false`
+**Strategic Metrics Row (smaller, secondary emphasis):**
+Two compact inline metrics below the KPI cards:
+- "GovCon % of Revenue: X.X%" — `revenueConcentration` from Y5, formatted as percent
+- "Y5 EBITDA Contribution: $XXK" — `y5EbitdaContribution`, compact currency
 
-**State:** `useState` for scenario key, `useMemo` for computed model
+These use AnimatedNumber but smaller text (text-sm), zinc-600 color. Think of these as contextual footnotes that answer "how meaningful is this to the overall business?"
 
----
+### DIVIDER — Controls Strip
 
-## Step 4 — Create Slide 19: `ProFormaSlide.jsx`
+Between top and bottom halves. Visually distinct row that contains:
+- **ScenarioToggle** (left side)
+- **3 Sliders** (right side, compact inline)
+  - Gross Margin (8%–15%, step 0.5%, default 11%)
+  - Bid Volume (0.5×–2.0×, step 0.1×, default 1.0×)
+  - Win Rate Adj (-10% to +10%, step 1%, default 0%)
 
-**File:** `/web/src/components/slides/ProFormaSlide.jsx`
+Style: `bg-zinc-50 rounded-lg px-4 py-2` — subtle background to visually separate from the white card areas above and below. Compact vertical height.
 
-**Layout (top to bottom):**
-1. Slide title: "5-Year Pro Forma" with subtitle
-2. Row: ScenarioToggle (left) + 3 Sliders (right, compact)
-3. Two-column layout below:
-   - LEFT (60%): Interactive data table
-   - RIGHT (40%): Companion ECharts chart
+### BOTTOM HALF — 5-Year Pro Forma
 
-**Sliders row:**
-- Gross Margin (8%–15%, step 0.5%, default 11%)
-- Bid Volume (0.5×–2.0×, step 0.1×, default 1.0×)
-- Win Rate Adj (-10% to +10%, step 1%, default 0%)
+**Two-column layout:**
+- **LEFT (60%):** Interactive data table
+- **RIGHT (40%):** Stacked area chart comparing all 3 scenarios
 
-**Table structure:**
+#### Table
+
 | Metric | Year 1 | Year 2 | Year 3 | Year 4 | Year 5 |
 |---|---|---|---|---|---|
 | Bids Submitted | | | | | |
@@ -208,48 +272,68 @@ Each card: white bg, rounded-xl, border, shadow-sm, colored top border (scenario
 | Tool Costs | | | | | |
 | Admin Costs | | | | | |
 | **Net Income** | | | | | |
+| Working Capital Req | | | | | |
 | Cumulative Revenue | | | | | |
 | ROI | | | | | |
 
-- Row labels in left column, zinc-700 text
-- Values use AnimatedNumber for smooth transitions
-- Revenue, Gross Profit, Net Income rows are bold
-- Net Income row: green text if positive, red if negative
-- Subtle zebra striping (bg-zinc-50 alternate rows)
-- Compact font sizes (text-sm for values, text-xs for labels)
+- The table shows data for the ACTIVE SCENARIO only (whichever toggle is selected)
+- Row labels: left column, text-zinc-700
+- Values: AnimatedNumber for smooth transitions on scenario/slider change
+- Revenue, Gross Profit, Net Income rows are **bold**
+- Net Income row: `text-emerald-600` if positive, `text-red-500` if negative
+- Subtle zebra striping: `bg-zinc-50` on alternate rows
+- Compact: `text-sm` for values, `text-xs` for row labels
 
-**Companion Chart:**
-- Stacked bar chart: Revenue (teal) vs Total Costs (zinc) per year
-- Net Income line overlay
-- Compact, no legend (colors are obvious), axis labels only
-- Updates reactively with table
+#### Stacked Area Chart (THE KEY VISUAL)
 
-**State:** `useState` for scenario + each slider override, `useMemo` for computed model
+This chart shows ALL THREE scenarios simultaneously so the viewer can visually compare them. This is different from the table which only shows the active scenario.
+
+**Chart type:** ECharts stacked area chart
+**X-axis:** Year 1 → Year 5
+**Y-axis:** Revenue (dollar amounts)
+
+**Three stacked area series:**
+1. **Conservative** (bottom layer): zinc-300 fill, zinc-400 line
+2. **Moderate** (middle layer): teal fill (#1B7A8A, 40% opacity), teal line
+3. **Aggressive** (top layer): gold fill (#C9A84C, 30% opacity), gold line
+
+**Stacking behavior:** Each series shows its own revenue value stacked on top of the one below. This creates a visual "fan" that widens over 5 years, showing the growing gap between scenarios. The area between layers represents the incremental revenue from moving to a more aggressive approach.
+
+**Active scenario highlight:** The currently selected scenario's area should have FULL opacity and a thicker border line (lineWidth: 3), while the other two fade to lower opacity (0.15). This creates a visual "spotlight" on the active scenario while maintaining the comparison context.
+
+**Tooltip:** On hover, show all 3 scenario values for that year in a formatted tooltip:
+```
+Year 3
+Conservative: $180,000
+Moderate: $425,000      ← (highlighted if active)
+Aggressive: $780,000
+```
+
+**Animate on change:** When scenario toggle or sliders change, use `chart.setOption()` with animation enabled. The areas should smoothly morph to new values.
+
+**Compact styling:** No external legend (the colors are self-evident from the toggle above). Minimal axis labels. The chart should feel like part of the slide, not a standalone visualization.
 
 ---
 
-## Step 5 — Register New Slides
+## Step 4 — Register New Slide
 
 ### Modify `/web/src/data/slides.js`
 
-Add before the 'blueprint' entry (currently last):
+Add ONE entry before the 'blueprint' entry (currently last):
 ```js
-{ id: 'financial-dashboard', label: 'Financial Dashboard', section: 'execution' },
-{ id: 'pro-forma', label: '5-Year Pro Forma', section: 'execution' },
+{ id: 'financial-outlook', label: 'Financial Outlook', section: 'execution' },
 ```
 
 ### Modify `/web/src/App.jsx`
 
-Add imports:
+Add import:
 ```js
-import FinancialDashboardSlide from './components/slides/FinancialDashboardSlide'
-import ProFormaSlide from './components/slides/ProFormaSlide'
+import FinancialOutlookSlide from './components/slides/FinancialOutlookSlide'
 ```
 
 Add to `SLIDE_COMPONENTS` object:
 ```js
-'financial-dashboard': FinancialDashboardSlide,
-'pro-forma': ProFormaSlide,
+'financial-outlook': FinancialOutlookSlide,
 ```
 
 ---
@@ -259,14 +343,18 @@ Add to `SLIDE_COMPONENTS` object:
 After building, verify all of these:
 
 - [ ] Dev server runs without errors (`npm run dev`)
-- [ ] Navigate to slide 18 (Financial Dashboard) — displays correctly
-- [ ] Navigate to slide 19 (Pro Forma) — displays correctly
-- [ ] Toggle between all 3 scenarios on both slides — KPIs/table/charts update smoothly
-- [ ] Adjust each slider — table and chart values recalculate in real time
+- [ ] Navigate to slide 18 (Financial Outlook) — displays correctly
+- [ ] TOP HALF: KPI cards show correct values for selected scenario
+- [ ] BOTTOM HALF table: shows data for selected scenario, updates on toggle/slider
+- [ ] BOTTOM HALF chart: shows ALL 3 scenarios as stacked areas, highlights active one
+- [ ] Toggle between scenarios — KPIs, table, AND chart all update smoothly together
+- [ ] Adjust each slider — everything recalculates in real time
+- [ ] Strategic metrics (GovCon % of Rev, EBITDA) update with scenario changes
 - [ ] Numbers align with research ranges:
   - Conservative Y1 revenue: ~$50K–$150K
   - Moderate Y1 revenue: ~$150K–$350K
   - Aggressive Y1 revenue: ~$350K–$750K
+- [ ] Stacked area chart "fans out" over 5 years showing growing scenario gap
 - [ ] All content clears the progress bar (pb-14 bottom padding)
 - [ ] No regressions on existing 17 slides
 - [ ] Production build succeeds (`npm run build`)
@@ -275,14 +363,13 @@ After building, verify all of these:
 
 ## File Checklist
 
-**Create (6 files):**
+**Create (5 files):**
 - [ ] `web/src/data/financials.js`
 - [ ] `web/src/components/ui/ScenarioToggle.jsx`
 - [ ] `web/src/components/ui/AnimatedNumber.jsx`
 - [ ] `web/src/components/ui/Slider.jsx`
-- [ ] `web/src/components/slides/FinancialDashboardSlide.jsx`
-- [ ] `web/src/components/slides/ProFormaSlide.jsx`
+- [ ] `web/src/components/slides/FinancialOutlookSlide.jsx`
 
 **Modify (2 files):**
-- [ ] `web/src/data/slides.js`
-- [ ] `web/src/App.jsx`
+- [ ] `web/src/data/slides.js` — add 1 slide entry
+- [ ] `web/src/App.jsx` — import + register 1 component
