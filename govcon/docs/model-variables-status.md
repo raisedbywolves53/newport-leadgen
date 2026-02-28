@@ -180,6 +180,38 @@
 - MODEL_INPUTS reference: 22% blended (Newport actual), 11% (conservative presentation default)
 - Not a research variable — this is proprietary Newport data
 
+### BD/Marketing Costs (separate line item — NOT inside bid prep)
+- Year 1 recommended: $13,060 (base visits, APEX, FSNA, vendor fairs, materials, LinkedIn)
+- Year 1 range: $10,600-$31,800
+- Year 2+ range: $16,200-$45,700
+- Biggest ROI items: APEX Accelerator (FREE), military base visits ($5K), FSNA conference ($2K)
+- Digital: LinkedIn Sales Navigator ($960), no paid ads (COs don't find vendors through ads)
+- Full details in bd-marketing-personnel-costs.md
+
+### Personnel / Consultant Costs (Still Mind Creative retainer)
+- Still Mind handles: all bid writing, pipeline mgmt, compliance, prospecting, admin
+- Newport handles: relationship management, delivery, pricing decisions
+- Free route: $42,000-$60,000/yr ($3,500-$5,000/mo, 30-40 hrs/mo)
+- Paid route: $90,000-$120,000/yr ($7,500-$10,000/mo, 110-120 hrs/mo)
+- Newport owner time: ~16-37 hrs/month (~1 day/week for relationships + pricing)
+- Cost per bid: Free route $438-$1,667, Paid route $157-$385 (3-4x more efficient)
+- B&P % of revenue: Y1 ~100% (investment year), Y3 ~15-20%, Y5 ~4-5%
+- Full details in bd-marketing-personnel-costs.md
+
+### Fulfillment Overhead (% of revenue — wire into computeProForma)
+- Blended 5% is defensible (MEDIUM-HIGH confidence)
+- Per-tier: micro 1.5%, simplified 4%, SLED 5%, corrections 6%, set-aside 4%, DLA sub 2.5%
+- Components: compliance reporting (1.5-3%), substitution restrictions (0.5-1%), insurance diff (0.4-1.6%), delivery constraints (0.5-1%), QA (0.25-0.5%), contract admin (0.5-1%)
+- Currently NOT wired into computeProForma — needs to be added
+- Full details in bd-marketing-personnel-costs.md
+
+### DSO / Working Capital (corrected)
+- Federal food: 7-15 days (Prompt Payment Act FAR 52.232-25 — meat 7 days, perishables 10 days)
+- SLED: 30-45 days typical
+- Blended: 20-30 days (NOT 45 as previously assumed)
+- Working capital impact at 8% cost of capital on 15-day DSO differential = ~0.3% of revenue (trivial)
+- Should remain separate from fulfillment overhead (balance sheet vs P&L)
+
 ## PENDING RESEARCH
 
 ### Set-Aside Bid Prep Cost
@@ -187,8 +219,8 @@
 - Set-Aside: ??? — needs a number
 
 ### Revenue Ramp / Portfolio Evolution
-- Current PORTFOLIO_EVOLUTION percentages need revision given win rates + access timeline data
-- Now informed by: win rates per tier, time-to-first-win per channel, past performance accumulation model
+- Current PORTFOLIO_EVOLUTION percentages need revision given ALL locked data
+- Now informed by: win rates per tier, time-to-first-win per channel, PP accumulation, BD activity model
 - Year 1: micro + simplified + small school districts + DLA subs
 - Year 2: county jails + cooperatives + FSMC subs
 - Year 3+: Mentor-Protege JV + set-asides + large
@@ -198,10 +230,6 @@
 - SLED school districts: 1+4 year structure
 - DOC: 5-10 year contracts
 - Federal: mostly annual with renewal options
-
-### Working Capital / DSO
-- Not in model. Revenue recognized immediately.
-- Government typically pays Net 30-45
 
 ### Subcontracting Revenue
 - Not in current model at all
