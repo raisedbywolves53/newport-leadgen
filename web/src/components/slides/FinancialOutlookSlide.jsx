@@ -9,7 +9,7 @@ import { GoldLine, BackgroundRing } from '../ui/DecorativeElements'
 import RouteToggle from '../ui/RouteToggle'
 import ScenarioToggle from '../ui/ScenarioToggle'
 import AnimatedNumber from '../ui/AnimatedNumber'
-import Slider from '../ui/Slider'
+import NumberInput from '../ui/NumberInput'
 import useFinancialModel from '../../hooks/useFinancialModel'
 import { computeProForma, computeAllScenarios, SLIDER_CONFIGS, SCENARIO_CONFIGS, TOGGLE_CONFIGS } from '../../data/financials'
 
@@ -241,10 +241,10 @@ export default function FinancialOutlookSlide() {
             Your Assumptions
           </div>
 
-          {/* Sliders */}
-          <div className="flex flex-col gap-3">
+          {/* Inputs */}
+          <div className="flex flex-col gap-2.5">
             {SLIDER_CONFIGS.map((cfg) => (
-              <Slider
+              <NumberInput
                 key={cfg.key}
                 label={cfg.label}
                 value={overrides[cfg.key]}
@@ -308,7 +308,7 @@ export default function FinancialOutlookSlide() {
                     <span className="font-body text-xs font-medium text-zinc-500 uppercase tracking-wider">
                       {kpi.label}
                     </span>
-                    <Icon className="w-4 h-4 opacity-20" style={{ color: accent }} strokeWidth={1.5} />
+                    <Icon className="w-4 h-4 opacity-50" style={{ color: accent }} strokeWidth={1.5} />
                   </div>
                   {kpi.format === 'year' ? (
                     <span

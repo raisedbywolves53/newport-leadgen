@@ -8,7 +8,7 @@ import { DollarSign, TrendingUp, Calendar, AlertTriangle } from 'lucide-react'
 import { GoldLine, BackgroundRing } from '../ui/DecorativeElements'
 import RouteToggle from '../ui/RouteToggle'
 import ScenarioToggle from '../ui/ScenarioToggle'
-import Slider from '../ui/Slider'
+import NumberInput from '../ui/NumberInput'
 import AnimatedNumber from '../ui/AnimatedNumber'
 import useFinancialModel from '../../hooks/useFinancialModel'
 import { computeProForma, computeCashFlow } from '../../data/financials'
@@ -241,12 +241,12 @@ export default function CashFlowSlide() {
           <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
             Working Capital
           </div>
-          <Slider
+          <NumberInput
             label="Available WC"
             value={workingCapital}
             onChange={setWorkingCapital}
             min={0}
-            max={500000}
+            max={2000000}
             step={5000}
             format="currency"
           />
@@ -330,7 +330,7 @@ export default function CashFlowSlide() {
                     <span className="font-body text-xs font-medium text-zinc-500 uppercase tracking-wider">
                       {kpi.label}
                     </span>
-                    <Icon className="w-4 h-4 opacity-20" style={{ color: accent }} strokeWidth={1.5} />
+                    <Icon className="w-4 h-4 opacity-50" style={{ color: accent }} strokeWidth={1.5} />
                   </div>
                   {kpi.format === 'year' ? (
                     <span
