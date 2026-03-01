@@ -10,35 +10,36 @@ import { GoldLine, BackgroundRing } from '../ui/DecorativeElements'
 
 echarts.use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
-// Portfolio data
+// Portfolio data — derived from free/moderate scenario (base case)
+// See financial model (Slides 18-19) for full interactive projections
 const data = {
   labels: ['Q1-Q2\nY1', 'Q3-Q4\nY1', 'Y2', 'Y3', 'Y4', 'Y5'],
-  micro:      [6,  4,  3,  1,  0,  0],
-  simplified: [1,  3,  8, 14, 18, 20],
-  larger:     [0,  1,  3,  7, 14, 22],
-  renewed:    [0,  2,  7, 15, 24, 36],
+  micro:      [5,  6, 11,  8,  6,  6],
+  simplified: [1,  1,  6,  8,  7,  7],
+  larger:     [0,  1,  3,  7, 11, 11],
+  renewed:    [0,  3, 10, 21, 31, 39],
 }
 
 const totals = data.labels.map((_, i) =>
   data.micro[i] + data.simplified[i] + data.larger[i] + data.renewed[i]
 )
 
-const recurringValue = ['$45K', '$120K', '$480K', '$1.2M', '$2.8M', '$4.5M']
+const recurringValue = ['$120K', '$350K', '$2.2M', '$4.5M', '$6M', '$7.1M']
 
 const kpis = [
   {
     icon: Target,
     label: 'Y5 Active Contracts',
-    value: '78',
-    change: '+670%',
-    sub: 'from 7 in Year 1',
+    value: '63',
+    change: '+950%',
+    sub: 'from 6 in H1 Year 1',
     accent: '#C9A84C',
   },
   {
     icon: DollarSign,
     label: 'Recurring Annual Value',
-    value: '$4.5M',
-    change: '+3,650%',
+    value: '$7.1M',
+    change: '+5,800%',
     sub: 'projected Year 5',
     accent: '#1B7A8A',
   },
@@ -53,9 +54,9 @@ const kpis = [
   {
     icon: TrendingUp,
     label: 'Avg Contract Size',
-    value: '$58K',
-    change: '+830%',
-    sub: 'from $7K micro starts',
+    value: '$113K',
+    change: 'from $8K',
+    sub: 'portfolio shift effect',
     accent: '#C9A84C',
   },
 ]
@@ -328,10 +329,10 @@ export default function PortfolioEvolutionSlide() {
           <div className="border-t border-zinc-100 pt-3 mt-auto">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="font-body text-sm text-zinc-500">Y1 avg</span>
-              <span className="font-body text-lg font-bold text-zinc-500">$7K</span>
+              <span className="font-body text-lg font-bold text-zinc-500">$28K</span>
               <ArrowRight className="w-4 h-4 text-zinc-300" />
               <span className="font-body text-sm text-zinc-500">Y5 avg</span>
-              <span className="font-body text-lg font-bold" style={{ color: '#C9A84C' }}>$58K</span>
+              <span className="font-body text-lg font-bold" style={{ color: '#C9A84C' }}>$113K</span>
             </div>
             <span className="font-body text-xs text-zinc-500 leading-snug">
               Each micro-purchase builds the past performance record needed to win larger contracts.
@@ -341,7 +342,7 @@ export default function PortfolioEvolutionSlide() {
       </div>
 
       <SourceCitation>
-        Win rates: FPDS competition analysis FY2024 | Renewal: ~70% federal recompete incumbent rate (Fed-Spend) | Portfolio mix: modeled estimates
+        Free route / moderate scenario baseline | Win rates: FPDS FY2024 | Renewal: 70% incumbent rate (Fed-Spend) | See Financial Outlook for full scenarios
       </SourceCitation>
     </div>
   )

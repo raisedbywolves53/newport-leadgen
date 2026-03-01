@@ -182,11 +182,11 @@ export default function HowItWorksSlide() {
         className="grid grid-cols-5 gap-3 mt-2 relative z-10"
       >
         {[
-          { label: 'Opportunities Tracked', value: '200+', sub: 'per quarter', accent: '#1B7A8A' },
-          { label: 'Scored & Filtered', value: '40-60', sub: 'pass bid/no-bid', accent: '#1B7A8A' },
-          { label: 'Proposals Submitted', value: '15-25', sub: 'per quarter', accent: '#C9A84C' },
-          { label: 'Expected Win Rate', value: '35-50%', sub: 'micro-purchase tier', accent: '#C9A84C' },
-          { label: 'Annual Wins Target', value: '20-30', sub: 'Year 1 goal', accent: '#1B7A8A' },
+          { label: 'Opportunities Tracked', value: '500+', sub: 'per quarter in FL', accent: '#1B7A8A' },
+          { label: 'Scored & Filtered', value: '40-80', sub: 'pass bid/no-bid', accent: '#1B7A8A' },
+          { label: 'Proposals Submitted', value: '15-40', sub: 'per quarter by route', accent: '#C9A84C' },
+          { label: 'Expected Win Rate', value: '20-30%', sub: 'Year 1, grows with PP', accent: '#C9A84C' },
+          { label: 'Annual Wins Target', value: '15-35', sub: 'Year 1 by route', accent: '#1B7A8A' },
         ].map((metric, i) => (
           <div
             key={metric.label}

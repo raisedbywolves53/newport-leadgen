@@ -5,10 +5,10 @@ import { GoldLine, CompassStar, BackgroundRing } from '../ui/DecorativeElements'
 // Ring data — outside-in, sized proportional to dollar value midpoint
 const RING_CONFIG = [
   { label: 'State', amount: '$20-30M', confidence: 'MEDIUM', detail: 'MFMP + corrections + FL agencies. Free registration. Largest single channel.', color: '#C9A84C', midVal: 25 },
-  { label: 'Education', amount: '$10-20M', confidence: 'MEDIUM', detail: '67 county districts, 2.8M students. NSLP funded. Second largest opportunity.', color: '#E8913A', midVal: 15 },
+  { label: 'Education', amount: '$15-25M', confidence: 'MEDIUM', detail: '67 county districts, 2.8M students. Small district contracts under $350K. NSLP funded.', color: '#E8913A', midVal: 20 },
   { label: 'Micro-Purchase', amount: '$8-15M', confidence: 'HIGH', detail: '83% invisible in public databases. Below $15K threshold — no competitive bidding required. Fastest path to first contract.', color: '#1B7A8A', midVal: 12 },
   { label: 'Federal FPDS', amount: '$6.4M', confidence: 'HIGH', detail: '117 tracked contracts >$10K. The visible tip of the iceberg.', color: '#239BAD', midVal: 6.4 },
-  { label: 'Local / Municipal', amount: '$3-7M', confidence: 'MEDIUM', detail: 'County jails, municipal facilities. DemandStar + VendorLink portals.', color: '#6366f1', midVal: 5 },
+  { label: 'Local / Municipal', amount: '$8-15M', confidence: 'MEDIUM', detail: 'County jails (30-50 rebids/yr), municipal facilities. DemandStar + VendorLink portals.', color: '#6366f1', midVal: 11.5 },
 ]
 
 // SVG ring geometry — larger chart with more center breathing room
@@ -66,7 +66,7 @@ export default function FloridaTamSlide() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="font-body text-2xl font-semibold tracking-tight text-zinc-950 mb-0.5"
         >
-          $87M Market, Five Layers Deep
+          $90M Year 1 Accessible Market
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -74,7 +74,7 @@ export default function FloridaTamSlide() {
           transition={{ duration: 0.4, delay: 0.2 }}
           className="font-body text-sm text-zinc-600 max-w-2xl"
         >
-          Federal is the entry point — state, education, and local expand the opportunity.
+          Contracts under $350K that Newport can pursue from day one. The full Florida food procurement market exceeds $1.1B.
         </motion.p>
         <GoldLine width={60} className="mt-1.5" delay={0.25} />
       </div>
@@ -143,7 +143,7 @@ export default function FloridaTamSlide() {
                   letterSpacing: '-0.03em',
                 }}
               >
-                $87M
+                $90M
               </text>
               <text
                 x={CX}
@@ -159,7 +159,7 @@ export default function FloridaTamSlide() {
                   textTransform: 'uppercase',
                 }}
               >
-                Total TAM
+                Y1 Accessible
               </text>
             </motion.g>
           </svg>
