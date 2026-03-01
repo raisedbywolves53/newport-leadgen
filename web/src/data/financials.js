@@ -94,7 +94,15 @@ export const SCENARIO_CONFIGS = {
 export const SLIDER_CONFIGS = [
   { key: 'grossMargin', label: 'Gross Margin', min: 0.08, max: 0.15, step: 0.005, default: 0.11, format: 'percent' },
   { key: 'deliveryCostPct', label: 'Delivery Cost', min: 0.02, max: 0.08, step: 0.005, default: 0.04, format: 'percent' },
-  { key: 'adminOverhead', label: 'Admin Overhead', min: 0, max: 50000, step: 1000, default: 5000, format: 'currency' },
+  { key: 'adminOverhead', label: 'Admin / Owner Time', min: 0, max: 50000, step: 1000, default: 5000, format: 'currency' },
+  { key: 'bdMarketingCost', label: 'BD / Marketing', min: 0, max: 30000, step: 1000, default: 13000, format: 'currency' },
+]
+
+// ── Toggle configs (Newport-specific yes/no inputs) ──
+
+export const TOGGLE_CONFIGS = [
+  { key: 'hasInsurance', label: 'Have CGL Insurance?', default: false, description: 'Reduces insurance line if you already carry general liability' },
+  { key: 'hasGfsiCert', label: 'GFSI / SQF Certified?', default: false, description: 'Required for FSMC sub-contracting (Aramark, Compass, Sodexo)' },
 ]
 
 // ── Helpers ──
@@ -154,9 +162,15 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
   const grossMargin = overrides.grossMargin ?? 0.11
   const deliveryCostPct = overrides.deliveryCostPct ?? 0.04
   const adminOverhead = overrides.adminOverhead ?? 5000
+  const bdMarketingCost = overrides.bdMarketingCost ?? 13000
+  const hasInsurance = overrides.hasInsurance ?? false
 
   const bidsPerMonth = scenario.baseBidsPerMonth * route.bidMultiplier
-  const fixedCosts = route.platformCost + route.insuranceCost + route.conferenceCost
+  // If Newport already carries CGL, reduce insurance cost (they only need riders/upgrades)
+  const effectiveInsurance = hasInsurance
+    ? Math.round(route.insuranceCost * 0.3) // Just riders/upgrades on existing policy
+    : route.insuranceCost
+  const fixedCosts = route.platformCost + effectiveInsurance + route.conferenceCost
 
   // Per-tier active contracts carried forward for renewal calculation
   const priorActive = {}
@@ -221,7 +235,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
     const grossProfit = revenue - cogs
     const deliveryCost = Math.round(revenue * deliveryCostPct)
     const platformCost = fixedCosts
-    const netIncome = grossProfit - deliveryCost - platformCost - adminOverhead
+    const netIncome = grossProfit - deliveryCost - platformCost - adminOverhead - bdMarketingCost
 
     cumulativeRevenue += revenue
     cumulativeNetIncome += netIncome
@@ -241,6 +255,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
       deliveryCost,
       platformCost,
       adminOverhead,
+      bdMarketingCost,
       netIncome,
       cumulativeRevenue,
       cumulativeNetIncome,
@@ -256,7 +271,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
   return {
     route: routeKey,
     scenario: scenarioKey,
-    overrides: { grossMargin, deliveryCostPct, adminOverhead },
+    overrides: { grossMargin, deliveryCostPct, adminOverhead, bdMarketingCost, hasInsurance },
     years,
     summary: {
       breakevenYear,
