@@ -53,3 +53,6 @@ node_modules/
 # Claude Code (track .claude/commands/, ignore the rest)
 .claude/*
 !.claude/commands/
+
+# Local Netlify folder
+.netlify
