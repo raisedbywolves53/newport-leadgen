@@ -377,6 +377,11 @@ const SUPPLIER_TERMS = 20 // avg days to pay suppliers
 /**
  * Compute cash flow analysis from pro forma results.
  *
+ * Uses change-in-working-capital approach:
+ *   Net Cash Flow = Net Income - ΔAR + ΔAP
+ *   AR = Revenue × weightedDSO / 365
+ *   AP = COGS × SUPPLIER_TERMS / 365
+ *
  * @param {object} proFormaResult - Output of computeProForma()
  * @param {number} workingCapital - Available working capital (default $75K)
  * @returns {{ years: object[], peakDeficit: number, paybackYear: number|null, isConstrained: boolean[] }}
@@ -385,6 +390,8 @@ export function computeCashFlow(proFormaResult, workingCapital = 75000) {
   const cashYears = []
   let cumulativeCash = 0
   let peakDeficit = 0
+  let priorAR = 0
+  let priorAP = 0
 
   for (const yr of proFormaResult.years) {
     // Compute blended DSO weighted by tier revenue
@@ -392,35 +399,40 @@ export function computeCashFlow(proFormaResult, workingCapital = 75000) {
     let weightedDSO = 0
     if (totalRevenue > 0) {
       for (const tb of yr.tierBreakdown) {
-        const tierKey = tb.tierKey
-        const dso = TIER_DSO[tierKey] ?? 20
+        const dso = TIER_DSO[tb.tierKey] ?? 20
         weightedDSO += (tb.revenue / totalRevenue) * dso
       }
     }
 
-    // COGS float = cash tied up in inventory/receivables gap
-    const cogsFloat = Math.round(yr.cogs * (weightedDSO - SUPPLIER_TERMS) / 365)
+    // Year-end accounts receivable and payable
+    const arEnd = Math.round(totalRevenue * weightedDSO / 365)
+    const apEnd = Math.round(yr.cogs * SUPPLIER_TERMS / 365)
 
-    // Cash timing: revenue collected minus lag, expenses paid on schedule
-    const cashIn = Math.round(totalRevenue * (1 - weightedDSO / 365))
-    const cashOut = yr.cogs + yr.deliveryCost + yr.platformCost + yr.adminOverhead + yr.bdMarketingCost
-    const netCashFlow = cashIn - cashOut
+    // Cash flow = net income adjusted for working capital changes
+    const changeInAR = arEnd - priorAR
+    const changeInAP = apEnd - priorAP
+    const netCashFlow = yr.netIncome - changeInAR + changeInAP
     cumulativeCash += netCashFlow
 
     if (cumulativeCash < peakDeficit) peakDeficit = cumulativeCash
 
-    const isConstrained = Math.abs(cogsFloat) > workingCapital
+    // WC required = net receivables gap (AR not yet covered by AP)
+    const wcRequired = Math.max(0, arEnd - apEnd)
+    const isConstrained = wcRequired > workingCapital
 
     cashYears.push({
       year: yr.year,
       blendedDSO: Math.round(weightedDSO),
-      cogsFloat,
-      cashIn,
-      cashOut,
+      arEnd,
+      apEnd,
+      wcRequired,
       netCashFlow,
       cumulativeCash,
       isConstrained,
     })
+
+    priorAR = arEnd
+    priorAP = apEnd
   }
 
   const paybackYear = cashYears.find(y => y.cumulativeCash > 0)?.year ?? null

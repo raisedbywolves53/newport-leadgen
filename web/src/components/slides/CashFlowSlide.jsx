@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useRef } from 'react'
 import * as echarts from 'echarts/core'
-import { LineChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, MarkLineComponent } from 'echarts/components'
+import { BarChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { motion } from 'motion/react'
 import { DollarSign, TrendingUp, Calendar, AlertTriangle } from 'lucide-react'
@@ -13,7 +13,7 @@ import AnimatedNumber from '../ui/AnimatedNumber'
 import useFinancialModel from '../../hooks/useFinancialModel'
 import { computeProForma, computeCashFlow } from '../../data/financials'
 
-echarts.use([LineChart, GridComponent, TooltipComponent, MarkLineComponent, CanvasRenderer])
+echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
 
 function fmtCompact(v) {
   const abs = Math.abs(v)
@@ -24,10 +24,10 @@ function fmtCompact(v) {
 }
 
 const KPI_DEFS = [
-  { key: 'peakDeficit', label: 'Peak Cash Deficit', icon: AlertTriangle, format: 'compact' },
-  { key: 'paybackYear', label: 'Payback Period', icon: Calendar, format: 'year' },
-  { key: 'fiveYearFCF', label: '5-Year Cumul. FCF', icon: DollarSign, format: 'compact' },
-  { key: 'fiveYearROI', label: '5-Year ROI', icon: TrendingUp, format: 'pct' },
+  { key: 'y1Profit', label: 'Year 1 Profit', icon: DollarSign, format: 'compact' },
+  { key: 'paybackYear', label: 'Breakeven Year', icon: Calendar, format: 'year' },
+  { key: 'totalProfit', label: '5-Year Total Profit', icon: TrendingUp, format: 'compact' },
+  { key: 'peakWC', label: 'Peak WC Required', icon: AlertTriangle, format: 'compact' },
 ]
 
 export default function CashFlowSlide() {
@@ -50,12 +50,19 @@ export default function CashFlowSlide() {
     [model, workingCapital]
   )
 
+  // KPI values — answering the owner's real questions
+  const peakWC = Math.max(...cashFlow.years.map(y => y.wcRequired))
   const kpiValues = useMemo(() => ({
-    peakDeficit: cashFlow.peakDeficit,
+    y1Profit: model.years[0].netIncome,
     paybackYear: model.summary.paybackYear,
-    fiveYearFCF: model.summary.totalReturn,
-    fiveYearROI: model.summary.fiveYearROI,
-  }), [cashFlow, model])
+    totalProfit: model.summary.totalReturn,
+    peakWC,
+  }), [model, peakWC])
+
+  // WC constraint indicator
+  const wcRatio = workingCapital > 0 ? peakWC / workingCapital : 999
+  const wcStatus = wcRatio <= 0.6 ? 'green' : wcRatio <= 1.0 ? 'yellow' : 'red'
+  const wcColors = { green: '#10b981', yellow: '#eab308', red: '#ef4444' }
 
   // Init chart
   useEffect(() => {
@@ -71,128 +78,97 @@ export default function CashFlowSlide() {
     }
   }, [])
 
-  // Update chart — dual-line cumulative owner economics
+  // Update chart — annual net income bars
   useEffect(() => {
     if (!chartInstance.current) return
 
-    const investmentData = model.summary.cumulativeInvestment
-    const incomeData = model.summary.cumulativeNetIncome
-
-    // Find crossover year index (where cumulative income exceeds cumulative investment)
-    let crossoverIdx = -1
-    for (let i = 0; i < 5; i++) {
-      if (incomeData[i] >= 0) {
-        crossoverIdx = i
-        break
-      }
-    }
-
     chartInstance.current.setOption({
       backgroundColor: 'transparent',
-      animation: false,
       tooltip: {
         trigger: 'axis',
-        axisPointer: { type: 'line', lineStyle: { color: '#d4d4d8', type: 'dashed' } },
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(0,0,0,0.03)' } },
         backgroundColor: '#18181b',
         borderColor: '#27272a',
         borderWidth: 1,
         textStyle: { color: '#fafafa', fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif' },
         padding: [10, 14],
         formatter: (params) => {
-          const yr = params[0].dataIndex + 1
-          let html = `<div style="font-weight:600;margin-bottom:6px;font-size:13px">Year ${yr}</div>`
-          params.forEach(p => {
-            html += `<div style="display:flex;justify-content:space-between;gap:20px;margin:2px 0">
-              <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:6px"></span>${p.seriesName}</span>
-              <span style="font-weight:600">${fmtCompact(p.value)}</span>
-            </div>`
-          })
-          const cf = cashFlow.years[params[0].dataIndex]
-          html += `<div style="border-top:1px solid #3f3f46;margin-top:6px;padding-top:6px;font-size:11px;color:#a1a1aa">`
-          html += `Net Cash Flow: <span style="color:${cf.netCashFlow >= 0 ? '#10b981' : '#ef4444'};font-weight:600">${fmtCompact(cf.netCashFlow)}</span>`
-          html += `<div style="margin-top:2px">Blended DSO: ${cf.blendedDSO}d | COGS Float: ${fmtCompact(cf.cogsFloat)}</div>`
-          html += `</div>`
+          const idx = params[0].dataIndex
+          const yr = model.years[idx]
+          const cfYr = cashFlow.years[idx]
+          const opex = yr.deliveryCost + yr.platformCost + yr.adminOverhead + yr.bdMarketingCost
+          let html = `<div style="font-weight:600;margin-bottom:6px;font-size:13px">Year ${yr.year}</div>`
+          html += `<div style="display:flex;justify-content:space-between;gap:24px;margin:2px 0">
+            <span>Revenue</span><span style="font-weight:600">${fmtCompact(yr.revenue)}</span></div>`
+          html += `<div style="display:flex;justify-content:space-between;gap:24px;margin:2px 0">
+            <span style="color:#a1a1aa">COGS</span><span style="font-weight:600;color:#a1a1aa">-${fmtCompact(yr.cogs)}</span></div>`
+          html += `<div style="display:flex;justify-content:space-between;gap:24px;margin:2px 0">
+            <span style="color:#a1a1aa">Operating Costs</span><span style="font-weight:600;color:#a1a1aa">-${fmtCompact(opex)}</span></div>`
+          html += `<div style="border-top:1px solid #3f3f46;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;gap:24px">
+            <span style="font-weight:600">Net Profit</span>
+            <span style="font-weight:700;color:${yr.netIncome >= 0 ? '#C9A84C' : '#ef4444'}">${fmtCompact(yr.netIncome)}</span></div>`
+          html += `<div style="display:flex;justify-content:space-between;gap:24px;margin:2px 0">
+            <span>Cumulative</span><span style="font-weight:600;color:#1B7A8A">${fmtCompact(yr.cumulativeNetIncome)}</span></div>`
+          if (cfYr.wcRequired > 0) {
+            html += `<div style="margin-top:4px;font-size:11px;color:#71717a">WC Required: ${fmtCompact(cfYr.wcRequired)}</div>`
+          }
           return html
         },
       },
-      grid: { left: 56, right: 16, top: 16, bottom: 28 },
+      grid: { left: 60, right: 16, top: 24, bottom: 28 },
       xAxis: {
         type: 'category',
         data: ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'],
-        boundaryGap: false,
         axisLine: { lineStyle: { color: '#e5e5e5' } },
         axisTick: { show: false },
-        axisLabel: { color: '#71717a', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11 },
+        axisLabel: { color: '#71717a', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12, fontWeight: 600 },
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
         axisTick: { show: false },
-        splitLine: { lineStyle: { color: '#e5e5e5', opacity: 0.5 } },
+        splitLine: { lineStyle: { color: '#f4f4f5' } },
         axisLabel: {
           color: '#a1a1aa', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11,
           formatter: (v) => {
-            if (v === 0) return '0'
-            return Math.abs(v) >= 1_000_000
-              ? '$' + (v / 1_000_000).toFixed(1) + 'M'
-              : '$' + (v / 1_000).toFixed(0) + 'K'
+            if (v === 0) return '$0'
+            if (Math.abs(v) >= 1_000_000) return '$' + (v / 1_000_000).toFixed(1) + 'M'
+            return '$' + (v / 1_000).toFixed(0) + 'K'
           },
         },
       },
       series: [
         {
-          name: 'Cumul. Investment',
-          type: 'line',
-          data: investmentData,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 4,
-          lineStyle: { width: 2, color: '#71717a', type: 'dashed' },
-          itemStyle: { color: '#71717a' },
-          z: 1,
-        },
-        {
-          name: 'Cumul. Net Income',
-          type: 'line',
-          data: incomeData,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          lineStyle: { width: 3, color: '#1B7A8A' },
-          itemStyle: { color: '#1B7A8A' },
-          areaStyle: {
-            color: {
-              type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-              colorStops: [
-                { offset: 0, color: 'rgba(201,168,76,0.25)' },
-                { offset: 1, color: 'rgba(201,168,76,0.02)' },
-              ],
+          name: 'Annual Profit',
+          type: 'bar',
+          data: model.years.map(y => ({
+            value: y.netIncome,
+            itemStyle: {
+              color: y.netIncome >= 0
+                ? { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
+                    { offset: 0, color: '#C9A84C' },
+                    { offset: 1, color: '#d4b35c' },
+                  ]}
+                : '#ef4444',
+              borderRadius: y.netIncome >= 0 ? [6, 6, 0, 0] : [0, 0, 6, 6],
             },
+          })),
+          barWidth: 56,
+          label: {
+            show: true,
+            position: 'top',
+            formatter: (params) => fmtCompact(params.value),
+            color: '#3f3f46',
+            fontSize: 12,
+            fontWeight: 600,
+            fontFamily: 'Inter, system-ui, sans-serif',
           },
-          markLine: crossoverIdx >= 0 ? {
-            silent: true,
-            symbol: 'none',
-            lineStyle: { color: '#C9A84C', type: 'dashed', width: 1 },
-            data: [{ xAxis: crossoverIdx }],
-            label: {
-              formatter: 'Payback',
-              position: 'insideStartTop',
-              color: '#C9A84C',
-              fontSize: 10,
-              fontFamily: 'Inter, system-ui, sans-serif',
-            },
-          } : undefined,
-          z: 10,
+          animationDuration: 600,
+          animationDelay: (idx) => idx * 100,
         },
       ],
     }, true)
   }, [model, cashFlow])
-
-  // Working capital constraint indicator
-  const wcRequired = Math.max(...cashFlow.years.map(y => Math.abs(y.cogsFloat)))
-  const wcRatio = workingCapital > 0 ? wcRequired / workingCapital : 999
-  const wcStatus = wcRatio <= 0.6 ? 'green' : wcRatio <= 1.0 ? 'yellow' : 'red'
-  const wcColors = { green: '#10b981', yellow: '#eab308', red: '#ef4444' }
 
   return (
     <div className="w-full h-full flex flex-col justify-center px-16 lg:px-20 pb-16 relative overflow-hidden">
@@ -206,7 +182,7 @@ export default function CashFlowSlide() {
           transition={{ duration: 0.3, delay: 0.05 }}
           className="inline-block font-body text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5"
         >
-          Cash Flow Analysis
+          Owner Returns
         </motion.span>
         <motion.h2
           initial={{ opacity: 0, y: 8 }}
@@ -214,7 +190,7 @@ export default function CashFlowSlide() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="font-body text-2xl font-semibold tracking-tight text-zinc-950"
         >
-          Cash Flow & Owner Returns
+          Cash Flow & Profitability
         </motion.h2>
         <GoldLine width={60} className="mt-1" delay={0.25} />
 
@@ -258,15 +234,15 @@ export default function CashFlowSlide() {
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex justify-between text-xs">
-                <span className="text-zinc-500">Required</span>
-                <span className="font-semibold text-zinc-800 tabular-nums">{fmtCompact(wcRequired)}</span>
+                <span className="text-zinc-500">Peak Required</span>
+                <span className="font-semibold text-zinc-800 tabular-nums">{fmtCompact(peakWC)}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-zinc-500">Available</span>
                 <span className="font-semibold text-zinc-800 tabular-nums">{fmtCompact(workingCapital)}</span>
               </div>
               {/* Bar indicator */}
-              <div className="h-2 rounded-full bg-zinc-100 overflow-hidden">
+              <div className="h-2.5 rounded-full bg-zinc-100 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
@@ -276,25 +252,31 @@ export default function CashFlowSlide() {
                 />
               </div>
               <span className="text-[10px] font-medium" style={{ color: wcColors[wcStatus] }}>
-                {wcStatus === 'green' ? 'Sufficient' : wcStatus === 'yellow' ? 'Tight' : 'Constrained'}
+                {wcStatus === 'green' ? 'Sufficient' : wcStatus === 'yellow' ? 'Tight — near limit' : 'Constrained — exceeds WC'}
               </span>
             </div>
           </div>
 
-          {/* Cash flow year summary */}
+          {/* Annual profit summary */}
           <div className="border-t border-zinc-100 pt-3">
             <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-              Annual Cash Flow
+              Annual Profit
             </div>
             <div className="flex flex-col gap-1.5">
-              {cashFlow.years.map(y => (
+              {model.years.map(y => (
                 <div key={y.year} className="flex justify-between text-xs">
                   <span className="text-zinc-500">Y{y.year}</span>
-                  <span className={`font-semibold tabular-nums ${y.netCashFlow >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                    {fmtCompact(y.netCashFlow)}
+                  <span className={`font-semibold tabular-nums ${y.netIncome >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {fmtCompact(y.netIncome)}
                   </span>
                 </div>
               ))}
+              <div className="flex justify-between text-xs border-t border-zinc-100 pt-1.5 mt-0.5">
+                <span className="text-zinc-500 font-semibold">Total</span>
+                <span className="font-bold tabular-nums text-zinc-900">
+                  {fmtCompact(model.summary.totalReturn)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -309,16 +291,17 @@ export default function CashFlowSlide() {
               let accent = '#1B7A8A'
               let borderClass = 'border-zinc-200'
 
-              if (kpi.key === 'peakDeficit') {
-                accent = val < 0 ? '#ef4444' : '#10b981'
-                borderClass = val < 0 ? 'border-red-300' : 'border-emerald-300'
+              if (kpi.key === 'y1Profit') {
+                accent = val >= 0 ? '#1B7A8A' : '#ef4444'
+                borderClass = val < 0 ? 'border-red-300' : 'border-zinc-200'
               }
-              if (kpi.key === 'fiveYearFCF') {
+              if (kpi.key === 'totalProfit') {
                 accent = val >= 0 ? '#C9A84C' : '#ef4444'
-                borderClass = val >= 0 ? 'border-zinc-200' : 'border-red-300'
+                borderClass = val < 0 ? 'border-red-300' : 'border-zinc-200'
               }
-              if (kpi.key === 'fiveYearROI') {
-                accent = val >= 0 ? '#C9A84C' : '#ef4444'
+              if (kpi.key === 'peakWC') {
+                accent = wcColors[wcStatus]
+                borderClass = wcStatus === 'red' ? 'border-red-300' : 'border-zinc-200'
               }
 
               return (
@@ -339,13 +322,6 @@ export default function CashFlowSlide() {
                     >
                       {val ? `Year ${val}` : '\u2014'}
                     </span>
-                  ) : kpi.format === 'pct' ? (
-                    <span
-                      className="font-body text-2xl font-semibold tracking-tight leading-none block tabular-nums"
-                      style={{ color: accent }}
-                    >
-                      {(val * 100).toFixed(0)}%
-                    </span>
                   ) : (
                     <AnimatedNumber
                       value={val}
@@ -359,23 +335,11 @@ export default function CashFlowSlide() {
             })}
           </div>
 
-          {/* Chart — Cumulative Owner Economics */}
+          {/* Chart — Annual Owner Profit */}
           <div className="flex-1 rounded-xl bg-white border border-zinc-200 shadow-sm p-4 flex flex-col min-h-0">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-body text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                Cumulative Owner Economics
-              </span>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-0.5 border-t-2 border-dashed border-zinc-400" />
-                  <span className="text-xs text-zinc-500">Investment</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-0.5 bg-[#1B7A8A] rounded" />
-                  <span className="text-xs text-zinc-500">Net Income</span>
-                </div>
-              </div>
-            </div>
+            <span className="font-body text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+              Annual Owner Profit
+            </span>
             <div ref={chartRef} className="w-full flex-1 min-h-0" />
           </div>
         </div>
@@ -387,7 +351,7 @@ export default function CashFlowSlide() {
         transition={{ delay: 0.8, duration: 0.4 }}
         className="text-[10px] text-zinc-400 font-body mt-2 relative z-10"
       >
-        Sources: FPDS FY2024 | Prompt Payment Act DSO (FAR 52.232-25) | SLED 30-45d terms | Working capital based on COGS float
+        Sources: FPDS FY2024 | Prompt Payment Act DSO (FAR 52.232-25) | SLED 30-45d terms | WC = net receivables (AR - AP)
       </motion.p>
     </div>
   )
