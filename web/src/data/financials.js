@@ -11,20 +11,24 @@
 
 // ── Tier definitions ──
 
-const TIERS = ['micro', 'simplified', 'sled', 'sealed']
+const TIERS = ['micro', 'simplified', 'sled', 'sealed', 'subcontracting']
 
+// Source: FPDS FY2024 ($85K simplified avg), USASpending FL ($200K+ small SLED districts)
+// Values below are conservative — below validated research midpoints
 const TIER_AVG_VALUES = {
-  micro: 8000,
-  simplified: 50000,
-  sled: 75000,
-  sealed: 150000,
+  micro: 8000,            // Research: $7,500 (FPDS). Using $8K.
+  simplified: 75000,      // Research: $85K (FPDS). Using $75K (conservative).
+  sled: 150000,           // Research: $200K-$3M (small districts). Using $150K (floor).
+  sealed: 350000,         // Research: $500K-$1M (federal large). Using $350K (conservative).
+  subcontracting: 150000, // FSMC sub avg (Aramark, Compass, Sodexo, PFG/Cheney, GEO)
 }
 
 const TIER_LABELS = {
   micro: 'Micro (<$15K)',
-  simplified: 'Simplified ($15-250K)',
+  simplified: 'Simplified ($15-350K)',     // FAR threshold updated Oct 1, 2025
   sled: 'SLED',
-  sealed: 'Sealed Bid ($250K+)',
+  sealed: 'Sealed Bid ($350K+)',           // FAR threshold updated Oct 1, 2025
+  subcontracting: 'Subcontracting (FSMC)',
 }
 
 const TIER_COLORS = {
@@ -32,15 +36,38 @@ const TIER_COLORS = {
   simplified: '#1B7A8A',
   sled: '#239BAD',
   sealed: '#C9A84C',
+  subcontracting: '#E8913A',
 }
 
 // Tier mix evolves by year (Y1-Y5, index 0-4)
 // Source: FINANCIAL-SLIDES-BUILD.md contract tier mix table
-const TIER_MIX = {
-  micro:      [0.80, 0.55, 0.35, 0.25, 0.25],
-  simplified: [0.15, 0.30, 0.35, 0.30, 0.30],
-  sled:       [0.05, 0.10, 0.20, 0.25, 0.25],
-  sealed:     [0.00, 0.05, 0.10, 0.20, 0.20],
+// Base mix (without GFSI/subcontracting) — sums to 1.0 per year
+const TIER_MIX_BASE = {
+  micro:           [0.80, 0.55, 0.35, 0.25, 0.25],
+  simplified:      [0.15, 0.30, 0.35, 0.30, 0.30],
+  sled:            [0.05, 0.10, 0.20, 0.25, 0.25],
+  sealed:          [0.00, 0.05, 0.10, 0.20, 0.20],
+  subcontracting:  [0.00, 0.00, 0.00, 0.00, 0.00],
+}
+
+// Subcontracting mix when GFSI certified — other tiers reduced proportionally
+const SUB_MIX_GFSI = [0.00, 0.05, 0.10, 0.15, 0.15]
+
+function getTierMix(hasGfsiCert) {
+  if (!hasGfsiCert) return TIER_MIX_BASE
+  const mix = {}
+  for (const t of TIERS) {
+    if (t === 'subcontracting') {
+      mix[t] = SUB_MIX_GFSI
+    } else {
+      // Reduce base tiers proportionally to make room for sub mix
+      mix[t] = TIER_MIX_BASE[t].map((v, i) => {
+        const subShare = SUB_MIX_GFSI[i]
+        return v * (1 - subShare)
+      })
+    }
+  }
+  return mix
 }
 
 const RENEWAL_RATE = 0.70
@@ -68,22 +95,25 @@ export const ROUTE_CONFIGS = {
 
 // ── Scenario configs ──
 
+// Base bids/month before route multiplier (×2.5 for paid route)
+// Research: paid route capacity 29-55 bids/month. Still Mind handles all BD.
+// Conservative 3 (paid 7.5), Moderate 5 (paid 12.5), Aggressive 8 (paid 20)
 export const SCENARIO_CONFIGS = {
   conservative: {
     label: 'Conservative',
-    baseBidsPerMonth: 1,
+    baseBidsPerMonth: 3,
     winRates: { y1h1: 0.15, y1h2: 0.23, y2: 0.28, y3to5: 0.33 },
     color: '#71717a',
   },
   moderate: {
     label: 'Moderate',
-    baseBidsPerMonth: 2,
+    baseBidsPerMonth: 5,
     winRates: { y1h1: 0.20, y1h2: 0.28, y2: 0.33, y3to5: 0.38 },
     color: '#1B7A8A',
   },
   aggressive: {
     label: 'Aggressive',
-    baseBidsPerMonth: 3,
+    baseBidsPerMonth: 8,
     winRates: { y1h1: 0.25, y1h2: 0.33, y2: 0.38, y3to5: 0.43 },
     color: '#C9A84C',
   },
@@ -92,8 +122,8 @@ export const SCENARIO_CONFIGS = {
 // ── Slider configs ──
 
 export const SLIDER_CONFIGS = [
-  { key: 'grossMargin', label: 'Gross Margin', min: 0.08, max: 0.15, step: 0.005, default: 0.11, format: 'percent' },
-  { key: 'deliveryCostPct', label: 'Delivery Cost', min: 0.02, max: 0.08, step: 0.005, default: 0.04, format: 'percent' },
+  { key: 'grossMargin', label: 'Gross Margin', min: 0.10, max: 0.28, step: 0.005, default: 0.18, format: 'percent' },
+  { key: 'deliveryCostPct', label: 'Delivery Cost', min: 0.02, max: 0.08, step: 0.005, default: 0.05, format: 'percent' },
   { key: 'adminOverhead', label: 'Admin / Owner Time', min: 0, max: 50000, step: 1000, default: 5000, format: 'currency' },
   { key: 'bdMarketingCost', label: 'BD / Marketing', min: 0, max: 30000, step: 1000, default: 13000, format: 'currency' },
 ]
@@ -104,6 +134,19 @@ export const TOGGLE_CONFIGS = [
   { key: 'hasInsurance', label: 'Have CGL Insurance?', default: false, description: 'Reduces insurance line if you already carry general liability' },
   { key: 'hasGfsiCert', label: 'GFSI / SQF Certified?', default: false, description: 'Required for FSMC sub-contracting (Aramark, Compass, Sodexo)' },
 ]
+
+// ── SBA Certification reference (data only — UI deferred, multipliers unvalidated) ──
+// Note: 8(a) frozen under Trump SBA (97% reduction). HUBZone unlikely for Plantation FL.
+// Mentor-Protege works via JV structure, not win rate multiplication.
+// Multipliers are directional estimates — validate before building UI.
+
+export const SBA_CERT_CONFIGS = {
+  none: { label: 'None', winRateMultiplier: 1.0 },
+  hubzone: { label: 'HUBZone', winRateMultiplier: 1.2 },
+  mentorProtege: { label: 'Mentor-Protégé', winRateMultiplier: 1.3 },
+  wosb: { label: 'WOSB', winRateMultiplier: 1.4 },
+  sdvosb: { label: 'SDVOSB', winRateMultiplier: 1.4 },
+}
 
 // ── Helpers ──
 
@@ -117,13 +160,13 @@ function getWinRate(scenario, year) {
  * Distribute total wins across tiers per the year's mix percentages.
  * Uses largest-remainder method to ensure counts sum exactly to total.
  */
-function distributeTierWins(totalWins, yearIndex) {
+function distributeTierWins(totalWins, yearIndex, tierMix) {
   if (totalWins === 0) return TIERS.map(t => ({ tier: t, count: 0 }))
 
   const raw = TIERS.map(t => ({
     tier: t,
-    exact: totalWins * TIER_MIX[t][yearIndex],
-    count: Math.floor(totalWins * TIER_MIX[t][yearIndex]),
+    exact: totalWins * tierMix[t][yearIndex],
+    count: Math.floor(totalWins * tierMix[t][yearIndex]),
   }))
 
   let remaining = totalWins - raw.reduce((s, r) => s + r.count, 0)
@@ -153,17 +196,20 @@ function distributeTierWins(totalWins, yearIndex) {
  *
  * @param {string} routeKey - 'free' | 'paid'
  * @param {string} scenarioKey - 'conservative' | 'moderate' | 'aggressive'
- * @param {object} overrides - { grossMargin, deliveryCostPct, adminOverhead }
+ * @param {object} overrides - { grossMargin, deliveryCostPct, adminOverhead, ... }
  */
 export function computeProForma(routeKey, scenarioKey, overrides = {}) {
   const route = ROUTE_CONFIGS[routeKey]
   const scenario = SCENARIO_CONFIGS[scenarioKey]
 
-  const grossMargin = overrides.grossMargin ?? 0.11
-  const deliveryCostPct = overrides.deliveryCostPct ?? 0.04
+  const grossMargin = overrides.grossMargin ?? 0.18
+  const deliveryCostPct = overrides.deliveryCostPct ?? 0.05
   const adminOverhead = overrides.adminOverhead ?? 5000
   const bdMarketingCost = overrides.bdMarketingCost ?? 13000
   const hasInsurance = overrides.hasInsurance ?? false
+  const hasGfsiCert = overrides.hasGfsiCert ?? false
+
+  const tierMix = getTierMix(hasGfsiCert)
 
   const bidsPerMonth = scenario.baseBidsPerMonth * route.bidMultiplier
   // If Newport already carries CGL, reduce insurance cost (they only need riders/upgrades)
@@ -178,6 +224,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
 
   let cumulativeRevenue = 0
   let cumulativeNetIncome = 0
+  let cumulativeInvestment = 0
   const years = []
 
   for (let yr = 1; yr <= 5; yr++) {
@@ -200,7 +247,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
 
     // Distribute new wins across tiers per year's mix
     const yearIdx = yr - 1
-    const newWinDist = distributeTierWins(newWins, yearIdx)
+    const newWinDist = distributeTierWins(newWins, yearIdx, tierMix)
 
     // Renewals per tier from prior year active
     let totalRenewals = 0
@@ -222,6 +269,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
     // Tier breakdown for chart / tooltip
     const tierBreakdown = TIERS.map(t => ({
       tier: TIER_LABELS[t],
+      tierKey: t,
       count: activeTiers[t],
       avgValue: TIER_AVG_VALUES[t],
       revenue: activeTiers[t] * TIER_AVG_VALUES[t],
@@ -239,6 +287,9 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
 
     cumulativeRevenue += revenue
     cumulativeNetIncome += netIncome
+    // Investment = all non-COGS operating costs
+    const yearInvestment = deliveryCost + platformCost + adminOverhead + bdMarketingCost
+    cumulativeInvestment += yearInvestment
 
     years.push({
       year: yr,
@@ -259,6 +310,7 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
       netIncome,
       cumulativeRevenue,
       cumulativeNetIncome,
+      cumulativeInvestment,
     })
 
     // Carry forward for next year's renewal calculation
@@ -268,10 +320,16 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
   const breakevenYear = years.find(y => y.netIncome > 0)?.year ?? null
   const y5 = years[4]
 
+  // Owner economics
+  const totalInvestment = y5.cumulativeInvestment
+  const totalReturn = y5.cumulativeNetIncome
+  const fiveYearROI = totalInvestment > 0 ? totalReturn / totalInvestment : 0
+  const paybackYear = years.find(y => y.cumulativeNetIncome > 0)?.year ?? null
+
   return {
     route: routeKey,
     scenario: scenarioKey,
-    overrides: { grossMargin, deliveryCostPct, adminOverhead, bdMarketingCost, hasInsurance },
+    overrides: { grossMargin, deliveryCostPct, adminOverhead, bdMarketingCost, hasInsurance, hasGfsiCert },
     years,
     summary: {
       breakevenYear,
@@ -279,7 +337,12 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
       y5CumulativeRevenue: y5.cumulativeRevenue,
       y5ActiveContracts: y5.activeContracts,
       y5NetIncome: y5.netIncome,
-      totalReturn: y5.cumulativeNetIncome,
+      totalReturn,
+      totalInvestment,
+      fiveYearROI,
+      paybackYear,
+      cumulativeInvestment: years.map(y => y.cumulativeInvestment),
+      cumulativeNetIncome: years.map(y => y.cumulativeNetIncome),
     },
   }
 }
@@ -295,5 +358,77 @@ export function computeAllScenarios(routeKey, overrides = {}) {
     conservative: computeProForma(routeKey, 'conservative', overrides),
     moderate: computeProForma(routeKey, 'moderate', overrides),
     aggressive: computeProForma(routeKey, 'aggressive', overrides),
+  }
+}
+
+// ── Cash Flow Computation ──
+
+// Blended DSO (days sales outstanding) by tier
+const TIER_DSO = {
+  micro: 10,
+  simplified: 15,
+  sled: 35,
+  sealed: 30,
+  subcontracting: 25,
+}
+
+const SUPPLIER_TERMS = 20 // avg days to pay suppliers
+
+/**
+ * Compute cash flow analysis from pro forma results.
+ *
+ * @param {object} proFormaResult - Output of computeProForma()
+ * @param {number} workingCapital - Available working capital (default $75K)
+ * @returns {{ years: object[], peakDeficit: number, paybackYear: number|null, isConstrained: boolean[] }}
+ */
+export function computeCashFlow(proFormaResult, workingCapital = 75000) {
+  const cashYears = []
+  let cumulativeCash = 0
+  let peakDeficit = 0
+
+  for (const yr of proFormaResult.years) {
+    // Compute blended DSO weighted by tier revenue
+    const totalRevenue = yr.revenue
+    let weightedDSO = 0
+    if (totalRevenue > 0) {
+      for (const tb of yr.tierBreakdown) {
+        const tierKey = tb.tierKey
+        const dso = TIER_DSO[tierKey] ?? 20
+        weightedDSO += (tb.revenue / totalRevenue) * dso
+      }
+    }
+
+    // COGS float = cash tied up in inventory/receivables gap
+    const cogsFloat = Math.round(yr.cogs * (weightedDSO - SUPPLIER_TERMS) / 365)
+
+    // Cash timing: revenue collected minus lag, expenses paid on schedule
+    const cashIn = Math.round(totalRevenue * (1 - weightedDSO / 365))
+    const cashOut = yr.cogs + yr.deliveryCost + yr.platformCost + yr.adminOverhead + yr.bdMarketingCost
+    const netCashFlow = cashIn - cashOut
+    cumulativeCash += netCashFlow
+
+    if (cumulativeCash < peakDeficit) peakDeficit = cumulativeCash
+
+    const isConstrained = Math.abs(cogsFloat) > workingCapital
+
+    cashYears.push({
+      year: yr.year,
+      blendedDSO: Math.round(weightedDSO),
+      cogsFloat,
+      cashIn,
+      cashOut,
+      netCashFlow,
+      cumulativeCash,
+      isConstrained,
+    })
+  }
+
+  const paybackYear = cashYears.find(y => y.cumulativeCash > 0)?.year ?? null
+
+  return {
+    years: cashYears,
+    peakDeficit,
+    paybackYear,
+    isConstrained: cashYears.map(y => y.isConstrained),
   }
 }

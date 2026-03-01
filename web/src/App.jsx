@@ -25,6 +25,7 @@ import RecommendationSlide from './components/slides/RecommendationSlide'
 import KeyQuestionsSlide from './components/slides/KeyQuestionsSlide'
 import BlueprintSlide from './components/slides/BlueprintSlide'
 import FinancialOutlookSlide from './components/slides/FinancialOutlookSlide'
+import CashFlowSlide from './components/slides/CashFlowSlide'
 import PlaceholderSlide from './components/slides/PlaceholderSlide'
 
 const SLIDE_COMPONENTS = {
@@ -45,6 +46,7 @@ const SLIDE_COMPONENTS = {
   'recommendation': RecommendationSlide,
   'key-questions': KeyQuestionsSlide,
   'financial-outlook': FinancialOutlookSlide,
+  'cash-flow': CashFlowSlide,
   'blueprint': BlueprintSlide,
 }
 

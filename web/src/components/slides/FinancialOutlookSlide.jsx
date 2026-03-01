@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, Fragment } from 'react'
+import { useMemo, useEffect, useRef, Fragment } from 'react'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
@@ -10,6 +10,7 @@ import RouteToggle from '../ui/RouteToggle'
 import ScenarioToggle from '../ui/ScenarioToggle'
 import AnimatedNumber from '../ui/AnimatedNumber'
 import Slider from '../ui/Slider'
+import useFinancialModel from '../../hooks/useFinancialModel'
 import { computeProForma, computeAllScenarios, SLIDER_CONFIGS, SCENARIO_CONFIGS, TOGGLE_CONFIGS } from '../../data/financials'
 
 echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
@@ -24,7 +25,8 @@ const KPI_DEFS = [
 const TABLE_ROWS = [
   { key: 'activeContracts', label: 'Active Contracts', bold: false, format: 'number' },
   { key: 'revenue', label: 'Revenue', bold: true, format: 'currency' },
-  { key: 'grossProfit', label: 'Gross Profit', bold: false, format: 'currency' },
+  { key: 'cogs', label: 'COGS', bold: false, format: 'currency', muted: true },
+  { key: 'grossProfit', label: 'Gross Profit', bold: true, format: 'currency' },
   { key: 'platformCost', label: 'Platform & Ins.', bold: false, format: 'currency', muted: true },
   { key: 'bdMarketingCost', label: 'BD / Marketing', bold: false, format: 'currency', muted: true },
   { key: 'deliveryCost', label: 'Delivery', bold: false, format: 'currency', muted: true },
@@ -61,14 +63,7 @@ function fiveYearTotal(years, key) {
 }
 
 export default function FinancialOutlookSlide() {
-  const [route, setRoute] = useState('free')
-  const [scenario, setScenario] = useState('moderate')
-  const [overrides, setOverrides] = useState(() => {
-    const o = {}
-    SLIDER_CONFIGS.forEach(s => { o[s.key] = s.default })
-    TOGGLE_CONFIGS.forEach(t => { o[t.key] = t.default })
-    return o
-  })
+  const { route, scenario, overrides, setRoute, setScenario, updateOverride } = useFinancialModel()
 
   const chartRef = useRef(null)
   const chartInstance = useRef(null)
@@ -89,10 +84,6 @@ export default function FinancialOutlookSlide() {
     breakeven: model.summary.breakevenYear,
     y5NetIncome: model.summary.totalReturn,
   }), [model])
-
-  const updateOverride = (key, value) => {
-    setOverrides(prev => ({ ...prev, [key]: value }))
-  }
 
   // Init chart
   useEffect(() => {
@@ -434,7 +425,7 @@ export default function FinancialOutlookSlide() {
         transition={{ delay: 0.8, duration: 0.4 }}
         className="text-[10px] text-zinc-400 font-body mt-2 relative z-10"
       >
-        Sources: FPDS FY2024 win rates | USASpending FL contract values | 70% incumbent renewal rate | All inputs adjustable
+        Sources: FPDS FY2024 win rates | USASpending FL contract values | 70% incumbent renewal rate | FAR thresholds eff. Oct 2025
       </motion.p>
     </div>
   )

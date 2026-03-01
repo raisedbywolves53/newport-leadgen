@@ -1,6 +1,6 @@
 /**
- * Slide registry — 19-slide spine (revised Feb 28, 2026).
- * 17 content slides + 1 economics divider + 1 combined financial slide.
+ * Slide registry — 20-slide spine (revised Feb 28, 2026).
+ * 17 content slides + 1 economics divider + 2 financial slides.
  */
 export const SLIDES = [
   // Act 1: The Anchor
@@ -29,6 +29,7 @@ export const SLIDES = [
   // Act 5: Economics
   { id: 'divider-economics', label: 'Economics', section: null, isDivider: true },
   { id: 'financial-outlook', label: 'Financial Outlook', section: 'economics' },
+  { id: 'cash-flow', label: 'Cash Flow & Returns', section: 'economics' },
 
   { id: 'blueprint', label: 'The Blueprint', section: null },
 ]
