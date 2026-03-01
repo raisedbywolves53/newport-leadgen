@@ -158,12 +158,12 @@ export default function CompetitionSlide() {
                     </td>
                     <td
                       className="px-4 py-3 text-right border-b border-zinc-200 font-body text-sm font-bold tabular-nums"
-                      style={{ color: '#C9A84C' }}
+                      style={{ color: '#1B7A8A' }}
                     >
-                      $1-5M
+                      Entering
                     </td>
                     <td className="px-5 py-3 border-b border-zinc-200 font-body text-xs text-zinc-700">
-                      35-year track record · Cold chain · Plantation, FL
+                      35-yr commercial track record · Cold chain · Plantation, FL · Targeting $1-5M tier
                     </td>
                   </motion.tr>
                 )

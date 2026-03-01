@@ -176,10 +176,10 @@ export default function TargetAgenciesSlide() {
               <div className="flex-1">
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="font-body text-2xl font-semibold tracking-tight leading-none" style={{ color: '#C9A84C' }}>
-                    $750M+
+                    $15-25M
                   </span>
                   <span className="font-body text-[11px] font-medium text-zinc-400 uppercase tracking-wide">
-                    FL Market
+                    Accessible
                   </span>
                 </div>
                 <h3 className="font-body text-base font-semibold text-zinc-950 mb-1.5">

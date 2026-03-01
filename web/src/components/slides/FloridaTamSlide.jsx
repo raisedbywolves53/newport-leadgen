@@ -66,7 +66,7 @@ export default function FloridaTamSlide() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="font-body text-2xl font-semibold tracking-tight text-zinc-950 mb-0.5"
         >
-          $90M Year 1 Accessible Market
+          $57-91M Year 1 Accessible Market
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -137,13 +137,13 @@ export default function FloridaTamSlide() {
                 dominantBaseline="central"
                 className="font-body"
                 style={{
-                  fontSize: '52px',
+                  fontSize: '44px',
                   fontWeight: 700,
                   fill: '#C9A84C',
                   letterSpacing: '-0.03em',
                 }}
               >
-                $90M
+                $75M
               </text>
               <text
                 x={CX}
@@ -159,7 +159,7 @@ export default function FloridaTamSlide() {
                   textTransform: 'uppercase',
                 }}
               >
-                Y1 Accessible
+                Midpoint Estimate
               </text>
             </motion.g>
           </svg>

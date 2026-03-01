@@ -107,6 +107,7 @@ export default function B2bFastTrackSlide() {
             <span className="text-zinc-600 text-sm">
               B2B sales to private operators have a 2-8 week sales cycle (vs 3-12 months for gov bids),
               require no past performance, and build institutional food supply credentials that strengthen future government proposals.
+              These targets feed the subcontracting tier in the financial model — Aramark, GEO, and FSMC primes are active buyers.
             </span>
           </div>
         </div>

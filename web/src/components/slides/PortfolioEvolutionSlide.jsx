@@ -11,36 +11,45 @@ import { GoldLine, BackgroundRing } from '../ui/DecorativeElements'
 echarts.use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
 // Portfolio data — derived from free/moderate scenario (base case)
+// computeProForma('free', 'moderate') output, Feb 28 2026
 // See financial model (Slides 18-19) for full interactive projections
+//
+// Chart uses 4 visual categories (not 5 model tiers) for readability:
+//   Micro = micro tier
+//   Mid-tier = simplified tier
+//   High-value = SLED + sealed + subcontracting
+//   Renewed = 70% renewal from prior year active (all tiers)
 const data = {
-  labels: ['Q1-Q2\nY1', 'Q3-Q4\nY1', 'Y2', 'Y3', 'Y4', 'Y5'],
-  micro:      [5,  6, 11,  8,  6,  6],
-  simplified: [1,  1,  6,  8,  7,  7],
-  larger:     [0,  1,  3,  7, 11, 11],
-  renewed:    [0,  3, 10, 21, 31, 39],
+  labels: ['Y1', 'Y2', 'Y3', 'Y4', 'Y5'],
+  // New wins only (renewals shown separately)
+  micro:     [6,  5,  3,  2,  2],    // micro tier new wins
+  midTier:   [3,  4,  3,  2,  2],    // simplified new wins
+  highValue: [5, 11, 17, 19, 19],    // sled + sealed + sub new wins
+  renewed:   [0,  9, 20, 30, 38],    // all-tier renewals
 }
 
 const totals = data.labels.map((_, i) =>
-  data.micro[i] + data.simplified[i] + data.larger[i] + data.renewed[i]
+  data.micro[i] + data.midTier[i] + data.highValue[i] + data.renewed[i]
 )
+// totals: [14, 29, 43, 53, 61]
 
-const recurringValue = ['$120K', '$350K', '$2.2M', '$4.5M', '$6M', '$7.1M']
+const recurringValue = ['$1.0M', '$3.0M', '$5.8M', '$8.3M', '$10.1M']
 
 const kpis = [
   {
     icon: Target,
     label: 'Y5 Active Contracts',
-    value: '63',
-    change: '+950%',
-    sub: 'from 6 in H1 Year 1',
+    value: '61',
+    change: '+336%',
+    sub: 'from 14 in Year 1',
     accent: '#C9A84C',
   },
   {
     icon: DollarSign,
-    label: 'Recurring Annual Value',
-    value: '$7.1M',
-    change: '+5,800%',
-    sub: 'projected Year 5',
+    label: 'Year 5 Revenue',
+    value: '$10.1M',
+    change: '+886%',
+    sub: 'from $1.0M Year 1',
     accent: '#1B7A8A',
   },
   {
@@ -54,19 +63,18 @@ const kpis = [
   {
     icon: TrendingUp,
     label: 'Avg Contract Size',
-    value: '$113K',
-    change: 'from $8K',
-    sub: 'portfolio shift effect',
+    value: '$165K',
+    change: 'from $73K',
+    sub: 'portfolio weighting shift',
     accent: '#C9A84C',
   },
 ]
 
-// The shift narrative
+// Portfolio weighting narrative — parallel pursuit, not sequential entry
 const SHIFT_PHASES = [
-  { label: 'Entry', detail: 'Micro-purchases (<$15K)', color: '#d4d4d8' },
-  { label: 'Scale', detail: 'Simplified acquisitions ($15-350K)', color: '#1B7A8A' },
-  { label: 'Expand', detail: 'Larger contracts (>$100K)', color: '#239BAD' },
-  { label: 'Retain', detail: '70% renewal as incumbent', color: '#C9A84C' },
+  { label: 'Year 1', detail: 'All channels from day one — micro, simplified, SLED, sub', color: '#1B7A8A' },
+  { label: 'Year 2-3', detail: 'Sealed bids unlock; renewals compound; past performance builds', color: '#239BAD' },
+  { label: 'Year 4-5', detail: 'High-value contracts dominate; renewals exceed new wins', color: '#C9A84C' },
 ]
 
 export default function PortfolioEvolutionSlide() {
@@ -143,20 +151,20 @@ export default function PortfolioEvolutionSlide() {
           animationDelay: (i) => i * 100,
         },
         {
-          name: 'Simplified ($15-350K)',
+          name: 'Mid-tier ($15-350K)',
           type: 'bar',
           stack: 'portfolio',
-          data: data.simplified,
+          data: data.midTier,
           itemStyle: { color: '#1B7A8A' },
           barWidth: 64,
           animationDuration: 800,
           animationDelay: (i) => i * 100 + 200,
         },
         {
-          name: 'Larger (>$100K)',
+          name: 'High-value (SLED/Sealed/Sub)',
           type: 'bar',
           stack: 'portfolio',
-          data: data.larger,
+          data: data.highValue,
           itemStyle: { color: '#239BAD' },
           barWidth: 64,
           animationDuration: 800,
@@ -217,7 +225,7 @@ export default function PortfolioEvolutionSlide() {
           transition={{ duration: 0.4, delay: 0.2 }}
           className="font-body text-sm text-zinc-600"
         >
-          Micro-purchases are the price of admission — not the destination.
+          Newport pursues all tiers from day one — portfolio weighting shifts as past performance builds.
         </motion.p>
         <GoldLine width={60} className="mt-1" delay={0.25} />
       </div>
@@ -329,13 +337,13 @@ export default function PortfolioEvolutionSlide() {
           <div className="border-t border-zinc-100 pt-3 mt-auto">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="font-body text-sm text-zinc-500">Y1 avg</span>
-              <span className="font-body text-lg font-bold text-zinc-500">$28K</span>
+              <span className="font-body text-lg font-bold text-zinc-500">$73K</span>
               <ArrowRight className="w-4 h-4 text-zinc-300" />
               <span className="font-body text-sm text-zinc-500">Y5 avg</span>
-              <span className="font-body text-lg font-bold" style={{ color: '#C9A84C' }}>$113K</span>
+              <span className="font-body text-lg font-bold" style={{ color: '#C9A84C' }}>$165K</span>
             </div>
             <span className="font-body text-xs text-zinc-500 leading-snug">
-              Each micro-purchase builds the past performance record needed to win larger contracts.
+              Every contract builds the past performance record. By Y4, renewals exceed new wins — the flywheel compounds.
             </span>
           </div>
         </motion.div>

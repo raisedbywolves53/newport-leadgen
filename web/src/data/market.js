@@ -6,13 +6,13 @@
 // ── Headline Stats (Slide 2) ──
 export const HEADLINE_STATS = [
   {
-    value: 87,
+    value: 75,
     prefix: '$',
-    suffix: 'M',
-    label: 'Florida Federal Food TAM',
-    detail: 'Annual addressable market, all PSC 89xx categories under $350K',
-    source: 'USASpending API, FY2024 (Feb 24, 2026 query)',
-    confidence: 'HIGH',
+    suffix: 'M+',
+    label: 'FL Year 1 Accessible Market',
+    detail: 'Federal + state + education + local channels under $350K',
+    source: 'USASpending API FY2024, FL MFMP, FL DOE, county procurement',
+    confidence: 'MEDIUM',
   },
   {
     value: 83,
@@ -67,19 +67,19 @@ export const FL_TAM_CHANNELS = [
   },
   {
     channel: 'Education (67 Districts)',
-    amount: 15000000,
-    amountLabel: 'Est. $10-20M',
+    amount: 20000000,
+    amountLabel: 'Est. $15-25M',
     description: '67 county school districts, 2.8M students, NSLP funded',
     accessibility: 'BidNet, VendorLink, district portals',
     source: 'FL DOE 2024-25 enrollment; USDA NSLP $17.7B national FY2024',
   },
   {
     channel: 'Local (County/Municipal)',
-    amount: 5000000,
-    amountLabel: 'Est. $3-7M',
+    amount: 11500000,
+    amountLabel: 'Est. $8-15M',
     description: 'County jails, municipal facilities, local government',
     accessibility: 'County procurement portals, DemandStar',
-    source: 'Industry estimate based on FL county procurement data',
+    source: 'County procurement data; DemandStar + VendorLink portals',
   },
 ]
 
