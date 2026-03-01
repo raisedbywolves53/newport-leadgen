@@ -20,15 +20,18 @@ const TIER_AVG_VALUES = {
   simplified: 75000,      // Research: $85K (FPDS). Using $75K (conservative).
   sled: 150000,           // Research: $200K-$3M (small districts). Using $150K (floor).
   sealed: 350000,         // Research: $500K-$1M (federal large). Using $350K (conservative).
-  subcontracting: 150000, // FSMC sub avg (Aramark, Compass, Sodexo, PFG/Cheney, GEO)
+  subcontracting: 150000, // Base subs: GEO Group, DLA, USDA commodity ($100-200K avg)
 }
+
+// GFSI-certified sub avg is higher — FSMC subs (Aramark, Compass, Sodexo) are $200K-$3M per facility
+const GFSI_SUB_AVG_VALUE = 250000
 
 const TIER_LABELS = {
   micro: 'Micro (<$15K)',
   simplified: 'Simplified ($15-350K)',     // FAR threshold updated Oct 1, 2025
   sled: 'SLED',
   sealed: 'Sealed Bid ($350K+)',           // FAR threshold updated Oct 1, 2025
-  subcontracting: 'Subcontracting (FSMC)',
+  subcontracting: 'Subcontracting',
 }
 
 const TIER_COLORS = {
@@ -40,30 +43,36 @@ const TIER_COLORS = {
 }
 
 // Tier mix evolves by year (Y1-Y5, index 0-4)
-// Source: FINANCIAL-SLIDES-BUILD.md contract tier mix table
-// Base mix (without GFSI/subcontracting) — sums to 1.0 per year
+// Parallel pursuit strategy: Newport bids all accessible tiers from Y1.
+// 35 years of commercial experience = citable past performance (FAR 15.305).
+// Base sub = GEO Group, DLA, USDA commodity (no GFSI needed).
+// Sums to 1.0 per year.
 const TIER_MIX_BASE = {
-  micro:           [0.80, 0.55, 0.35, 0.25, 0.25],
-  simplified:      [0.15, 0.30, 0.35, 0.30, 0.30],
-  sled:            [0.05, 0.10, 0.20, 0.25, 0.25],
-  sealed:          [0.00, 0.05, 0.10, 0.20, 0.20],
-  subcontracting:  [0.00, 0.00, 0.00, 0.00, 0.00],
+  micro:           [0.45, 0.25, 0.15, 0.10, 0.10],
+  simplified:      [0.20, 0.20, 0.15, 0.10, 0.10],
+  sled:            [0.20, 0.25, 0.25, 0.25, 0.25],
+  sealed:          [0.00, 0.10, 0.20, 0.25, 0.25],
+  subcontracting:  [0.15, 0.20, 0.25, 0.30, 0.30],
 }
 
-// Subcontracting mix when GFSI certified — other tiers reduced proportionally
-const SUB_MIX_GFSI = [0.00, 0.05, 0.10, 0.15, 0.15]
+// GFSI certification unlocks FSMC subcontracting (Aramark, Compass, Sodexo)
+// on top of base sub. Other tiers reduced proportionally to make room.
+const GFSI_SUB_ADDON = [0.00, 0.05, 0.10, 0.10, 0.10]
 
 function getTierMix(hasGfsiCert) {
   if (!hasGfsiCert) return TIER_MIX_BASE
   const mix = {}
   for (const t of TIERS) {
     if (t === 'subcontracting') {
-      mix[t] = SUB_MIX_GFSI
+      // Add FSMC sub on top of base sub
+      mix[t] = TIER_MIX_BASE[t].map((v, i) => v + GFSI_SUB_ADDON[i])
     } else {
-      // Reduce base tiers proportionally to make room for sub mix
+      // Reduce non-sub tiers proportionally to keep total = 1.0
       mix[t] = TIER_MIX_BASE[t].map((v, i) => {
-        const subShare = SUB_MIX_GFSI[i]
-        return v * (1 - subShare)
+        const addon = GFSI_SUB_ADDON[i]
+        if (addon <= 0) return v
+        const nonSubBase = 1 - TIER_MIX_BASE.subcontracting[i]
+        return v * (1 - TIER_MIX_BASE.subcontracting[i] - addon) / nonSubBase
       })
     }
   }
@@ -132,7 +141,7 @@ export const SLIDER_CONFIGS = [
 
 export const TOGGLE_CONFIGS = [
   { key: 'hasInsurance', label: 'Have CGL Insurance?', default: false, description: 'Reduces insurance line if you already carry general liability' },
-  { key: 'hasGfsiCert', label: 'GFSI / SQF Certified?', default: false, description: 'Required for FSMC sub-contracting (Aramark, Compass, Sodexo)' },
+  { key: 'hasGfsiCert', label: 'GFSI / SQF Certified?', default: false, description: 'Adds FSMC sub-contracting (Aramark, Compass, Sodexo) on top of base subs (GEO, DLA, USDA)' },
 ]
 
 // ── SBA Certification reference (data only — UI deferred, multipliers unvalidated) ──
@@ -211,6 +220,11 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
 
   const tierMix = getTierMix(hasGfsiCert)
 
+  // GFSI unlocks FSMC subs (Aramark, Compass) which are higher-value than base subs
+  const tierAvgValues = hasGfsiCert
+    ? { ...TIER_AVG_VALUES, subcontracting: GFSI_SUB_AVG_VALUE }
+    : TIER_AVG_VALUES
+
   const bidsPerMonth = scenario.baseBidsPerMonth * route.bidMultiplier
   // If Newport already carries CGL, reduce insurance cost (they only need riders/upgrades)
   const effectiveInsurance = hasInsurance
@@ -271,8 +285,8 @@ export function computeProForma(routeKey, scenarioKey, overrides = {}) {
       tier: TIER_LABELS[t],
       tierKey: t,
       count: activeTiers[t],
-      avgValue: TIER_AVG_VALUES[t],
-      revenue: activeTiers[t] * TIER_AVG_VALUES[t],
+      avgValue: tierAvgValues[t],
+      revenue: activeTiers[t] * tierAvgValues[t],
       color: TIER_COLORS[t],
     }))
 
